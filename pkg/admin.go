@@ -71,7 +71,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 	var Answer Response
 
-	user, err := app.Queries.SelectUserByEmail(context.Background(), reqBody.Email)
+	user, err := app.Queries.SelectUserByEmail(context.Background(), strings.ToLower(reqBody.Email))
 	if err != nil {
 		fmt.Println(err)
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{Detail: "Error getting Token"})
