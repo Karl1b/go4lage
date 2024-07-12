@@ -1,0 +1,118 @@
+<section id="welcome">
+  <h1>Go4lage</h1>
+
+  <p>
+    Go4Lage serves as the ideal platform for launching small to medium-sized
+    projects, whether you need a backend for your application or a server-side
+    rendered web application. Crafted in Go, it offers simplicity and
+    exceptional speed. Designed for self-hosting within a Docker Compose
+    network, Go4Lage ensures significant cost savings for your company, making
+    it more competitive for small to medium-sized enterprises. It includes a
+    comprehensive range of features.
+  </p>
+  <p>
+    Its goal is to provide 80% of all <b>batteries included</b> at 20% of the
+    expense.
+  </p>
+
+  <h2>Get go4lage</h2>
+
+  <div style="display: flex">
+    <a href="https://github.com/Karl1b/go4lage">
+      <div class="item">
+        <img src="/pics/github.svg" width="50" alt="github logo" />
+        <p>go4lage</p>
+      </div>
+    </a>
+    <a href="https://github.com/Karl1b/go4lage">
+      <div class="item">
+        <img src="/pics/github.svg" width="50" alt="github logo" />
+        <p>admin dashboard</p>
+      </div>
+    </a>
+  </div>
+
+  <h2>Features of Go4lage</h2>
+  <ul>
+    <li>Straightforward and simple code.</li>
+    <li>Easy deployment, suitable even for beginners.</li>
+    <li>Group and permission system</li>
+    <li>Backups</li>
+    <li>Logging</li>
+    <li>Integrated caching (no need for Redis).</li>
+    <li>Integrated cache buster for static files.</li>
+    <li>Optional 2FA for superusers.</li>
+    <li>Documentation and an example admin dashboard included.</li>
+    <li>Clear sepparation of build-, init- and runtime</li>
+    <li>Distinct separation of build, initialization, and runtime phases.</li>
+  </ul>
+  <h2>FAQ</h2>
+
+  <table>
+    <tr>
+      <th>Question</th>
+      <th>Explanation</th>
+    </tr>
+    <tr>
+      <td>What does Go4lage mean?</td>
+      <td>
+        Go4lage is a play on words. 'Vorlage' (4lage) is German for template, so
+        it could roughly be interpreted as 'GoTemplate.'
+      </td>
+    </tr>
+    <tr>
+      <td>Will there ever be Redis support?</td>
+      <td>
+        Redis support is not planned as Go offers a more native caching
+        solution. Alternatively, you can use Postgres in memory mode for SQL
+        features.
+      </td>
+    </tr>
+    <tr>
+      <td>Is Go4lage really free?</td>
+      <td>
+        Yes, Go4lage is free both as in free speech and as in free beer, even
+        for commercial use.
+      </td>
+    </tr>
+    <tr>
+      <td>How can I contribute?</td>
+      <td>Please refer to the official GitHub repository for details.</td>
+    </tr>
+    <tr>
+      <td>Why is 2FA available for superusers but not for normal users?</td>
+      <td>
+        2FA requires a well-thought-out setup. It involves more than just
+        providing a key secret to users. To secure your app effectively, proper
+        planning is necessary. If you consider this, you will be able to
+        configure Go4lage accordingly.
+      </td>
+    </tr>
+    <tr>
+      <td>I come from Django (Python), is Go hard to learn?</td>
+      <td>
+        Not at all. Only the initial steps might seem challenging. Golang values
+        simplicity and is often more straightforward than Python because it
+        avoids unexpected complexities.
+      </td>
+    </tr>
+    <tr>
+      <td>Why is there no ORM?</td>
+      <td>
+        ORMs introduce an unnecessary layer of complexity. We believe in
+        starting with the data you want to manipulate, as the most important
+        aspect of information technology is the data stored in the database.
+      </td>
+    </tr>
+    <tr>
+      <td>How powerful is Go4lage?</td>
+      <td>
+        Although there are no real-world tests published yet, Go applications
+        are generally fast enough. The main appeal of Go is not just its speed
+        but its simplicity and the ability to write concurrent code, which aids
+        in rapid development and producing robust code that can adapt to future
+        requirements.
+      </td>
+    </tr>
+  </table>
+</section>

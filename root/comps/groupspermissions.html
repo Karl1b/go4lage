@@ -1,0 +1,43 @@
+<section id="groupspermissions">
+  <h2>Groups and Permissions</h2>
+
+  <p>In go4lage the groups and permissions are simple strings.</p>
+  <p>
+    Users have groups and groups have permissions. A group is also a permission
+  </p>
+  <p>If you have a simple app then using only groups might be good enough.</p>
+
+  <pre><code>go
+  r.Use(app.AuthMiddleware("staff", "")) 
+</code></pre>
+
+  <p>
+    In this example every user that has the group "staff" can use the endpoint.
+  </p>
+  <p></p>
+
+  <pre><code>go
+  r.Use(app.AuthMiddleware("controller", "can_do_something")) 
+</code></pre>
+
+  <p>
+    In this example every user with the group "controller" can access the
+    endpoint, AND every user with the permission "can_do_something"
+  </p>
+
+  <p>
+    Also normal users have to be set to active. Superusers can always access
+    everything.
+  </p>
+
+  <p>
+    If you need to go more complex you can add the permissions also to groups.
+    For this you can code this in setup.go there is an example provided. Or you
+    can manage this manually later via the admin dashboard gui.
+  </p>
+
+  <p>
+    If you need to implement permissions on specific db objects you need to
+    implement your own checks
+  </p>
+</section>

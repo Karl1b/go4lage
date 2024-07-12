@@ -1,0 +1,68 @@
+<section id="envexplanation">
+  <h2>.env explanation</h2>
+
+  <p>
+    If you develop or deploy go4lage you need to adjust the .env file. As shown
+    in the setup there are two .env files prepared. one for native and one for
+    docker.
+  </p>
+
+  <pre><code># .env
+DB_URL=postgres://go4lage:go4lage@localhost:5432/go4lage?sslmode=disable
+GOOSE_DBSTRING="user=go4lage password=go4lage dbname=go4lage sslmode=disable"
+GOOSE_DRIVER=postgres 
+BASEURL=http://127.0.0.1
+APIURL=http://localhost
+PORT=8080
+USER_TOKEN_VALID_MINS=2400
+SUPERUSER_2FA=false
+SUPERUSER_TOKEN_VALID_MINS=600
+LOGINTHROTTLE_TIME_S=1
+DEBUG=true
+    </code></pre>
+
+  <h4>DB_URL=postgres://go4lage:go4lage@db:5432/go4lage?sslmode=disable</h4>
+  <p>
+    This is the information for the postgres driver. username, password,
+    database,host,port.
+  </p>
+  <h4>
+    GOOSE_DBSTRING="host=db user=go4lage password=go4lage dbname=go4lage
+    sslmode=disable"
+  </h4>
+  <p>This is the information for the built in goose driver.</p>
+  <h4>GOOSE_DRIVER=postgres</h4>
+  <p>This is the information for the built in goose driver.</p>
+  <p></p>
+  <h4>BASEURL=http://127.0.0.1</h4>
+  <p>your base url. Change this to https://example.com</p>
+  <h4>APIURL=http://localhost</h4>
+  <p>
+    your apiurl. Change this to your apiurl (needed for more complex setups)
+  </p>
+  <h4>PORT=8080</h4>
+  <p>The Port of this App. Make this consistent with the Docker build.</p>
+  <h4>USER_TOKEN_VALID_MINS=2400</h4>
+  <p>
+    Specifies how long a bearer Token for a user is valid. After this time the
+    user has to log in again.
+  </p>
+  <h4>SUPERUSER_2FA=true</h4>
+  <p>
+    If this is true, then 2fa for superusers is mandatory. If you activate this
+    later, then you have to create new superusers.
+  </p>
+  <h4>SUPERUSER_TOKEN_VALID_MINS=600</h4>
+  <p>
+    This is the same as for normal users. But it could be needed to have a much
+    shorter time here for security reasons.
+  </p>
+  <h4>LOGINTHROTTLE_TIME_S=1</h4>
+  <p>
+    This is the auth throttle time. One ip adress has to wait this value in
+    seconds before it can try to log in again, after they put in wrong
+    credentials.
+  </p>
+  <h4>DEBUG=true</h4>
+  <p>Not fully implemented.</p>
+</section>

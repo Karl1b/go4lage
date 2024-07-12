@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    volumes:
+      - ./.env:/app/.env 
+      - ./static:/app/static # general static files, like robots.txt
+      - data:/app/data # data managed at runtime
+      - data_backup:/app/backup # backup volume
+    container_name: go4lage_app 
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: go4lage
+      POSTGRES_PASSWORD: go4lage
+      POSTGRES_DB: go4lage
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    container_name: go4lage_db 
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  data:
+  data_backup:
+
+networks:
+  app-network:
