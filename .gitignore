@@ -19,5 +19,5 @@ vendor/
 go.work
 
 go4lage-admindashboard/node_modules
-
-
+geminicv/node_modules
+deploy.sh

@@ -8,6 +8,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
+	gcv "github.com/karl1b/go4lage/pkg/geminicv"
 	db "github.com/karl1b/go4lage/pkg/sql/db"
 	utils "github.com/karl1b/go4lage/pkg/utils"
 	_ "github.com/lib/pq"
@@ -84,6 +85,19 @@ func StartServer() {
 		r.Delete("/deletebackup", app.deleteBackup)
 		r.Get("/getlogs/{endpoint}", app.GetLogs)
 		r.Get("/geterrorlogs", app.GetErrorLogs)
+	})
+
+	gcv := gcv.GeApp{
+		Queries: queries,
+	}
+
+	r.Route("/geminicv", func(r chi.Router) {
+		r.Use(app.AuthMiddleware("", ""))
+		r.Post("/uploadcv", gcv.UploadCV)
+		r.Post("/uploadtext", gcv.UploadText)
+		r.Get("/allruns", gcv.Allruns)
+		r.Get("/run", gcv.Run)
+
 	})
 
 	//r.Get("/accesslogs", app.getAccessLogs) */
