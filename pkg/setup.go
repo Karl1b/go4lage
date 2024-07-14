@@ -120,6 +120,7 @@ func CreateSuperuser() {
 
 }
 
+// Usefull for testing.
 func CreateFakeUsers(a string) {
 
 	count, err := strconv.Atoi(a)
@@ -182,16 +183,16 @@ func SetupGroupsAndPermissions() {
 		group       string
 		permissions []string
 	}
-	/* Enter your groups with permissions here */
 
+	/* Enter your groups with permissions here */
 	groups := []groupPerm{
 		{
 			group:       "staff", // "staff is the default group for users to be able to use the admin dashboard"
 			permissions: []string{},
 		},
 		{
-			group:       "controller",
-			permissions: []string{"can_controll", "can_read_smth"},
+			group:       "controller", // In this case the group controller is created.
+			permissions: []string{"can_control", "can_read_smth"},
 		},
 	}
 

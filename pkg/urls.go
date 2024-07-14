@@ -86,7 +86,7 @@ func StartServer() {
 		r.Get("/geterrorlogs", app.GetErrorLogs)
 	})
 
-	//	   	r.Get("/accesslogs", app.getAccessLogs) */
+	//r.Get("/accesslogs", app.getAccessLogs) */
 
 	srv := &http.Server{
 		Handler: r,

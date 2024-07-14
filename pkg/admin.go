@@ -23,6 +23,7 @@ import (
 
 /* Here are the endpoints for the admin dashboard. */
 
+// Tells the dashboard if the superuser tfa is needed
 func (app *App) dashboardinfo(w http.ResponseWriter, r *http.Request) {
 	type Response struct {
 		Tfa bool `json:"tfa"`
@@ -205,7 +206,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	} else {
 		updateParams.Password = olduser.Password
 	}
-	// Repeat for other fields, adjusting for their types
+
 	if reqBody.FirstName != "" {
 		updateParams.FirstName = sql.NullString{String: reqBody.FirstName, Valid: true}
 	} else {
@@ -232,8 +233,8 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 
 		return
 	}
-	// The user is changed and hence needs to be deleted from cache.
-	go4users.Del(userid)
+
+	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: "User updated",
 		Error:  nil,
@@ -277,7 +278,6 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, g := range reqBody {
-
 		if g.Checked {
 			_, err = app.Queries.InsertUserGroupsByName(context.Background(), db.InsertUserGroupsByNameParams{
 				UserID: useriduuid,
@@ -287,7 +287,6 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 
 				continue
 			}
-
 		} else {
 			err = app.Queries.DeleteUserGroupsByName(context.Background(), db.DeleteUserGroupsByNameParams{
 				UserID: useriduuid,
@@ -520,6 +519,7 @@ func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
 
 }
 func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
+	defer nullGroupsAndPermissions()
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -560,8 +560,6 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.RespondWithJSON(w, 200, newGroup)
-
-	// null cache.
 
 }
 
@@ -661,15 +659,13 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a map for quick lookup to see if a group is one of the user's groups
 	groupPermissionsMap := make(map[string]bool)
 	for _, g := range permissionsForGroup {
 		groupPermissionsMap[g.Name] = true
 	}
 
-	// Now, when constructing the response, check if the group is in the user's group map
 	for _, g := range permissions {
-		_, hasPermission := groupPermissionsMap[g.Name] // Check if the group exists in the map
+		_, hasPermission := groupPermissionsMap[g.Name]
 		response = append(response, Response{
 			Name:    g.Name,
 			Checked: hasPermission,
@@ -734,7 +730,6 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Open the file
 	file, err := os.Open(filePath)
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
@@ -745,11 +740,9 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Set the headers for a binary file download
 	w.Header().Set("Content-Type", "application/octet-stream")
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+fileName+"\"")
 
-	// Copy the file content to the response body
 	if _, err := io.Copy(w, file); err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error sending file",
@@ -810,7 +803,6 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get groups for the specific user
 	groupsForUser, err := app.Queries.GetGroupsByUserId(context.Background(), useriduuid)
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
@@ -820,15 +812,13 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a map for quick lookup to see if a group is one of the user's groups
 	userGroupsMap := make(map[string]bool)
 	for _, g := range groupsForUser {
 		userGroupsMap[g.Name] = true
 	}
 
-	// Now, when constructing the response, check if the group is in the user's group map
 	for _, g := range groups {
-		_, hasGroup := userGroupsMap[g.Name] // Check if the group exists in the map
+		_, hasGroup := userGroupsMap[g.Name]
 		response = append(response, Response{
 			Name:     g.Name,
 			Hasgroup: hasGroup,
@@ -876,15 +866,13 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a map for quick lookup to see if a group is one of the user's groups
 	userPermissionsMap := make(map[string]bool)
 	for _, g := range permissionsForUser {
 		userPermissionsMap[g.Name] = true
 	}
 
-	// Now, when constructing the response, check if the group is in the user's group map
 	for _, g := range permissions {
-		_, hasPermission := userPermissionsMap[g.Name] // Check if the group exists in the map
+		_, hasPermission := userPermissionsMap[g.Name]
 		response = append(response, Response{
 			Name:          g.Name,
 			Haspermission: hasPermission,
