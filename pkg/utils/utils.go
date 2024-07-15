@@ -103,7 +103,7 @@ func SetUp() (*sql.DB, func()) {
 	}
 }
 
-func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, cache *map[string][]byte) error {
+func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string, cache *map[string][]byte) error {
 
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -138,7 +138,7 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 	// Replaces the Apiurl
 	for path, file := range *cache {
 		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
-			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl+":"+port)
+			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl+":"+apiPort)
 			extensions := []string{".png", ".jpg", ".js ", ".css"}
 			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
 			(*cache)[path] = []byte(replacedContent)

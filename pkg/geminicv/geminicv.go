@@ -260,30 +260,49 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := r.ParseMultipartForm(8 << 20); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if err := r.ParseMultipartForm(20 << 20); err != nil {
+
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "File too big",
+			Error:  errors.New("File too big"),
+		})
 		return
+
 	}
 
 	file, _, err := r.FormFile("upload")
 	if err != nil {
-		http.Error(w, "Invalid file", http.StatusBadRequest)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Invalid file",
+			Error:  errors.New("invalid file"),
+		})
 		return
+
 	}
 	defer file.Close()
 
 	// Read the file content
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to read file",
+			Error:  errors.New("failed to read file"),
+		})
 		return
+
 	}
 
 	// Parse PDF to text
 	text, err := pdfToText(fileBytes)
 	if err != nil {
-		http.Error(w, "Failed to parse PDF", http.StatusInternalServerError)
+
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to parse pdf",
+			Error:  errors.New("failed to parse pdf"),
+		})
 		return
+
 	}
 	text, err = cleanText(text)
 	if err != nil {
@@ -297,8 +316,12 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	run, err := app.Queries.CreateCVRun(context.Background(), newuuid)
 	if err != nil {
-		http.Error(w, "Failed to create run", http.StatusInternalServerError)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to create run",
+			Error:  err,
+		})
 		return
+
 	}
 
 	err = app.Queries.LinkUserToCVRun(context.Background(), db.LinkUserToCVRunParams{
@@ -306,7 +329,11 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 		CvrunID: run.ID,
 	})
 	if err != nil {
-		http.Error(w, "Failed to link user and run", http.StatusInternalServerError)
+
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to link user and run",
+			Error:  err,
+		})
 		return
 	}
 
@@ -355,7 +382,11 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Empty body",
+			Error:  errors.New("empty body"),
+		})
+
 		return
 	}
 	defer r.Body.Close()
@@ -367,7 +398,11 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	var reqBody RequestBody
 	err = json.Unmarshal(body, &reqBody)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Wrong body",
+			Error:  errors.New("wrong body"),
+		})
+
 		return
 	}
 
@@ -386,7 +421,11 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	run, err := app.Queries.CreateCVRun(context.Background(), newuuid)
 	if err != nil {
-		http.Error(w, "Failed to create run", http.StatusInternalServerError)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to create run",
+			Error:  err,
+		})
+
 		return
 	}
 
@@ -395,7 +434,11 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 		CvrunID: run.ID,
 	})
 	if err != nil {
-		http.Error(w, "Failed to link user and run", http.StatusInternalServerError)
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to link user and run",
+			Error:  err,
+		})
+
 		return
 	}
 
@@ -409,7 +452,6 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-
 	utils.RespondWithJSON(w, 200, response)
 
 }
@@ -441,7 +483,7 @@ func cleanText(text string) (string, error) {
 	text = regexp.MustCompile(`\*{1,2}`).ReplaceAllString(text, "")
 	text = strings.TrimSpace(text)
 
-	if len(text) >= 15000 {
+	if len(text) >= 25000 {
 		return "", errors.New("text too long")
 	}
 
