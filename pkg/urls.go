@@ -53,7 +53,10 @@ func StartServer() {
 	r.Get("/*", (root)) // * for statics
 
 	r.Post("/adminapi/login", app.login)
+
 	r.Get("/adminapi/dashboardinfo", app.dashboardinfo)
+
+	r.With(app.AuthMiddleware("", "")).Get("/adminapi/logout", app.logout)
 
 	// Admin dashboard endpoints
 	r.Route("/adminapi", func(r chi.Router) {

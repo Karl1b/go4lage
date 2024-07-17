@@ -38,7 +38,6 @@ func (app *App) dashboardinfo(w http.ResponseWriter, r *http.Request) {
 func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	err := loginthrottler.check(r.RemoteAddr) // Auth throttle
 	if err != nil {
-
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Auththrottle",
 			Error:  err,
@@ -691,6 +690,37 @@ func (app *App) createBackup(w http.ResponseWriter, r *http.Request) {
 		Detail: string(output),
 		Error:  err,
 	})
+}
+func (app *App) logout(w http.ResponseWriter, r *http.Request) {
+	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
+	if !ok {
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to get user from context",
+			Error:  errors.New("failed to get user from context"),
+		})
+		return
+	}
+
+	userid := user.ID.String()
+
+	_, err := app.Queries.UpdateTokenByID(context.Background(), db.UpdateTokenByIDParams{
+		ID:    user.ID,
+		Token: sql.NullString{String: "", Valid: false},
+	})
+	if err != nil {
+		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+			Detail: "Failed to null token",
+			Error:  errors.New("failed to get user from context"),
+		})
+		return
+	}
+
+	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
+	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
+		Detail: "User token cleared",
+		Error:  nil,
+	})
+
 }
 
 func (app *App) getBackups(w http.ResponseWriter, r *http.Request) {

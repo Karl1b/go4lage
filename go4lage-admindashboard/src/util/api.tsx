@@ -16,7 +16,7 @@ class API {
   constructor() {
     const apiUrlstring = '{%Apiurl%}'
 
-    const trimmedString = apiUrlstring.slice(2, -2).trim() 
+    const trimmedString = apiUrlstring.slice(2, -2).trim()
 
     if (trimmedString === 'Apiurl') {
       this.apiUrl = 'http://127.0.0.1:8080/adminapi'
@@ -74,6 +74,26 @@ class API {
     } catch (error) {
       if (error instanceof Error) {
         console.error('Error fetching all users:', error.message)
+      }
+      throw error
+    }
+  }
+
+  public async logout(token: string): Promise<null> {
+    try {
+      const response = await this.fetchWithToken(
+        `${this.apiUrl}/logout`,
+        {
+          method: 'GET',
+        },
+        token
+      )
+
+      const data = await response.json()
+      return data
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error logging out:', error.message)
       }
       throw error
     }
@@ -176,7 +196,6 @@ class API {
       throw error
     }
   }
-
 
   public async editoneuserGroups(
     token: string | null,
@@ -292,7 +311,7 @@ class API {
     }
   }
 
-  public async getLogs(token: string | null,uri: string): Promise<Log[]> {
+  public async getLogs(token: string | null, uri: string): Promise<Log[]> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/getlogs${uri}`,
@@ -393,7 +412,7 @@ class API {
   public async deletebackup(
     token: string | null,
     fileName: string
-  ):Promise<null> {
+  ): Promise<null> {
     try {
       console.log(fileName)
       await this.fetchWithToken(
@@ -406,7 +425,7 @@ class API {
         },
         token
       )
-      
+
       return null
     } catch (error) {
       if (error instanceof Error) {
@@ -415,7 +434,6 @@ class API {
       throw error
     }
   }
-
 
   public async getPermissions(token: string | null): Promise<Permission[]> {
     try {
