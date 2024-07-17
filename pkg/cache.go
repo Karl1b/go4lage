@@ -88,14 +88,17 @@ Those are the cache functions.
 2) Other functions do not update the cache. Instead they delete the entry or null the complete cache.
 */
 func getUserByToken(token string, queries *db.Queries) (result db.User, err error) {
+	if token == "" {
+		return db.User{}, errors.New("token may not be blank")
+	}
+
 	getFromDB := func(token string, queries *db.Queries) (db.User, error) {
 		user, err := queries.SelectUserByToken(context.Background(), sql.NullString{String: token, Valid: true})
 		if err != nil {
 			return db.User{}, err // Handle error properly
 		}
 		go4users.Set(token, user)
-
-		return user, err
+		return user, nil
 	}
 
 	defer func() {
@@ -114,6 +117,7 @@ func getUserByToken(token string, queries *db.Queries) (result db.User, err erro
 		result, err = getFromDB(token, queries)
 		return result, err
 	}
+
 	result, err = getFromDB(token, queries)
 	return result, err
 }

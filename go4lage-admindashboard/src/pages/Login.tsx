@@ -93,9 +93,11 @@ export default function Login() {
                 </div>
               </>
             )}
-            <Button kind="primary" onClick={handleSubmit}>
-              Login
-            </Button>
+            <div className="flex justify-end mt-7 mr-5">
+              <Button kind="primary" onClick={handleSubmit}>
+                Login
+              </Button>
+            </div>
           </div>
         </div>
       </div>

@@ -2,23 +2,28 @@ import { useContext } from 'react'
 import { MainContext } from '../App'
 import { UserDetails } from '../util/types'
 import Button from '../stylecomponents/Button'
+import api from '../util/api'
 
 export default function Logout() {
-  const { setUserData } = useContext(MainContext)
+  const { userData, setUserData } = useContext(MainContext)
 
-  function logout() {
-    const emptyUser: UserDetails = { email: null, token: null }
-    setUserData(emptyUser)
-    
+  async function logout() {
+    if (!userData.token) {
+      return
+    }
+    try {
+      await api.logout(userData.token)
+    } catch (e) {
+      console.log(e)
+    } finally {
+      const emptyUser: UserDetails = { email: null, token: null }
+      setUserData(emptyUser)
+    }
   }
 
   return (
     <>
-      <Button
-        onClick={logout}
-        kind="secondary"
-        
-      >
+      <Button onClick={logout} kind="secondary">
         Logout
       </Button>
     </>
