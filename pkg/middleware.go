@@ -97,7 +97,8 @@ func (app *App) AuthMiddleware(permission, group string) func(http.Handler) http
 				})
 				return
 			}
-			if user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins) * time.Minute).Before(time.Now()) {
+
+			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "Login again.",
 					Error:  errors.New("token outdated"),
