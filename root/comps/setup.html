@@ -14,7 +14,7 @@
   <pre><code>#!/bin/bash
       git clone git@github.com:Karl1b/go4lage.git
       cd go4lage
-      cp dockerenv .env
+      cp dockerenv.env .env
       sudo docker-compose up
       sudo docker exec -it go4lage_app /bin/bash
       ./go4lage createsuperuser
@@ -47,7 +47,7 @@
     cd go4lage/pkg/sql
     sqlc generate
     cd ../..
-    cp nativeenv .env
+    cp nativeenv.env .env
     go build 
     ./go4lage rungoose up
     ./go4lage createsuperuser
