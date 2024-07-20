@@ -46,10 +46,10 @@ func StartServer() {
 	/* 	Example for the database logger: Tracking hits on index and on imprint.
 	"Conversion rate."
 	*/
-	r.With(app.DatabaseLogger).Get("/", (root))
-	r.With(app.DatabaseLogger).Get("/imprint", (root))
+	r.With(app.DatabaseLogger).Get("/", root)
+	r.With(app.DatabaseLogger).Get("/imprint", root)
 
-	r.Get("/*", (root)) // * for statics
+	r.Get("/*", root) // * for statics
 
 	r.Post("/adminapi/login", app.login)
 
