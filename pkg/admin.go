@@ -24,7 +24,7 @@ import (
 /* Here are the endpoints for the admin dashboard. */
 
 // Tells the dashboard if the superuser tfa is needed
-func (app *App) dashboardinfo(w http.ResponseWriter, r *http.Request) {
+func (app *App) dashboardinfo(w http.ResponseWriter, _ *http.Request) {
 	type Response struct {
 		Tfa bool `json:"tfa"`
 	}
@@ -413,7 +413,7 @@ func (app *App) editUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *App) getGroups(w http.ResponseWriter, r *http.Request) {
+func (app *App) getGroups(w http.ResponseWriter, _ *http.Request) {
 
 	groups, err := app.Queries.GetGroups(context.Background())
 	if err != nil {
@@ -608,7 +608,7 @@ func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, struct{}{})
 }
 
-func (app *App) getPermissions(w http.ResponseWriter, r *http.Request) {
+func (app *App) getPermissions(w http.ResponseWriter, _ *http.Request) {
 
 	permissions, err := app.Queries.GetPermissions(context.Background())
 	if err != nil {
@@ -674,7 +674,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, response)
 }
 
-func (app *App) createBackup(w http.ResponseWriter, r *http.Request) {
+func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 	cmd := exec.Command("/bin/bash", "./backup.sh")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
@@ -723,7 +723,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *App) getBackups(w http.ResponseWriter, r *http.Request) {
+func (app *App) getBackups(w http.ResponseWriter, _ *http.Request) {
 	type Response struct {
 		Filename string `json:"file_name"`
 	}
@@ -1101,7 +1101,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *App) downloadCSVTemplate(w http.ResponseWriter, r *http.Request) {
+func (app *App) downloadCSVTemplate(w http.ResponseWriter, _ *http.Request) {
 	// Define your CSV template
 	csvTemplate := []byte("email,password,username,fname,lname,is_active,is_superuser,groups: use | as delimiter e.g.: controller|adviser\n")
 
@@ -1262,7 +1262,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (app *App) allusers(w http.ResponseWriter, r *http.Request) {
+func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 
 	allUsers, err := app.Queries.SelectAllUsers(context.Background())
 	if err != nil {
@@ -1342,7 +1342,7 @@ func (app *App) GetLogs(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get Error Logs
-func (app *App) GetErrorLogs(w http.ResponseWriter, r *http.Request) {
+func (app *App) GetErrorLogs(w http.ResponseWriter, _ *http.Request) {
 
 	type Response struct {
 		Timestamp        string `json:"timestamp"`
