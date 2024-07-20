@@ -25,6 +25,15 @@ services:
     container_name: go4lage_db 
     networks:
       - app-network
+    healthcheck:
+      test: pg_isready -U go4lage -d go4lage
+      interval: 5s
+      timeout: 5s
+      # -- requires Docker Engine >= v25 --
+      # interval: 1m30s
+      # timeout: 5s
+      # start_period: 30s
+      # start_interval: 2s
 
 volumes:
   postgres_data:
