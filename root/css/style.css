@@ -38,11 +38,10 @@ header {
   padding-bottom: 10px;
   min-width: 150px;
   background-color: #fff; /* White background for each item */
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   border-radius: 10px; /* Rounded corners */
   text-align: center; /* Center text and content */
 }
-
 
 footer {
   background-color: #2e6efa;
@@ -54,8 +53,6 @@ button {
   padding: 4px;
   margin: 4px;
 }
-
-
 
 .sidebar {
   z-index: 1;
@@ -85,8 +82,7 @@ section {
   width: 60vw;
 }
 
-@media all and (max-width: 540px) {
-  
+@media all and (max-width: 620px) {
   .sidebar {
     display: none;
   }
@@ -96,9 +92,7 @@ section {
     padding-left: 0px;
     width: 100vw;
   }
-
 }
-
 
 a {
   font-size: larger;
@@ -198,7 +192,6 @@ h1 {
   transform: scale(1.1); /* Slightly enlarge on hover/focus */
 }
 
-
 /* Styles for the toast notification */
 
 .toast {
@@ -220,14 +213,34 @@ h1 {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Soft shadow for depth */
 }
 
-
-
 /* Show the toast when visible */
 .toast.show {
   visibility: visible; /* Show the toast */
   /* Add animation: Take 0.5 seconds to fade in and out the toast */
   -webkit-animation: fadein 0.5s, fadeout 0.5s 5s;
   animation: fadein 0.5s, fadeout 0.5s 5s;
+}
+
+.header-bar {
+  display: none;
+}
+
+@media all and (max-width: 620px) {
+  .header-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+.header-bar a {
+  color: whitesmoke;
+  margin: 5px;
+}
+
+.header-bar a:hover {
+  color: white;
+  font-weight: bold;
 }
 
 /* Animations to fade the toast in and out */

@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/hex"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -204,14 +203,11 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println(replaced)
 		if replaced == 0 {
 			return nil
 		}
 	}
-
 	log.Fatal("Replacer not ending, do you have got a cyclic component issue?")
-
 	return nil
 }
 
