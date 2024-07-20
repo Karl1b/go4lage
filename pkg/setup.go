@@ -11,12 +11,12 @@ import (
 	"strconv"
 
 	"github.com/google/uuid"
-	db "github.com/karl1b/go4lage/pkg/sql/db"
+	"github.com/karl1b/go4lage/pkg/sql/db"
 	_ "github.com/lib/pq"
 	"github.com/pquerna/otp/totp"
-	goose "github.com/pressly/goose/v3"
+	"github.com/pressly/goose/v3"
 
-	utils "github.com/karl1b/go4lage/pkg/utils"
+	"github.com/karl1b/go4lage/pkg/utils"
 	"github.com/pquerna/otp"
 )
 

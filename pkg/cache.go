@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	db "github.com/karl1b/go4lage/pkg/sql/db"
+	"github.com/karl1b/go4lage/pkg/sql/db"
 	"github.com/patrickmn/go-cache"
 )
 

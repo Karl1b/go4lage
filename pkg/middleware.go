@@ -10,8 +10,8 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
-	db "github.com/karl1b/go4lage/pkg/sql/db"
-	utils "github.com/karl1b/go4lage/pkg/utils"
+	"github.com/karl1b/go4lage/pkg/sql/db"
+	"github.com/karl1b/go4lage/pkg/utils"
 )
 
 func (app *App) DatabaseLogger(next http.Handler) http.Handler {
