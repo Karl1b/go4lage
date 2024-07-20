@@ -35,9 +35,8 @@
     cd go4lage
     cp prodenv.env .env
     # Adjust the .env
-    sudo docker-compose up
-    sudo docker exec -it go4lage_app /bin/bash
-    ./go4lage createsuperuser
+    docker-compose up -d
+    docker-compose exec app /app/go4lage createsuperuser
 </code></pre>
 
 <p>
