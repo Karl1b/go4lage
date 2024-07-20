@@ -55,6 +55,8 @@ button {
   margin: 4px;
 }
 
+
+
 .sidebar {
   z-index: 1;
   padding: 20px;
@@ -82,6 +84,21 @@ section {
   background-color: #e0e0e0;
   width: 60vw;
 }
+
+@media all and (max-width: 540px) {
+  
+  .sidebar {
+    display: none;
+  }
+
+  section {
+    padding: 0px;
+    padding-left: 0px;
+    width: 100vw;
+  }
+
+}
+
 
 a {
   font-size: larger;
