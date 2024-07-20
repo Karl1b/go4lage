@@ -13,6 +13,7 @@ services:
     container_name: go4lage_app 
     networks:
       - app-network
+    restart: unless-stopped
 
   db:
     image: postgres:13
@@ -34,6 +35,7 @@ services:
       # timeout: 5s
       # start_period: 30s
       # start_interval: 2s
+    restart: unless-stopped
 
 volumes:
   postgres_data:
