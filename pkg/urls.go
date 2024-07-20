@@ -8,8 +8,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
-	db "github.com/karl1b/go4lage/pkg/sql/db"
-	utils "github.com/karl1b/go4lage/pkg/utils"
+	"github.com/karl1b/go4lage/pkg/sql/db"
+	"github.com/karl1b/go4lage/pkg/utils"
 	_ "github.com/lib/pq"
 )
 
@@ -46,10 +46,10 @@ func StartServer() {
 	/* 	Example for the database logger: Tracking hits on index and on imprint.
 	"Conversion rate."
 	*/
-	r.With(app.DatabaseLogger).Get("/", (root))
-	r.With(app.DatabaseLogger).Get("/imprint", (root))
+	r.With(app.DatabaseLogger).Get("/", root)
+	r.With(app.DatabaseLogger).Get("/imprint", root)
 
-	r.Get("/*", (root)) // * for statics
+	r.Get("/*", root) // * for statics
 
 	r.Post("/adminapi/login", app.login)
 

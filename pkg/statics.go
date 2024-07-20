@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	utils "github.com/karl1b/go4lage/pkg/utils"
+	"github.com/karl1b/go4lage/pkg/utils"
 )
 
 var rootFiles map[string][]byte
