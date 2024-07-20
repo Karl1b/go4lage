@@ -10,7 +10,10 @@
 
 ## Setup
 
-### Variant One: With Docker
+### Variant One: With Docker (Compose)
+
+> [!TIP]
+> [Overview of installing Docker Compose](https://docs.docker.com/compose/install/).
 
 1. Clone this repo.
 2. Copy the Docker environment settings to `.env`:
@@ -20,10 +23,10 @@
 cp dockerenv .env
 ```
 
-4. Start the Docker Compose network:
+4. Start the Docker Compose stack (in background):
 
 ```bash
-sudo docker-compose up
+docker-compose up -d
 ```
 
 ### Production
@@ -38,7 +41,7 @@ This is similar to variant Two but with one additional step for a production env
 You can access the command line with:
 
 ```bash
-sudo docker exec -it go4lage_app /bin/bash
+docker-compose exec app /bin/bash
 ```
 
 This will display your commands.
