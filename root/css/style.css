@@ -228,6 +228,14 @@ h4 {
   font-size: 26px;
 }
 
+.abouttext {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 26px;
+}
+
 .header-bar div a {
   color: white;
   text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
