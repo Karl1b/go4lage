@@ -1,17 +1,16 @@
 <section id="welcome">
   <h1>Go4lage</h1>
-
   <p>
-    Go4Lage serves as the ideal platform for launching small to medium-sized
-    projects, whether you need a backend for your application or a server-side
-    rendered web application.
+    Go4Lage is the ideal platform for launching small to medium-sized projects,
+    whether you need a backend for your application or a server-side rendered
+    web application.
   </p>
-
   <div style="display: flex; justify-content: center">
     <img src="/pics/go4lage-logo-plain.svg" height="150px" alt="Go4lage Logo" />
-    <img src="/pics/goopher.svg" height="150px" alt="Goopher" />
+    <div>
+      <img src="/pics/goopher.svg" height="150px" alt="Goopher" />
+    </div>
   </div>
-
   <p>
     Crafted in Go, it offers simplicity and exceptional speed. Designed for
     self-hosting within a Docker Compose network, Go4Lage ensures significant
@@ -20,38 +19,68 @@
   </p>
   <p>
     Its goal is to provide 80% of all <b>batteries included</b> at 20% of the
-    expense.
+    cost.
   </p>
-  <p>Go4lage is not only free of charge it is also completely vendor-free.</p>
+  <p>Go4lage is not only free of charge but also completely vendor-free.</p>
+  <h2>Features of Go4lage</h2>
+  <div style="display: flex; justify-content: center; flex-direction: column">
+    <div style="display: flex; justify-content: center; align-items: center">
+      <div class="point-wrapper">
+        <img
+          src="/pics/go4lage-logo-plain.svg"
+          height="50px"
+          alt="Go4lage Logo"
+        />
+      </div>
+      <div style="width: 50vw; margin: 10px">
+        <p>
+          Actually fast during development and runtime while still being simple.
+        </p>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center">
+      <div class="point-wrapper">
+        <img
+          src="/pics/go4lage-logo-plain.svg"
+          height="50px"
+          alt="Go4lage Logo"
+        />
+      </div>
 
-  <h2>Visit Go4lage on Github</h2>
+      <div style="width: 50vw; margin: 10px">
+        <p>
+          Concurrent Golang enables information caching and straightforward
+          coding style.
+        </p>
+      </div>
+    </div>
+    <div style="display: flex; justify-content: center; align-items: center">
+      <div class="point-wrapper">
+        <img
+          src="/pics/go4lage-logo-plain.svg"
+          height="50px"
+          alt="Go4lage Logo"
+        />
+      </div>
 
+      <div style="width: 50vw; margin: 10px">
+        <p>
+          Extremely easy to deploy at production scale. Completely free from any
+          vendor lock.
+        </p>
+      </div>
+    </div>
+  </div>
+  <h2>Visit Go4lage on GitHub</h2>
   <div style="display: flex">
     <a href="https://github.com/Karl1b/go4lage">
       <div class="item">
-        <img src="/pics/github.svg" width="50px" alt="github logo" />
-        <p>go4lage</p>
+        <img src="/pics/github.svg" width="50px" alt="GitHub logo" />
+        <p>Go4lage</p>
       </div>
     </a>
   </div>
-
-  <h2>Features of Go4lage</h2>
-  <ul>
-    <li>Straightforward and simple code.</li>
-    <li>Easy deployment, suitable even for beginners.</li>
-    <li>Group and permission system</li>
-    <li>Backups</li>
-    <li>Logging</li>
-    <li>Integrated caching (no need for Redis).</li>
-    <li>Integrated cache buster for static files.</li>
-    <li>Optional 2FA for superusers.</li>
-    <li>Documentation and an example admin dashboard included.</li>
-    <li>Clear sepparation of build-, init- and runtime</li>
-    <li>Distinct separation of build, initialization, and runtime phases.</li>
-    <li>Absolutely zero vendor-locking.</li>
-  </ul>
   <h2>FAQ</h2>
-
   <table>
     <tr>
       <th>Question</th>
@@ -111,8 +140,8 @@
     <tr>
       <td>Why is the JS build included and tracked?</td>
       <td>
-        This build was included to allow users to never build it themselfs. Many
-        might not need to touch it at all.
+        This build was included to allow users to avoid building it themselves.
+        Many might not need to touch it at all.
       </td>
     </tr>
     <tr>

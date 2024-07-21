@@ -12,11 +12,33 @@ footer {
   text-align: center;
   width: 100%;
 }
+
 header {
-  background-color: #073fb9;
   color: whitesmoke;
-  padding-bottom: 5px;
-  padding-top: -10px;
+  padding: 10px 0;
+  background: linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965);
+  /* background-size: 400% 400%; */
+  /* animation: gradientBG 15s ease infinite; */
+}
+@keyframes gradientBG {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.point-wrapper {
+  border: 3px;
+  border-radius: 50%;
+  border-color: black;
+  border-style: solid;
+  background: linear-gradient(-30deg, #4fcbe0, #329dab);
+  margin: 5px;
 }
 
 .subheader {
@@ -33,10 +55,10 @@ header {
 }
 
 .item {
-  margin: 10px;
-  padding: 20px;
-  padding-bottom: 10px;
-  min-width: 150px;
+  display: flex;
+  margin: 5px;
+  padding: 5px;
+  min-width: 50px;
   background-color: #fff; /* White background for each item */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
   border-radius: 10px; /* Rounded corners */
@@ -44,7 +66,8 @@ header {
 }
 
 footer {
-  background-color: #2e6efa;
+  background: linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965);
+
   padding: 0.5em;
 }
 
@@ -59,7 +82,7 @@ button {
   padding: 20px;
   padding-top: 40px;
   background: #ddd;
-  width: 200px;
+  width: 160px;
 
   overflow: auto;
   text-align: end;
@@ -88,9 +111,12 @@ section {
   }
 
   section {
- 
     width: 100vw;
   }
+}
+
+p {
+  font-size: larger;
 }
 
 a {
@@ -101,8 +127,10 @@ a {
 }
 
 a:hover {
-  color: #4a82fa; /* Nice hover effect changing the color */
+  color: #ffffff; /* Nice hover effect changing the color */
   transform: scale(1.1);
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
 }
 
 .content {
@@ -154,7 +182,6 @@ td {
 }
 
 th {
-  background-color: #4a82fa; /* Header background */
   color: rgb(48, 48, 48); /* Header text color */
   text-align: left; /* Aligns header text to the left */
 }
@@ -171,7 +198,41 @@ li {
 }
 
 h1 {
-  margin: 0px;
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 48px;
+}
+h2 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 36px;
+}
+
+h3 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 30px;
+}
+
+h4 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 26px;
+}
+
+.header-bar div a {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  margin: 5px;
 }
 
 .menu-link {
@@ -186,7 +247,7 @@ h1 {
 
 .menu-link:hover,
 .menu-link:focus {
-  background-color: #0056b3; /* Darker blue when hovered/focused */
+  background-color: #4a82fa;
   color: white;
   transform: scale(1.1); /* Slightly enlarge on hover/focus */
 }
@@ -230,16 +291,6 @@ h1 {
     flex-wrap: wrap;
     justify-content: center;
   }
-}
-
-.header-bar a {
-  color: whitesmoke;
-  margin: 5px;
-}
-
-.header-bar a:hover {
-  color: white;
-  font-weight: bold;
 }
 
 /* Animations to fade the toast in and out */

@@ -11,13 +11,13 @@
     <li>Hack inside the container and create your superuser.</li>
   </ol>
 
-  <pre><code>#!/bin/bash
-      git clone git@github.com:Karl1b/go4lage.git
-      cd go4lage
-      cp dockerenv.env .env
-      docker-compose up -d
-      docker-compose exec app /app/go4lage createsuperuser
-  </code></pre>
+<pre><code>#!/bin/bash
+    git clone git@github.com:Karl1b/go4lage.git
+    cd go4lage
+    cp dockerenv.env .env
+    docker-compose up -d
+    docker-compose exec app /app/go4lage createsuperuser
+</code></pre>
 
   <p>
     Congratulations, you did setup a high performance dockerized webservice in
