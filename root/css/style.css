@@ -1,3 +1,4 @@
+html,
 body {
   font-family: Arial, sans-serif;
   background-color: #6d6d6d;
@@ -83,7 +84,7 @@ button {
   padding-top: 40px;
   background: #ddd;
   width: 160px;
-
+  padding-top: 0px;
   overflow: auto;
   text-align: end;
   box-shadow: -5px 0px 15px 0px rgba(0, 0, 0, 0.4);
@@ -105,7 +106,27 @@ section {
   width: 60vw;
 }
 
+.header-mobile {
+  display: none;
+}
+
+.header-desktop {
+  display: block;
+}
+
 @media all and (max-width: 620px) {
+  .header-desktop {
+    display: none;
+  }
+  .header-mobile {
+    display: block;
+  }
+
+  .header-mobile h1 {
+    display: block;
+    font-size: 25px;
+  }
+
   .sidebar {
     display: none;
   }
@@ -203,6 +224,7 @@ h1 {
     1px 1px 0 #000;
   font-family: Arial, sans-serif;
   font-size: 48px;
+  margin: 10px;
 }
 h2 {
   color: white;
@@ -210,6 +232,7 @@ h2 {
     1px 1px 0 #000;
   font-family: Arial, sans-serif;
   font-size: 36px;
+  margin: 10px;
 }
 
 h3 {
@@ -218,6 +241,7 @@ h3 {
     1px 1px 0 #000;
   font-family: Arial, sans-serif;
   font-size: 30px;
+  margin: 10px;
 }
 
 h4 {
@@ -226,6 +250,7 @@ h4 {
     1px 1px 0 #000;
   font-family: Arial, sans-serif;
   font-size: 26px;
+  margin: 10px;
 }
 
 .abouttext {
