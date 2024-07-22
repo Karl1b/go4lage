@@ -103,7 +103,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	if !user.Token.Valid || user.Token.String == "" || user.TokenCreatedAt.Time.Add(2*7*24*time.Hour).Before(time.Now()) || user.IsSuperuser.Bool {
+	if !user.Token.Valid || user.Token.String == "" || user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) || user.IsSuperuser.Bool {
 		newToken, err := utils.GenerateTokenHex(32)
 		if err != nil {
 			utils.RespondWithJSON(w, 400, Response{Token: "Error generating Token results from database"})

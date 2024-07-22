@@ -64,7 +64,7 @@ func (app *App) DatabaseLogger(next http.Handler) http.Handler {
 	})
 }
 
-func (app *App) AuthMiddleware(permission, group string) func(http.Handler) http.Handler {
+func (app *App) AuthMiddleware(group string, permission string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -107,6 +107,7 @@ func (app *App) AuthMiddleware(permission, group string) func(http.Handler) http
 			}
 
 			hasPermission := false
+
 			if permission != "" {
 				hasPermission, err = userHasPermission(user, permission, app.Queries)
 				if err != nil {
@@ -117,6 +118,7 @@ func (app *App) AuthMiddleware(permission, group string) func(http.Handler) http
 					return
 				}
 			}
+
 			hasGroup := false
 			if group != "" {
 
@@ -162,17 +164,17 @@ func userHasPermission(user db.User, requiredPerm string, queries *db.Queries) (
 	return false, nil
 }
 
-func userHasGroup(user db.User, requiredPerm string, queries *db.Queries) (bool, error) {
+func userHasGroup(user db.User, requiredGroup string, queries *db.Queries) (bool, error) {
 	if user.IsSuperuser.Bool {
 		return true, nil
 	}
 
-	perms, err := getGroupsByUser(user.ID, queries)
+	groups, err := getGroupsByUser(user.ID, queries)
 	if err != nil {
 		return false, err
 	}
-	for _, perm := range perms {
-		if perm == requiredPerm {
+	for _, group := range groups {
+		if group == requiredGroup {
 			return true, nil
 		}
 	}
