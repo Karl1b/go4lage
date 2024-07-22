@@ -105,6 +105,23 @@ func SetUp() (*sql.DB, func()) {
 
 func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string, cache *map[string][]byte) error {
 
+	urlReplacer := func(urls []string, path string, file []byte) (replacedBytes []byte) {
+		replacedBytes = file
+		for _, url := range urls {
+			if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
+				replacedContent := strings.ReplaceAll(string(file), url, baseUrl)
+				extensions := []string{".png", ".jpg", ".js ", ".css"}
+				replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
+				replacedBytes = []byte(replacedContent)
+			}
+
+		}
+		return replacedBytes
+	}
+
+	re := regexp.MustCompile(`\{\%.*?\%\}`)
+	dirtcache := make(map[string][]byte)
+
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -116,68 +133,81 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string
 			}
 			npath := strings.Join(strings.Split(path, "/")[1:], "/")
 
-			(*cache)[npath] = data
+			if re.Match(data) {
+				dirtcache[npath] = urlReplacer([]string{"{%Baseurl%}", "{%Apiurl%}"}, path, data)
+
+			} else {
+				(*cache)[npath] = urlReplacer([]string{"{%Baseurl%}", "{%Apiurl%}"}, path, data)
+			}
+
 		}
 		return nil
 	})
-
 	if err != nil {
 		log.Fatalf("Failed to load static files: %v", err)
 	}
 
-	// Replaces the Baseurl
-	for path, file := range *cache {
-		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
-			replacedContent := strings.ReplaceAll(string(file), "{%Baseurl%}", baseUrl)
-			extensions := []string{".png", ".jpg", ".js ", ".css"}
-			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
-			(*cache)[path] = []byte(replacedContent)
-		}
-	}
+	replacer := func(cache *map[string][]byte, dirtcache *map[string][]byte) (int, error) {
 
-	// Replaces the Apiurl
-	for path, file := range *cache {
-		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
-			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl+":"+apiPort)
-			extensions := []string{".png", ".jpg", ".js ", ".css"}
-			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
-			(*cache)[path] = []byte(replacedContent)
-		}
-	}
+		numberOfReplacements := 0
 
-	// Defines the non dynamic placeholder {%%}
-	re := regexp.MustCompile(`\{\%.*?\%\}`)
-	// Perform the placeholder replacement for each file
-	for path, content := range *cache {
-		updatedContent := re.ReplaceAllStringFunc(string(content), func(match string) string {
-			// Trim the surrounding {% and %} from the match
-			trimSpecific := func(match string) string {
-				prefix := "{%"
-				suffix := "%}"
-				if strings.HasPrefix(match, prefix) && strings.HasSuffix(match, suffix) {
-					return match[len(prefix) : len(match)-len(suffix)]
+		// Defines the non dynamic placeholder {%%}
+		//re := regexp.MustCompile(`\{\%.*?\%\}`)
+		// Perform the placeholder replacement for each file
+
+		for path, content := range *dirtcache {
+
+			updatedContent := re.ReplaceAllStringFunc(string(content), func(match string) string {
+				// Trim the surrounding {% and %} from the match
+				trimSpecific := func(match string) string {
+					prefix := "{%"
+					suffix := "%}"
+					if strings.HasPrefix(match, prefix) && strings.HasSuffix(match, suffix) {
+						return match[len(prefix) : len(match)-len(suffix)]
+					}
+					return match
 				}
-				return match
+
+				key := trimSpecific(match)
+
+				// Check if the key exists in the *cache
+
+				lookKey, err := CacheReader(key)
+				if err != nil {
+					log.Fatal("Errror Cachereader :", err)
+				}
+
+				if replacement, exists := (*cache)[lookKey]; exists {
+					numberOfReplacements++
+					return string(replacement)
+				} else {
+					return match
+				}
+			})
+
+			if string([]byte(updatedContent)) != string(content) {
+				if !re.Match((*dirtcache)[path]) {
+					delete((*dirtcache), path)
+				} else {
+					(*dirtcache)[path] = []byte(updatedContent)
+				}
+				(*cache)[path] = []byte(updatedContent)
 			}
 
-			key := trimSpecific(match)
-
-			// Check if the key exists in the *cache
-
-			lookKey, err := CacheReader(key)
-			if err != nil {
-				log.Fatal("Errror Cachereader :", err)
-			}
-
-			if replacement, exists := (*cache)[lookKey]; exists {
-				return string(replacement)
-			}
-			log.Fatal("No file found for :", key, " in: ", path)
-			return "" //unreachable anyway
-		})
-		(*cache)[path] = []byte(updatedContent)
+		}
+		return numberOfReplacements, nil
 	}
 
+	for range 10 {
+		replaced, err := replacer(cache, &dirtcache)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if replaced == 0 {
+			return nil
+		}
+	}
+	log.Fatal("Replacer not ending, do you have got a cyclic component issue?")
 	return nil
 }
 

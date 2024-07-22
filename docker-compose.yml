@@ -1,21 +1,25 @@
 version: '3.8'
+
 services:
   app:
+    env_file: ".env"
     build: .
     ports:
-      - "8080:8080"
+      - "${PORT}:${PORT}"
     depends_on:
       - db
     volumes:
       - ./.env:/app/.env 
-      - ./static:/app/static # general static files, like robots.txt
-      - data:/app/data # data managed at runtime
-      - data_backup:/app/backup # backup volume
-    container_name: go4lage_app 
+      - ./static:/app/static
+      - data:/app/data
+      - data_backup:/app/backup
+    container_name: "${APP_NAME}_app"
     networks:
-      - app-network
+      - app_network
+    restart: unless-stopped
 
   db:
+    env_file: ".env"
     image: postgres:13
     environment:
       POSTGRES_USER: go4lage
@@ -23,9 +27,14 @@ services:
       POSTGRES_DB: go4lage
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    container_name: go4lage_db 
+    container_name: "${APP_NAME}_db"
     networks:
-      - app-network
+      - app_network
+    healthcheck:
+      test: pg_isready -U go4lage -d go4lage
+      interval: 5s
+      timeout: 5s
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -33,4 +42,5 @@ volumes:
   data_backup:
 
 networks:
-  app-network:
+  app_network:
+    driver: bridge

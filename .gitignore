@@ -1,3 +1,5 @@
+.idea/
+.code/
 *.exe
 *.exe~
 *.dll
