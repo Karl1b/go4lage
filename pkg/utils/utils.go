@@ -103,24 +103,7 @@ func SetUp() (*sql.DB, func()) {
 	}
 }
 
-func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string, cache *map[string][]byte) error {
-
-	urlReplacer := func(urls []string, path string, file []byte) (replacedBytes []byte) {
-		replacedBytes = file
-		for _, url := range urls {
-			if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
-				replacedContent := strings.ReplaceAll(string(file), url, baseUrl)
-				extensions := []string{".png", ".jpg", ".js ", ".css"}
-				replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
-				replacedBytes = []byte(replacedContent)
-			}
-
-		}
-		return replacedBytes
-	}
-
-	re := regexp.MustCompile(`\{\%.*?\%\}`)
-	dirtcache := make(map[string][]byte)
+func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, cache *map[string][]byte) error {
 
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -133,29 +116,43 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string
 			}
 			npath := strings.Join(strings.Split(path, "/")[1:], "/")
 
-			if re.Match(data) {
-				dirtcache[npath] = urlReplacer([]string{"{%Baseurl%}", "{%Apiurl%}"}, path, data)
-
-			} else {
-				(*cache)[npath] = urlReplacer([]string{"{%Baseurl%}", "{%Apiurl%}"}, path, data)
-			}
-
+			(*cache)[npath] = data
 		}
 		return nil
 	})
+
 	if err != nil {
 		log.Fatalf("Failed to load static files: %v", err)
 	}
 
-	replacer := func(cache *map[string][]byte, dirtcache *map[string][]byte) (int, error) {
+	// Replaces the Baseurl
+	for path, file := range *cache {
+		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
+			replacedContent := strings.ReplaceAll(string(file), "{%Baseurl%}", baseUrl)
+			extensions := []string{".png", ".jpg", ".js ", ".css"}
+			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
+			(*cache)[path] = []byte(replacedContent)
+		}
+	}
 
-		numberOfReplacements := 0
+	// Replaces the Apiurl
+	for path, file := range *cache {
+		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
+			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl+":"+port)
+			extensions := []string{".png", ".jpg", ".js ", ".css"}
+			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
+			(*cache)[path] = []byte(replacedContent)
+		}
+	}
 
-		// Defines the non dynamic placeholder {%%}
-		//re := regexp.MustCompile(`\{\%.*?\%\}`)
+	// Defines the non dynamic placeholder {%%}
+
+	for range 10 {
+		re := regexp.MustCompile(`\{\%.*?\%\}`)
 		// Perform the placeholder replacement for each file
 
-		for path, content := range *dirtcache {
+		foundRegex := false
+		for path, content := range *cache {
 
 			updatedContent := re.ReplaceAllStringFunc(string(content), func(match string) string {
 				// Trim the surrounding {% and %} from the match
@@ -178,36 +175,29 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, apiPort string
 				}
 
 				if replacement, exists := (*cache)[lookKey]; exists {
-					numberOfReplacements++
-					return string(replacement)
-				} else {
-					return match
+
+					if !re.Match(replacement) {
+						return string(replacement)
+					} else {
+						foundRegex = true
+						return string(content)
+					}
 				}
+				log.Fatal("No file found for :", key, " in: ", path)
+				return "" //unreachable anyway
 			})
 
-			if string([]byte(updatedContent)) != string(content) {
-				if !re.Match((*dirtcache)[path]) {
-					delete((*dirtcache), path)
-				} else {
-					(*dirtcache)[path] = []byte(updatedContent)
-				}
-				(*cache)[path] = []byte(updatedContent)
-			}
-
+			(*cache)[path] = []byte(updatedContent)
 		}
-		return numberOfReplacements, nil
-	}
 
-	for range 10 {
-		replaced, err := replacer(cache, &dirtcache)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if replaced == 0 {
+		if !foundRegex {
 			return nil
 		}
+
 	}
-	log.Fatal("Replacer not ending, do you have got a cyclic component issue?")
+
+	log.Fatal("Do you have a cyclic component?")
+
 	return nil
 }
 
