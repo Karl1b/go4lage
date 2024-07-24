@@ -135,6 +135,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 		HourlyFreelanceRateAvg int    `json:"hourly_freelance_rate_avg"`
 		HourlyFreelanceRateMax int    `json:"hourly_freelance_rate_max"`
 		NextCareerStep         string `json:"next_career_step"`
+		Lang                   string `json:"language"`
 	}
 
 	var response []Response
@@ -160,6 +161,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			HourlyFreelanceRateAvg: int(run.HourlyFreelanceRateAvg.Int32),
 			HourlyFreelanceRateMax: int(run.HourlyFreelanceRateMax.Int32),
 			NextCareerStep:         run.NextCareerStep.String,
+			Lang:                   run.Lang.String,
 		}
 
 		response = append(response, item)
@@ -264,7 +266,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "File too big",
-			Error:  errors.New("File too big"),
+			Error:  errors.New("file too big"),
 		})
 		return
 
@@ -516,10 +518,10 @@ func analyseCV(text string, run db.Cvrun, queries *db.Queries) {
 		instructionTwo = cvImproveTwo.de
 	}
 
-	createImprovement(lang, text, 0.8, queries, run, instructionOne)
-	createImprovement(lang, text, 0.8, queries, run, instructionTwo)
-	createImprovement(lang, text, 0.65, queries, run, instructionOne)
-	createImprovement(lang, text, 0.65, queries, run, instructionTwo)
+	go createImprovement(lang, text, 0.8, queries, run, instructionOne)
+	go createImprovement(lang, text, 0.8, queries, run, instructionTwo)
+	go createImprovement(lang, text, 0.65, queries, run, instructionOne)
+	go createImprovement(lang, text, 0.65, queries, run, instructionTwo)
 
 }
 

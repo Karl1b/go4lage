@@ -10,15 +10,22 @@ const config = {
           primary: 'rgba(0, 0, 0, 1)',
           secondary: 'rgba(112, 112, 112, <alpha-value>)',
           tertiary: 'rgba(215, 215, 215, <alpha-value>)',
-          pink:'#690069'
+          pink:'#1b4965',
+          bright: '#28527a',
+          high: '#329dab'
+
         },
         backgroundColor: {
           primary: '#073fb9',
           secondary: '#adadad', // '#6d6d6d',
           section: '#d0d0d0',
           highlight: 'rgba(240,230 , 190, <alpha-value>)',
-          pink:'#690069'
+          pink:'#1b4965',
+          bright: '#329dab'
         },
+        backgroundImage: {
+          'custom-gradient': 'linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965)'
+        }
       },
     },
     plugins: [],

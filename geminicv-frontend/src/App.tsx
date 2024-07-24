@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Run from "./pages/Run";
 import Login from "./pages/Login";
 import About from "./pages/About";
+import DumpRun from "./pages/DumpRun";
 
 interface IMainContext {
   toast: ToastDetails;
@@ -54,6 +55,7 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/about" element={<About />} />
+                      <Route path="/dumprun/:id" element={<DumpRun />} />
                       <Route path="/run/:id" element={<Run />} />
                     </Routes>
                   </div>

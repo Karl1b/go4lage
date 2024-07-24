@@ -18,7 +18,7 @@ export default function RunCard({ run }: RunCardProps) {
     <div className="flex justify-center cursor-pointer">
       <div
         className="bg-gray-300 p-1 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full"
-        onClick={() => navigate(`/run/${run.id}`)}
+        onClick={() => navigate(`/dumprun/${run.id}`)}
       >
         <p>{formattedTimeStamp}</p>
       </div>

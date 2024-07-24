@@ -38,7 +38,7 @@ func StartServer() {
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "UserId", "GroupId", "PermissionId", "FileName"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "UserId", "GroupId", "PermissionId", "FileName", "CVrunid"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "Settings"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,

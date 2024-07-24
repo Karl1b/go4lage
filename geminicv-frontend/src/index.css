@@ -5,3 +5,15 @@
 body, html {
     overflow-x: hidden;
   }
+
+
+
+
+h1 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 48px;
+  margin: 10px;
+}

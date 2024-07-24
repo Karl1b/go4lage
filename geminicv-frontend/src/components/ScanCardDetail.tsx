@@ -52,7 +52,7 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
     ],
   };
 
-  const options:any = {
+  const options: any = {
     responsive: true,
     plugins: {
       legend: {
@@ -90,7 +90,10 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-4 text-lg">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-lg">
+      <div className="">
+        <Bar data={data} options={options} />
+      </div>
       <div className="flex">
         <div className="flex">
           <div className="flex flex-col">
@@ -98,18 +101,18 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
               Annual Gross Salary:
             </div>
 
-            <div className="text-center">
-              <p>Min: {scan.anual_gross_salary_min}</p>
-              <p>Avg: {scan.anual_gross_salary_avg}</p>
-              <p>Max: {scan.anual_gross_salary_max}</p>
+            <div className="flex justify-center">
+              <p className="m-5">Min: {scan.anual_gross_salary_min}</p>
+              <p className="m-5">Avg: {scan.anual_gross_salary_avg}</p>
+              <p className="m-5">Max: {scan.anual_gross_salary_max}</p>
             </div>
             <div className="text-center font-semibold">
               Hourly Freelance Rate:
             </div>
-            <div className="text-center">
-              <p>Min: {scan.hourly_freelance_rate_min}</p>
-              <p>Avg: {scan.hourly_freelance_rate_avg}</p>
-              <p>Max: {scan.hourly_freelance_rate_max}</p>
+            <div className="flex justify-center">
+              <p className="m-5">Min: {scan.hourly_freelance_rate_min}</p>
+              <p className="m-5">Avg: {scan.hourly_freelance_rate_avg}</p>
+              <p className="m-5">Max: {scan.hourly_freelance_rate_max}</p>
             </div>
             <div className="text-center m-4">
               <Button
@@ -140,9 +143,6 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
             </div>
           </div>
         </div>
-      </div>
-      <div>
-        <Bar data={data} options={options} />
       </div>
     </div>
   );

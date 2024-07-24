@@ -1,44 +1,43 @@
-import { useContext, useState } from 'react'
-import api from '../util/api'
-import { useNavigate } from 'react-router-dom'
-import { MainContext } from '../App'
-import Button from '../stylecomponents/Button'
+import { useContext, useState } from "react";
+import api from "../util/api";
+import { useNavigate } from "react-router-dom";
+import { MainContext } from "../App";
+import Button from "../stylecomponents/Button";
+import Logo from "../components/Logo";
 
 export default function Login() {
-  const { setUserData, setToast } = useContext(MainContext)
-  const navigate = useNavigate()
+  const { setUserData, setToast } = useContext(MainContext);
+  const navigate = useNavigate();
   //const { userData } = useContext(MainContext);
- 
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
 
-
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   async function handleSubmit() {
     // Implement login logic here (e.g., make an HTTP request to your Django backend)
-    const response = await api.login(email, password, setToast)
+    const response = await api.login(email, password, setToast);
 
     if (response && response.token) {
       setUserData({
         email: response.email,
         token: response.token,
-      })
+      });
 
       sessionStorage.setItem(
-        'userData',
+        "userData",
         JSON.stringify({
           email: response.email,
           token: response.token,
         })
-      )
-      navigate('/')
+      );
+      navigate("/");
     }
   }
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center bg-secondary">
+      <div className="min-h-screen flex items-center justify-center bg-secondary flex-col">
+        <Logo size="200px" /> <h1>Gemini CV</h1>
         <div className="bg-section p-8 rounded-lg shadow-lg w-full max-w-md">
           <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
           <div>
@@ -66,7 +65,7 @@ export default function Login() {
                 placeholder="Password"
               />
             </div>
-            
+
             <Button kind="primary" onClick={handleSubmit}>
               Login
             </Button>
@@ -74,5 +73,5 @@ export default function Login() {
         </div>
       </div>
     </>
-  )
+  );
 }
