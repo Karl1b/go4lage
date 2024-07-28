@@ -2,19 +2,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import api from "../util/api";
 import { useContext, useEffect, useState } from "react";
 import { MainContext } from "../App";
-import { Scan } from "../util/types";
+import { Scan, Run } from "../util/types";
 import Scancard from "../components/Scancard";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ScanGraph from "../components/ScanGraph";
 import Button from "../stylecomponents/Button";
 
-export default function Run() {
+export default function RunView() {
   const { userData } = useContext(MainContext);
   const navigate = useNavigate();
   const [scans, setScans] = useState<Scan[] | null>(null);
   const [showScanGraph, setShowScanGraph] = useState<boolean>(true);
   const [attempts, setAttempts] = useState<number>(0);
   const [showLoadingSpinner, SetShowLoadingSpinner] = useState<boolean>(false);
+  const [run,setRun] = useState<Run | null>(null);
 
   const { id } = useParams();
   const cvrunid = id || null;
@@ -24,10 +25,11 @@ export default function Run() {
       return;
     }
     const res = await api.getRun(userData.token, cvrunid);
-    setScans(res || null);
+    setScans(res.scans || null);
+    setRun(res)
 
     setAttempts((prevAttempts) => prevAttempts + 1);
-    const shouldShow = (res && res.length < 5) || !res;
+    const shouldShow = (res && res.scans.length < 5) || !res;
 
     SetShowLoadingSpinner(shouldShow);
   }
@@ -81,7 +83,9 @@ export default function Run() {
         {scans?.map((scan: Scan) => {
           return (
             <div key={scan.id} className="w-full">
-              <Scancard scan={scan} />
+              {run && 
+              <Scancard scan={scan} run={run} />
+              }
             </div>
           );
         })}

@@ -1,4 +1,4 @@
-import { Scan } from "../util/types";
+import { Run, Scan } from "../util/types";
 import { useContext, useState } from "react";
 import Button from "../stylecomponents/Button";
 import api from "../util/api";
@@ -7,12 +7,12 @@ import ScanCardDetail from "./ScanCardDetail";
 
 export interface ScanCardProps {
   scan: Scan;
+  run: Run;
 }
 
-export default function Scancard({ scan }: ScanCardProps) {
+export default function Scancard({ scan,run }: ScanCardProps) {
   const [showText, setShowText] = useState<boolean>(false);
-  const [showNextCareerStep, setShowNextCareerStep] = useState<boolean>(false);
-  const [textValue, setTextValue] = useState<string>(scan.text);
+ const [textValue, setTextValue] = useState<string>(scan.text);
   const { userData, setToast } = useContext(MainContext);
 
   async function copyToClipBoard() {
@@ -26,7 +26,8 @@ export default function Scancard({ scan }: ScanCardProps) {
 
   async function sendText() {
     try {
-      await api.uploadText(userData.token, textValue, setToast);
+      
+      await api.uploadText(userData.token, textValue,run.language,run.permanent, setToast);
     } catch (e) {
       console.log(e);
     }
@@ -45,12 +46,7 @@ export default function Scancard({ scan }: ScanCardProps) {
 
   
         <div className="flex justify-center space-x-4">
-          <Button
-            kind="secondary"
-            onClick={() => setShowNextCareerStep(!showNextCareerStep)}
-          >
-            {showNextCareerStep ? "Hide" : "Show"} Next Career Step
-          </Button>
+
           <Button
             kind="primary"
             onClick={() => setShowText(!showText)}
@@ -58,13 +54,7 @@ export default function Scancard({ scan }: ScanCardProps) {
             {showText ? "Hide" : "Show"} CV
           </Button>
         </div>
-        {showNextCareerStep && (
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <p className="text-center text-lg font-medium">
-              {scan.next_career_step}
-            </p>
-          </div>
-        )}
+
         {showText && (
           <div className="flex flex-col space-y-4">
             <p className="text-lg">

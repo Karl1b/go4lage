@@ -22,14 +22,14 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
   const [showHint, setShowHint] = useState<boolean>(false);
 
   const data = {
-    labels: ["Min", "Avg", "Max"],
+    labels: ["Min", "Avg"],
     datasets: [
       {
         label: "Annual Gross Salary",
         data: [
           scan.anual_gross_salary_min,
           scan.anual_gross_salary_avg,
-          scan.anual_gross_salary_max,
+        
         ],
         backgroundColor: "rgba(75, 192, 192, 0.6)",
         borderColor: "rgba(75, 192, 192, 1)",
@@ -41,7 +41,7 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
         data: [
           scan.hourly_freelance_rate_min,
           scan.hourly_freelance_rate_avg,
-          scan.hourly_freelance_rate_max,
+          
         ],
         backgroundColor: "rgba(153, 102, 255, 0.6)",
         borderColor: "rgba(153, 102, 255, 1)",
@@ -104,7 +104,7 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
             <div className="flex justify-center">
               <p className="m-5">Min: {scan.anual_gross_salary_min}</p>
               <p className="m-5">Avg: {scan.anual_gross_salary_avg}</p>
-              <p className="m-5">Max: {scan.anual_gross_salary_max}</p>
+              
             </div>
             <div className="text-center font-semibold">
               Hourly Freelance Rate:
@@ -112,7 +112,7 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
             <div className="flex justify-center">
               <p className="m-5">Min: {scan.hourly_freelance_rate_min}</p>
               <p className="m-5">Avg: {scan.hourly_freelance_rate_avg}</p>
-              <p className="m-5">Max: {scan.hourly_freelance_rate_max}</p>
+            
             </div>
             <div className="text-center m-4">
               <Button

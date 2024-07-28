@@ -4,7 +4,7 @@ import { ToastDetails, UserDetails } from "./util/types";
 import Toast from "./components/Toast";
 import Header from "./components/Header";
 import Index from "./pages/Index";
-import Run from "./pages/Run";
+import RunView from "./pages/RunView";
 import Login from "./pages/Login";
 import About from "./pages/About";
 import DumpRun from "./pages/DumpRun";
@@ -56,7 +56,7 @@ function App() {
                       <Route path="/" element={<Index />} />
                       <Route path="/about" element={<About />} />
                       <Route path="/dumprun/:id" element={<DumpRun />} />
-                      <Route path="/run/:id" element={<Run />} />
+                      <Route path="/run/:id" element={<RunView />} />
                     </Routes>
                   </div>
                 </div>

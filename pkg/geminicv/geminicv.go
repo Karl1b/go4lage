@@ -26,6 +26,8 @@ import (
 	"github.com/ledongthuc/pdf"
 	_ "github.com/lib/pq"
 	"google.golang.org/api/option"
+
+	"github.com/heussd/pdftotext-go"
 )
 
 type gCVOptions struct {
@@ -64,7 +66,6 @@ func init() {
 		scantimeouts:  scantimeoutsInt,
 		savedir:       "./data",
 	}
-
 }
 
 type GeApp struct {
@@ -75,7 +76,6 @@ func (app *GeApp) Test(w http.ResponseWriter, r *http.Request) {
 	utils.RespondWithJSON(w, 200, struct{}{})
 }
 
-// Read run
 func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
@@ -116,7 +116,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	allruns, err := app.Queries.SelectAllCVRunScans(context.Background(), cvrunuuid)
+	scans, err := app.Queries.SelectAllCVRunScans(context.Background(), cvrunuuid)
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting all runs",
@@ -124,25 +124,27 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	type Response struct {
+	type ScanDetail struct {
 		ID                     string `json:"id"`
 		Text                   string `json:"text"`
 		StartVersion           bool   `json:"start_version"`
 		AnualGrossSalaryMin    int    `json:"anual_gross_salary_min"`
 		AnualGrossSalaryAvg    int    `json:"anual_gross_salary_avg"`
-		AnualGrossSalaryMax    int    `json:"anual_gross_salary_max"`
 		HourlyFreelanceRateMin int    `json:"hourly_freelance_rate_min"`
 		HourlyFreelanceRateAvg int    `json:"hourly_freelance_rate_avg"`
-		HourlyFreelanceRateMax int    `json:"hourly_freelance_rate_max"`
-		NextCareerStep         string `json:"next_career_step"`
-		Lang                   string `json:"language"`
 	}
 
-	var response []Response
+	type Response struct {
+		Scans     []ScanDetail `json:"scans"`
+		Lang      string       `json:"language"`
+		Permanent bool         `json:"permanent"`
+	}
 
-	for _, run := range allruns {
+	var scandetails []ScanDetail
 
-		filename := fmt.Sprintf("%s.txt", run.ID.String()) // Assuming run.ID is the UUID
+	for _, scan := range scans {
+
+		filename := fmt.Sprintf("%s.txt", scan.ID.String()) // Assuming run.ID is the UUID
 		fullPath := filepath.Join(options.savedir, filename)
 		textBytes, err := os.ReadFile(fullPath)
 		if err != nil {
@@ -150,23 +152,25 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		item := Response{
-			ID:                     run.ID.String(),
+		item := ScanDetail{
+			ID:                     scan.ID.String(),
 			Text:                   string(textBytes),
-			StartVersion:           run.StartVersion.Bool,
-			AnualGrossSalaryMin:    int(run.AnualGrossSalaryMin.Int32),
-			AnualGrossSalaryAvg:    int(run.AnualGrossSalaryAvg.Int32),
-			AnualGrossSalaryMax:    int(run.AnualGrossSalaryMax.Int32),
-			HourlyFreelanceRateMin: int(run.HourlyFreelanceRateMin.Int32),
-			HourlyFreelanceRateAvg: int(run.HourlyFreelanceRateAvg.Int32),
-			HourlyFreelanceRateMax: int(run.HourlyFreelanceRateMax.Int32),
-			NextCareerStep:         run.NextCareerStep.String,
-			Lang:                   run.Lang.String,
+			StartVersion:           scan.StartVersion.Bool,
+			AnualGrossSalaryMin:    int(scan.AnualGrossSalaryMin.Int32),
+			AnualGrossSalaryAvg:    int(scan.AnualGrossSalaryAvg.Int32),
+			HourlyFreelanceRateMin: int(scan.HourlyFreelanceRateMin.Int32),
+			HourlyFreelanceRateAvg: int(scan.HourlyFreelanceRateAvg.Int32),
 		}
 
-		response = append(response, item)
+		scandetails = append(scandetails, item)
 
 	}
+
+	var response Response
+
+	response.Scans = scandetails
+	response.Lang = cvrun.Lang.String
+	response.Permanent = cvrun.Permanent.Bool
 
 	utils.RespondWithJSON(w, 200, response)
 }
@@ -272,6 +276,9 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	region := r.FormValue("region")
+	role := r.FormValue("permanent")
+
 	file, _, err := r.FormFile("upload")
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
@@ -298,12 +305,14 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	// Parse PDF to text
 	text, err := pdfToText(fileBytes)
 	if err != nil {
-
-		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
-			Detail: "Failed to parse pdf",
-			Error:  errors.New("failed to parse pdf"),
-		})
-		return
+		text, err = pdfToText3(fileBytes)
+		if err != nil {
+			utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+				Detail: "Failed to parse pdf",
+				Error:  errors.New("failed to parse pdf"),
+			})
+			return
+		}
 
 	}
 	text, err = cleanText(text)
@@ -316,7 +325,26 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	}
 	newuuid := uuid.New()
 
-	run, err := app.Queries.CreateCVRun(context.Background(), newuuid)
+	lang := "en"
+
+	if region == "de" {
+		lang = "de"
+	}
+
+	permanent := true
+
+	if role == "false" {
+		permanent = false
+	}
+
+	run, err := app.Queries.CreateCVRun(context.Background(),
+
+		db.CreateCVRunParams{
+			ID:        newuuid,
+			Lang:      sql.NullString{String: lang, Valid: true},
+			Permanent: sql.NullBool{Bool: permanent, Valid: true},
+		})
+
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to create run",
@@ -395,6 +423,8 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	type RequestBody struct {
 		Text string `json:"text"`
+		Lang string `json:"language"`
+		Role string `json:"role"`
 	}
 
 	var reqBody RequestBody
@@ -421,7 +451,23 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	newuuid := uuid.New()
 
-	run, err := app.Queries.CreateCVRun(context.Background(), newuuid)
+	lang := "en"
+
+	if reqBody.Lang == "de" {
+		lang = "de"
+	}
+
+	permanent := true
+
+	if reqBody.Role == "freelance" {
+		permanent = false
+	}
+
+	run, err := app.Queries.CreateCVRun(context.Background(), db.CreateCVRunParams{
+		ID:        newuuid,
+		Lang:      sql.NullString{String: lang, Valid: true},
+		Permanent: sql.NullBool{Bool: permanent, Valid: true},
+	})
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to create run",
@@ -480,6 +526,20 @@ func pdfToText(fileBytes []byte) (string, error) {
 	return text, nil
 }
 
+func pdfToText3(fileBytes []byte) (string, error) {
+	pages, err := pdftotext.Extract(fileBytes)
+	if err != nil {
+		return "", fmt.Errorf("failed to extract text from PDF: %v", err)
+	}
+
+	var result string
+	for _, page := range pages {
+		result += fmt.Sprintf(page.Content)
+	}
+
+	return result, nil
+}
+
 func cleanText(text string) (string, error) {
 	text = regexp.MustCompile(`(\n{3,})`).ReplaceAllString(text, "\n\n\n")
 	text = regexp.MustCompile(`\*{1,2}`).ReplaceAllString(text, "")
@@ -496,19 +556,13 @@ func cleanText(text string) (string, error) {
 
 func analyseCV(text string, run db.Cvrun, queries *db.Queries) {
 
-	lang, err := detectLanguage(text)
-	if err != nil {
+	lang := "en"
 
-		fmt.Println("Error detect language")
-		fmt.Println(err)
-		return
+	if run.Lang.String == "de" {
+		lang = "de"
 	}
 
-	// waitgroup here
-
-	// Launch the goroutines
-
-	cvRunScan(lang, text, 1, queries, run, true)
+	cvRunScan(lang, text, 0.9, queries, run, true)
 
 	instructionOne := cvImproveOne.en
 	instructionTwo := cvImproveTwo.en
@@ -522,37 +576,6 @@ func analyseCV(text string, run db.Cvrun, queries *db.Queries) {
 	go createImprovement(lang, text, 0.8, queries, run, instructionTwo)
 	go createImprovement(lang, text, 0.65, queries, run, instructionOne)
 	go createImprovement(lang, text, 0.65, queries, run, instructionTwo)
-
-}
-
-// DetectsLanguage and also is good to prevent prompt injection
-func detectLanguage(text string) (string, error) {
-
-	resp, err := callGemini(languageCheck.en, text, 0.9)
-	fmt.Println(resp)
-	if err != nil {
-		return "en", err
-	}
-
-	type GeminiLangResponse struct {
-		Lang string `json:"language"`
-	}
-
-	var langRespose GeminiLangResponse
-
-	err = json.Unmarshal([]byte(resp), &langRespose)
-	if err != nil {
-		fmt.Println(err)
-		return "", err
-	}
-
-	lang := langRespose.Lang
-
-	if lang != "en" && lang != "de" {
-		return "", errors.New("wrong language")
-	}
-
-	return lang, nil
 
 }
 
@@ -570,21 +593,19 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 		return
 	}
 
-	fmt.Println(resp)
-
 	type GeminiResponse struct {
-		AnualGrossSalaryMin int `json:"anual_gross_salary_min"`
-		AnualGrossSalaryAvg int `json:"anual_gross_salary_avg"`
-		AnualGrossSalaryMax int `json:"anual_gross_salary_max"`
-
+		AnualGrossSalaryMin    int `json:"anual_gross_salary_min"`
+		AnualGrossSalaryAvg    int `json:"anual_gross_salary_avg"`
 		HourlyFreelanceRateMin int `json:"hourly_freelance_rate_min"`
 		HourlyFreelanceRateAvg int `json:"hourly_freelance_rate_avg"`
-		HourlyFreelanceRateMax int `json:"hourly_freelance_rate_max"`
-
-		NextCareerStep string `json:"next_career_step"`
 	}
 
-	var geminiResp GeminiResponse
+	geminiResp := GeminiResponse{
+		AnualGrossSalaryMin:    0,
+		AnualGrossSalaryAvg:    0,
+		HourlyFreelanceRateMin: 0,
+		HourlyFreelanceRateAvg: 0,
+	}
 	err = json.Unmarshal([]byte(resp), &geminiResp)
 	if err != nil {
 		fmt.Println(err)
@@ -601,20 +622,15 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 		ID:                     newUUID,
 		Filepath:               newUUID.String(),
 		StartVersion:           sql.NullBool{Bool: isStartVersion, Valid: true},
-		Lang:                   sql.NullString{String: lang, Valid: true},
 		AnualGrossSalaryMin:    sql.NullInt32{Int32: int32(geminiResp.AnualGrossSalaryMin), Valid: true},
 		AnualGrossSalaryAvg:    sql.NullInt32{Int32: int32(geminiResp.AnualGrossSalaryAvg), Valid: true},
-		AnualGrossSalaryMax:    sql.NullInt32{Int32: int32(geminiResp.AnualGrossSalaryMax), Valid: true},
 		HourlyFreelanceRateMin: sql.NullInt32{Int32: int32(geminiResp.HourlyFreelanceRateMin), Valid: true},
 		HourlyFreelanceRateAvg: sql.NullInt32{Int32: int32(geminiResp.HourlyFreelanceRateAvg), Valid: true},
-		HourlyFreelanceRateMax: sql.NullInt32{Int32: int32(geminiResp.HourlyFreelanceRateMax), Valid: true},
-		NextCareerStep:         sql.NullString{String: geminiResp.NextCareerStep, Valid: true},
 	})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("New scan created:", scan)
 
 	filename := fmt.Sprintf("%s.txt", newUUID.String())
 	fullPath := filepath.Join(options.savedir, filename)

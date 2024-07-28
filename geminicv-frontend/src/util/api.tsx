@@ -1,4 +1,4 @@
-import { RunInfo, Scan, ToastDetails, UserDetails } from "./types";
+import { Run, RunInfo, ToastDetails, UserDetails } from "./types";
 
 class API {
   apiUrl: string;
@@ -78,9 +78,17 @@ class API {
   public async uploadcv(
     token: string,
     formData: FormData,
+    region: string, // send this as well
+    permanent: boolean,
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo> {
     try {
+      formData.append("region", region);
+
+      const permentry = permanent ? "true" : "false";
+
+      formData.append("permanent", permentry);
+
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/uploadcv`, //TODO: CHeck
         {
@@ -93,22 +101,17 @@ class API {
       const data = await response.json();
       return data;
 
-      setToast({
-        show: true,
-        success: true,
-        header: "CV upload",
-        text: "CV upload complete",
-      });
+  
     } catch (error) {
       if (error instanceof Error) {
         setToast({
           show: true,
           success: false,
           header: "CV upload",
-          text: `Error uploading users: ${error.message}`,
+          text: `Error uploading cv: ${error.message}`,
         });
 
-        console.error("Error creating users:", error.message);
+        console.error("Error creating cv:", error.message);
       }
       throw error;
     }
@@ -133,7 +136,7 @@ class API {
     }
   }
 
-  public async getRun(token: string | null, cvrunid: string): Promise<Scan[]> {
+  public async getRun(token: string | null, cvrunid: string): Promise<Run> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/run`,
@@ -153,7 +156,13 @@ class API {
     }
   }
 
-  public async uploadText(token: string | null, text: string ,setToast: (toast: ToastDetails) => void): Promise<RunInfo> {
+  public async uploadText(
+    token: string | null,
+    text: string,
+    region: string, // send this as well
+    permanent: boolean,
+    setToast: (toast: ToastDetails) => void
+  ): Promise<RunInfo> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/uploadtext`,
@@ -161,20 +170,15 @@ class API {
           method: "POST",
           body: JSON.stringify({
             text: text,
+            region: region,
+            permanent: permanent,
           }),
         },
         token
       );
-      
+
       const data = await response.json();
       return data;
-
-      setToast({
-        show: true,
-        success: true,
-        header: "Text send successfully",
-        text: "CV send successfully",
-      });
     } catch (error) {
       if (error instanceof Error) {
         setToast({
@@ -193,4 +197,3 @@ class API {
 
 const api = new API();
 export default api;
-

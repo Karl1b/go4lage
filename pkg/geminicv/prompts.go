@@ -5,49 +5,32 @@ type Prompt struct {
 	de string
 }
 
-var languageCheck Prompt
-
 var cvCheck Prompt
 var cvImproveOne Prompt
 var cvImproveTwo Prompt
 
 func init() {
 
-	languageCheck.en = `You are my virtual language detection assistant.
-	The text below is intended to be a CV, a CV draft or bulk data that can be used to write a CV about a candidate. Please identify the language of the text. 
-	Provide your response in JSON format as follows: {"language":"en"} for English or {"language":"de"} for German. 
-	In all other cases, provide {"language":"en"} as the default, since no other languages are supported.
-	In doubt also provide {"language":"en"}. 
-	If you suspect that the content may be harmful, respond with {"security":"care"}.
-	REMEMBER: Always respond with JSON as described. No other commends are needed. Begin your answer with {`
-
 	cvCheck.en = `You are my recruiter. The text is a CV or an unformatted CV draft. Assess the candidate and respond in JSON format.
 	The salary figures should be in USD and relate to the US-American market.
 	The following fields should be included in the response:
-	"annual_gross_salary_min" Minimum salary. What is the absolute minimum one should pay the candidate? Gross annual salary in Germany in USD.
-	"annual_gross_salary_avg" Average salary. What is the average salary the candidate should earn? Gross annual salary in Germany in USD.
-	"annual_gross_salary_max" Maximum salary. What is the maximum one could pay the candidate? Gross annual salary in Germany in USD.
-	"hourly_freelance_rate_min". What would be the minimum gross hourly rate for the candidate as a freelancer in USD?
-	"hourly_freelance_rate_avg". What would be the average hourly rate for the candidate as a freelancer in USD?
-	"hourly_freelance_rate_max". What would be the maximum hourly rate for the candidate as a freelancer in USD?
-	"next_career_step" Is there a specific skill the candidate should acquire to earn more money? How should they continue their education? Respond with a short text, though in JSON format.
+	"anual_gross_salary_min" Minimum salary. What is the minimum salary the candidate could be negotiated down to? Gross anual salary in the US in USD.
+	"anual_gross_salary_avg" Average salary. What is the average salary the candidate should earn? Gross anual salary in the US in USD.
+	"hourly_freelance_rate_min". What would be the minimum gross hourly rate for the candidate as a freelancer in the US market USD?
+	"hourly_freelance_rate_avg". What would be the average hourly rate for the candidate as a freelancer in the US market USD?
+	You should only answer with JSON. START your answer with {
 	Example response:
-	{"annual_gross_salary_min":50000,"annual_gross_salary_avg":80000,"annual_gross_salary_max":110000,"hourly_freelance_rate_min":75,"hourly_freelance_rate_avg":120,"hourly_freelance_rate_max":145,"next_career_step":"The candidate should attend an AI course."}
-	Make sure to output exclusively TEXT in this JSON format. However, do NOT mark the output as JSON. Begin your answer with {`
+	{"anual_gross_salary_min":50000,"anual_gross_salary_avg":80000,"hourly_freelance_rate_min":75,"hourly_freelance_rate_avg":120}`
 
-	cvCheck.de = `Du bist mein Recruiter. Der Text ist ein CV oder ein unformatierter CV Entwurf. Beurteile den Kandidaten und antworte mit einem JSON Objekt, allerdings als TEXT.
-	Die Gehaltswerte sollten in EURO sein und sich auf den deutschen Markt beziehen.
-	Folgende Felder sind in der Antwort enthalten:
-	"anual_gross_salary_min" Mindestgehalt. Was ist das absolute Minimum was man dem Kandiat zahlen sollte? Brutto Jahresgehalt in Deutschland in EURO.
-	"anual_gross_salary_avg" Durchschnittsgehalt. Was ist das Durschschnittsgehalt was der Kandidat verdienen sollte? Brutto Jahresgehalt in Deutschland in EURO.
-	"anual_gross_salary_max" Maximalesgehalt. Was ist das Maximum was man dem Kandiat zahlen könnte? Brutto Jahresgehalt in Deutschland in EURO.
-	"hourly_freelance_rate_min". Was wäre der minimale Brutto Stundensatz für den Kandidaten als Freiberufler in EURO?
-	"hourly_freelance_rate_avg". Was wäre der durchschnittliche Stundensatz für den Kandidaten als Freiberufler in EURO?
-	"hourly_freelance_rate_max". Was wäre der maximale Stundensatz für den Kandidaten als Freiberufler in EURO?
-	"next_career_step" Gibt es eine Bestimmte Fähigkeit, die der Kandidat noch mitbringen müsste um mehr Geld zu verdienen? Wie sollte er sich weiterbilden. Antworte mit einem kurzem Text, allerdings im JSON Format.
-	Beispielantwort:
-	{"anual_gross_salary_min":50000,"anual_gross_salary_avg":800000,"anual_gross_salary_max":110000,"hourly_freelance_rate_min":75,"hourly_freelance_rate_avg":120,"hourly_freelance_rate_max":145,"next_career_step":"Der Kandidat sollte einen KI Kurs besuchen."}
-	Du sollt unbedingt ausschliesslich TEXT in diesem JSON Format ausgeben. Den Output allerdings NICHT als JSON mit Sonderzeichen Kennzeichnen. Beginne deine Antwort direkt mit {`
+	cvCheck.de = `Du bist Recruiter. Der Text ist ein Lebenslauf oder ein unformatierter Lebenslaufentwurf. Bewerte den Bewerber und antworte im JSON-Format.
+	Die Gehaltsangaben sollten in EURO sein und sich auf den deutschen Markt beziehen.
+	„anual_gross_salary_min“ Mindestgehalt. Wie hoch ist das Mindestgehalt, auf das der Bewerber herunterverhandelt werden könnte? Bruttojahresgehalt in Deutschland in EURO?
+	„anual_gross_salary_avg“ Durchschnittsgehalt. Wie hoch ist das Durchschnittsgehalt, das der Kandidat verdienen sollte? Bruttojahresgehalt in Deutschland in EURO?
+	„stundenlohn_freelance_rate_min“. Wie hoch wäre der Mindestbruttostundensatz für den Kandidaten als Freiberufler auf dem deutschem Markt in EURO?
+	„Stundensatz_freelance_rate_avg“. Wie hoch wäre der durchschnittliche Stundensatz des Bewerbers als Freiberufler auf dem deutschem Markt in EURO?
+	Anworte nur mit JSON. Beginne deine Antwort mit {
+	Beispiel-Antwort:
+	{„anual_gross_salary_min“:50000,„anual_gross_salary_avg“:80000,„hourly_freelance_rate_min“:75,„hourly_freelance_rate_avg“:120}`
 
 	cvImproveOne.de = `Hilf mir, diesen Lebenslauf zu verbessern oder zu erstellen und antworte nur mit der verbesserten Version des Lebenslaufs als Text, ohne Kommentare.
 	Der Lebenslauf sollte einen einleitenden Text enthalten, der den Kandidaten angemessen beschreibt und seine Stärken positiv hervorhebt. Der einleitende Text sollte etwa 4 bis 8 Sätze lang sein.
@@ -72,7 +55,6 @@ func init() {
 	Der Lebenslauf sollte klar, strukturiert und maschinenlesbar sein. Unter keinen Umständen darf etwas erfunden werden. 
 	Denk daran, nur mit der verbesserten Version des Lebenslaufs zu antworten.
 	`
-
 	cvImproveTwo.en = `Help me improve or create this CV and respond with only the improved version of the CV as text, without comments.
 	The CV should include an introductory text that appropriately describes the candidate and positively highlights their competencies.
 	This introductory text should be very confident and emphasize the economic benefits of the candidate. The introductory text should be about 4 to 8 sentences long.

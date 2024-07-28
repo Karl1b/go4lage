@@ -1,16 +1,19 @@
+import { Run } from "../util/types";
+
 export interface ImprovementIndicatorProps {
   startisbest: boolean;
   improvement: number;
-  language: string;
+  run: Run;
 }
 
 export default function DumpRunLoadScreen({
   startisbest,
   improvement,
-  language,
+  run,
 }: ImprovementIndicatorProps) {
   const isPositive = improvement > 0;
-  const isGerman = language === "de";
+  const isGerman = run.language === "de";
+  const isPermanent = run.permanent
 
   const formattedImprovement = new Intl.NumberFormat(
     isGerman ? "de-DE" : "en-US",
@@ -26,10 +29,10 @@ export default function DumpRunLoadScreen({
     estimated: isGerman ? "Geschätzte" : "Estimated",
     increase: isGerman ? "Erhöhung" : "increase",
     decrease: isGerman ? "Verringerung" : "decrease",
-    annualSalary: isGerman ? "des Brutto Jahresgehalts" : "in annual salary",
+    annualSalary: isGerman ? isPermanent? "des Brutto Jahresgehalts" : "des Stundensatzes" : isPermanent? "in annual salary" : "in hourly rate",
     bestVersion: isGerman
-      ? "Die ursprüngliche Version des Lebenslaufs bietet das beste Gehaltspotenzial."
-      : "The initial resume version yields the best potential salary.",
+      ? "Die ursprüngliche Version des Lebenslaufs bietet bereits ein gutes Gehaltspotenzial."
+      : "The initial resume version yields a good potential salary.",
   };
 
   return (

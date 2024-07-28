@@ -1,7 +1,9 @@
 -- +goose Up
 CREATE TABLE cvruns (
     id UUID PRIMARY KEY,
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    lang VARCHAR(2) DEFAULT 'en',
+    permanent BOOLEAN DEFAULT true
 );
 
 CREATE TABLE users_cvruns (
@@ -14,15 +16,11 @@ CREATE TABLE cvrunscans (
     id UUID PRIMARY KEY,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     filepath TEXT UNIQUE NOT NULL,
-    lang VARCHAR(2) DEFAULT 'EN',
     start_version BOOLEAN DEFAULT false,
     anual_gross_salary_min INT,
     anual_gross_salary_avg INT,
-    anual_gross_salary_max INT,
     hourly_freelance_rate_min INT,
-    hourly_freelance_rate_avg INT,
-    hourly_freelance_rate_max INT,
-    next_career_step TEXT
+    hourly_freelance_rate_avg INT
 );
 
 CREATE TABLE cvruns_cvrunscans (

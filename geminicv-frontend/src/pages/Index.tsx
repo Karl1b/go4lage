@@ -12,7 +12,11 @@ export default function Index() {
   const { userData, setToast } = useContext(MainContext);
 
   const [runs, setRuns] = useState<Run[] | null>(null);
+
   const [runMode, setRunmode] = useState<string>("pdf");
+  const [region, setRegion] = useState<string>("en");
+  const [permanent, setPermanent] = useState<boolean>(true);
+
   const [textValue, setTextValue] = useState<string>("");
   const [showUpload, setShowUpload] = useState<boolean>(true);
 
@@ -52,7 +56,13 @@ export default function Index() {
     if (formRef.current && userData.token) {
       const formData = new FormData(formRef.current);
       try {
-        const res = await api.uploadcv(userData.token, formData, setToast);
+        const res = await api.uploadcv(
+          userData.token,
+          formData,
+          region,
+          permanent,
+          setToast
+        );
         setRuns(res.runs || null);
         setShowUpload((res.current_runs || 0) < (res.max_runs || 0));
         goToNewRun(res);
@@ -64,7 +74,13 @@ export default function Index() {
 
   async function sendText() {
     try {
-      const res = await api.uploadText(userData.token, textValue, setToast);
+      const res = await api.uploadText(
+        userData.token,
+        textValue,
+        region,
+        permanent,
+        setToast
+      );
       setRuns(res.runs || null);
       setShowUpload((res.current_runs || 0) < (res.max_runs || 0));
       goToNewRun(res);
@@ -112,9 +128,36 @@ export default function Index() {
       {showUpload && (
         <div>
           <div className="flex justify-center mb-4">
+            <p className="text-lg">Choose your target region.</p>
+          </div>
+
+          <div className="flex justify-center mb-5">
+            <p>US</p>
+            <ToggleSwitch
+              isChecked={region === "de"}
+              onChange={() => setRegion(region === "de" ? "en" : "de")}
+            />
+            <p>GER</p>
+          </div>
+          <div className="flex justify-center mb-4">
             <p className="text-lg">
-              Switch mode: Upload a PDF or simply copy and paste plain text from
-              your writer app.
+              Are you freelancing or looking for a permanent position?
+            </p>
+          </div>
+
+          <div className="flex justify-center mb-5">
+            <p>Freelancer</p>
+            <ToggleSwitch
+              isChecked={permanent}
+              onChange={() => setPermanent(!permanent)}
+            />
+            <p>Permanent position</p>
+          </div>
+
+          <div className="flex justify-center mb-4">
+            <p className="text-lg">
+              Upload a PDF or simply copy and paste plain text from your writer
+              app.
             </p>
           </div>
 
