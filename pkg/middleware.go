@@ -3,7 +3,6 @@ package go4lage
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -77,7 +76,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if err != nil {
 				utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 					Detail: "Error Getting User By Token",
-					Error:  err,
+					Error:  err.Error(),
 				})
 				return
 			}
@@ -85,7 +84,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if !user.IsActive.Bool && !user.IsSuperuser.Bool {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "User inactive.",
-					Error:  errors.New("user is not active"),
+					Error:  "user is not active",
 				})
 				return
 			}
@@ -93,7 +92,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.SuperuserTokenValidMins)*time.Minute).Before(time.Now()) {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "Login again.",
-					Error:  errors.New("token outdated"),
+					Error:  "token outdated",
 				})
 				return
 			}
@@ -101,7 +100,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "Login again.",
-					Error:  errors.New("token outdated"),
+					Error:  "token outdated",
 				})
 				return
 			}
@@ -113,7 +112,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				if err != nil {
 					utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 						Detail: "Error getting permissions for user",
-						Error:  err,
+						Error:  err.Error(),
 					})
 					return
 				}
@@ -126,7 +125,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				if err != nil {
 					utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 						Detail: "Error getting group for user",
-						Error:  err,
+						Error:  err.Error(),
 					})
 					return
 				}
@@ -135,7 +134,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if !(hasPermission || hasGroup || (group == "" && permission == "")) {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "You do not have the permission or are not in the correct group to do this",
-					Error:  errors.New("permission check failed"),
+					Error:  "permission check failed",
 				})
 				return
 			}

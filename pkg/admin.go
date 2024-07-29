@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/csv"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -40,7 +39,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Auththrottle",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -82,7 +81,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error comparing password",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -154,7 +153,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if !utils.IsValidEmail(email) {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
-			Error:  nil,
+			Error:  "",
 		})
 		return
 	}
@@ -164,7 +163,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -173,7 +172,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error getting olduser from db",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -189,7 +188,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	} else if reqBody.Email != "" && !utils.IsValidEmail(reqBody.Email) {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
-			Error:  nil,
+			Error:  "",
 		})
 		return
 	}
@@ -199,7 +198,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 				Detail: "Error hashing password",
-				Error:  err,
+				Error:  err.Error(),
 			})
 		}
 	} else {
@@ -227,7 +226,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error updating User",
-			Error:  err,
+			Error:  err.Error(),
 		})
 
 		return
@@ -236,7 +235,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: "User updated",
-		Error:  nil,
+		Error:  "",
 	})
 
 }
@@ -249,7 +248,7 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 
 		return
@@ -307,7 +306,7 @@ func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -364,7 +363,7 @@ func (app *App) editUserPermissions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -419,7 +418,7 @@ func (app *App) getGroups(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error getting all groups",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -434,7 +433,7 @@ func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -443,7 +442,7 @@ func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error getting all groups",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -458,7 +457,7 @@ func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -467,7 +466,7 @@ func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error getting permission by Id",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -497,7 +496,7 @@ func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
 	if reqBody.Name == "" {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "no empty names allowed",
-			Error:  errors.New("no empty names allowed"),
+			Error:  "no empty names allowed",
 		})
 		return
 	}
@@ -509,7 +508,7 @@ func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error creating new permission",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -541,7 +540,7 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 	if reqBody.Name == "" {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "no empty names allowed",
-			Error:  errors.New("no empty names allowed"),
+			Error:  "no empty names allowed",
 		})
 		return
 	}
@@ -553,7 +552,7 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error creating new permission",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -569,7 +568,7 @@ func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse permission ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -577,7 +576,7 @@ func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error getting all permissions",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -592,7 +591,7 @@ func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse group ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -600,7 +599,7 @@ func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error deleting group",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -614,7 +613,7 @@ func (app *App) getPermissions(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "error getting all permissions",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -629,7 +628,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -644,7 +643,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get permissions",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -653,7 +652,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -681,14 +680,14 @@ func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Failed to create backup",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
 
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: string(output),
-		Error:  err,
+		Error:  err.Error(),
 	})
 }
 func (app *App) logout(w http.ResponseWriter, r *http.Request) {
@@ -696,7 +695,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to get user from context",
-			Error:  errors.New("failed to get user from context"),
+			Error:  "failed to get user from context",
 		})
 		return
 	}
@@ -710,7 +709,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to null token",
-			Error:  errors.New("failed to get user from context"),
+			Error:  "failed to get user from context",
 		})
 		return
 	}
@@ -718,7 +717,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: "User token cleared",
-		Error:  nil,
+		Error:  "",
 	})
 
 }
@@ -755,7 +754,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "File not found",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -764,7 +763,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error opening file",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -776,7 +775,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 	if _, err := io.Copy(w, file); err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error sending file",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -789,7 +788,7 @@ func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "File not found",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -797,7 +796,7 @@ func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
 	if err := os.Remove(filePath); err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Failed to delete file",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -812,7 +811,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -828,7 +827,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get groups",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -837,7 +836,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get groups from db",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -866,7 +865,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -882,7 +881,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get permissions",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -891,7 +890,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -944,7 +943,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 	if !utils.IsValidEmail(email) {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
-			Error:  nil,
+			Error:  "",
 		})
 
 	}
@@ -953,7 +952,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 	if password == "" {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error Pasword Is the password valid?",
-			Error:  nil,
+			Error:  "",
 		})
 		return
 	}
@@ -971,7 +970,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "Error hashing password",
-			Error:  err,
+			Error:  err.Error(),
 		})
 	}
 
@@ -989,7 +988,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 			Detail: "nice",
-			Error:  err,
+			Error:  err.Error(),
 		})
 
 		return
@@ -1009,7 +1008,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "error creating new group",
-					Error:  err,
+					Error:  err.Error(),
 				})
 				return
 			}
@@ -1022,7 +1021,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 				Detail: "error instering into usergroups",
-				Error:  err,
+				Error:  err.Error(),
 			})
 			return
 		}
@@ -1043,7 +1042,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 			if err != nil {
 				utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 					Detail: "error creating new group",
-					Error:  err,
+					Error:  err.Error(),
 				})
 				return
 			}
@@ -1056,7 +1055,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			utils.RespondWithJSON(w, 400, utils.ErrorResponse{
 				Detail: "error instering into userpermissions",
-				Error:  err,
+				Error:  err.Error(),
 			})
 			return
 		}
@@ -1078,7 +1077,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1089,7 +1088,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error deleting this user",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1178,7 +1177,7 @@ func (app *App) bulkCreateUsers(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: "nice",
-		Error:  nil,
+		Error:  "",
 	})
 }
 
@@ -1189,7 +1188,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1198,7 +1197,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting this user",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1219,7 +1218,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting groups for user",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1234,7 +1233,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting permissions for user",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1268,7 +1267,7 @@ func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting all users",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -1294,7 +1293,7 @@ func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 		if err != nil {
 			utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 				Detail: "Error getting groups for user",
-				Error:  err,
+				Error:  err.Error(),
 			})
 			return
 		}
