@@ -54,7 +54,7 @@ func CompareHashAndPassword(hash, password string) error {
 
 type ErrorResponse struct {
 	Detail string `json:"detail"`
-	Error  error  `json:"error"`
+	Error  string `json:"error"`
 }
 
 type ToastResponse struct {
