@@ -82,7 +82,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "User not found in context",
-			Error:  errors.New("user not found"),
+			Error:  "user not found",
 		})
 		return
 	}
@@ -92,7 +92,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error parsing uuid",
-			Error:  err,
+			Error:  err.Error(),
 		})
 	}
 
@@ -100,7 +100,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error parsing uuid",
-			Error:  err,
+			Error:  err.Error(),
 		})
 	}
 
@@ -112,7 +112,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error is this User owner of the run?",
-			Error:  err,
+			Error:  err.Error(),
 		})
 	}
 
@@ -120,7 +120,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting all runs",
-			Error:  err,
+			Error:  err.Error(),
 		})
 	}
 
@@ -219,7 +219,7 @@ func (app *GeApp) Allruns(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "User not found in context",
-			Error:  errors.New("user not found"),
+			Error:  "user not found",
 		})
 		return
 	}
@@ -228,7 +228,7 @@ func (app *GeApp) Allruns(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error to get all runs",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -240,11 +240,17 @@ func (app *GeApp) Allruns(w http.ResponseWriter, r *http.Request) {
 
 func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
+	utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+		Detail: "Testerror",
+		Error:  "inside the Error",
+	})
+	return
+
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "User not found in context",
-			Error:  errors.New("user not found"),
+			Error:  "user not found",
 		})
 		return
 	}
@@ -253,7 +259,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Count failed",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -261,7 +267,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if userRuns >= int64(options.cvrunsperuser) {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "too many runs",
-			Error:  errors.New("too many runs"),
+			Error:  "too many runs",
 		})
 		return
 	}
@@ -270,7 +276,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "File too big",
-			Error:  errors.New("file too big"),
+			Error:  "file too big",
 		})
 		return
 
@@ -283,7 +289,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Invalid file",
-			Error:  errors.New("invalid file"),
+			Error:  "invalid file",
 		})
 		return
 
@@ -296,7 +302,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to read file",
-			Error:  errors.New("failed to read file"),
+			Error:  "failed to read file",
 		})
 		return
 
@@ -305,11 +311,13 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	// Parse PDF to text
 	text, err := pdfToText(fileBytes)
 	if err != nil {
+
 		text, err = pdfToText3(fileBytes)
+		log.Println("Error pdfToText3: ", err)
 		if err != nil {
 			utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 				Detail: "Failed to parse pdf",
-				Error:  errors.New("failed to parse pdf"),
+				Error:  "failed to parse pdf",
 			})
 			return
 		}
@@ -319,7 +327,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error Cleaning Text",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -348,7 +356,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to create run",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 
@@ -362,7 +370,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to link user and run",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -373,7 +381,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "User not found in context",
-			Error:  errors.New("failed to get all CV runs"),
+			Error:  "failed to get all CV runs",
 		})
 		return
 	}
@@ -388,7 +396,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "User not found in context",
-			Error:  errors.New("user not found"),
+			Error:  "user not found",
 		})
 		return
 	}
@@ -397,7 +405,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Count failed",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -405,7 +413,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if userRuns >= int64(options.cvrunsperuser) {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "too many runs",
-			Error:  errors.New("too many runs"),
+			Error:  "too many runs",
 		})
 		return
 	}
@@ -414,7 +422,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Empty body",
-			Error:  errors.New("empty body"),
+			Error:  "empty body",
 		})
 
 		return
@@ -432,7 +440,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Wrong body",
-			Error:  errors.New("wrong body"),
+			Error:  "wrong body",
 		})
 
 		return
@@ -444,7 +452,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error Cleaning Text",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}
@@ -471,7 +479,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to create run",
-			Error:  err,
+			Error:  err.Error(),
 		})
 
 		return
@@ -484,7 +492,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Failed to link user and run",
-			Error:  err,
+			Error:  err.Error(),
 		})
 
 		return
@@ -496,7 +504,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 			Detail: "Error getting all runs",
-			Error:  err,
+			Error:  err.Error(),
 		})
 		return
 	}

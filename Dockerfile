@@ -8,7 +8,7 @@ RUN go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 
 # Install sqlc globally
 
-RUN apt-get update && apt-get install -y postgresql-client
+RUN apt-get update && apt-get install -y postgresql-client poppler-utils
 # Add the go installation path to the PATH environment variable
 ENV PATH="/go/bin:${PATH}"
 

@@ -54,7 +54,7 @@ func CompareHashAndPassword(hash, password string) error {
 
 type ErrorResponse struct {
 	Detail string `json:"detail"`
-	Error  error  `json:"error"`
+	Error  string `json:"error"`
 }
 
 type ToastResponse struct {
@@ -69,6 +69,9 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 		w.WriteHeader(500)
 		return
 	}
+	log.Println(payload)
+	log.Println(dat)
+
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(code)
 	w.Write(dat)
