@@ -687,7 +687,7 @@ func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 
 	utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 		Detail: string(output),
-		Error:  err.Error(),
+		Error:  "",
 	})
 }
 func (app *App) logout(w http.ResponseWriter, r *http.Request) {

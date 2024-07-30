@@ -242,13 +242,13 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	utils.RespondWithJSON(w, 500, utils.ErrorResponse{
 		Detail: "Testerror",
-		Error:  "inside the Error",
+		Error:  "this is the exact error",
 	})
 	return
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		utils.RespondWithJSON(w, 500, utils.ErrorResponse{
+		utils.RespondWithJSON(w, 200, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "user not found",
 		})

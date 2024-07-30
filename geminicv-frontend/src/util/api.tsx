@@ -78,43 +78,45 @@ class API {
   public async uploadcv(
     token: string,
     formData: FormData,
-    region: string, // send this as well
+    region: string,
     permanent: boolean,
     setToast: (toast: ToastDetails) => void
-  ): Promise<RunInfo> {
-    try {
-      formData.append("region", region);
+  ): Promise<RunInfo | null> {
+    formData.append("region", region);
+    const permentry = permanent ? "true" : "false";
+    formData.append("permanent", permentry);
 
-      const permentry = permanent ? "true" : "false";
+    const response = await this.fetchWithToken(
+      `${this.apiUrl}/geminicv/uploadcv`,
+      {
+        method: "POST",
+        body: formData,
+      },
+      token
+    );
 
-      formData.append("permanent", permentry);
-
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geminicv/uploadcv`, //TODO: CHeck
-        {
-          method: "POST",
-          body: formData,
-        },
-        token
-      );
-
-      const data = await response.json();
-      return data;
-
-  
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: "CV upload",
-          text: `Error uploading cv: ${error.message}`,
-        });
-
-        console.error("Error creating cv:", error.message);
-      }
-      throw error;
+    const responseJson = await response.json();
+    console.log(response.status);
+    if (responseJson.error) {
+      setToast({
+        show: true,
+        success: false,
+        header: responseJson.detail || "error up cv",
+        text: responseJson.error,
+      });
+      return null;
     }
+
+    if (responseJson.status == 500) {
+      setToast({
+        show: true,
+        success: false,
+        header: responseJson.detail || "error up cv",
+        text: responseJson.error || "error 500",
+      });
+    }
+
+    return responseJson;
   }
 
   public async getRuns(token: string | null): Promise<RunInfo> {
