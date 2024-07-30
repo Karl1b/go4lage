@@ -2,10 +2,11 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { MainContext } from "../App";
 import Button from "../stylecomponents/Button";
 import api from "../util/api";
-import { Run, RunInfo } from "../util/types";
+import { Run } from "../util/types";
 import RunCard from "../components/Runcard";
 import { useNavigate } from "react-router-dom";
 import ToggleSwitch from "../components/ToggleSwitch"; // Import the ToggleSwitch component
+import { goToNewRun } from "../util/util";
 
 export default function Index() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -28,28 +29,14 @@ export default function Index() {
     async function getRuns() {
       try {
         const res = await api.getRuns(userData.token);
-        setRuns(res.runs || null);
-        setShowUpload((res.current_runs || 0) < (res.max_runs || 0));
+        setRuns(res?.runs || null);
+        setShowUpload((res?.current_runs || 0) < (res?.max_runs || 0));
       } catch (error) {
         console.error("Error fetching runs", error);
       }
     }
     getRuns();
   }, [userData]);
-
-  function goToNewRun(runInfo: RunInfo) {
-    if (runInfo.runs.length === 0) {
-      console.error("No runs available to navigate to.");
-      return;
-    }
-    // Select the newest Run from Run
-    const newestRun = runInfo.runs.reduce((latest, current) => {
-      return new Date(current.timestamp) > new Date(latest.timestamp)
-        ? current
-        : latest;
-    });
-    navigate(`/dumprun/${newestRun.id}`);
-  }
 
   async function handleCVupload(event: React.FormEvent) {
     event.preventDefault();
@@ -63,9 +50,11 @@ export default function Index() {
           permanent,
           setToast
         );
-        setRuns(res.runs || null);
-        setShowUpload((res.current_runs || 0) < (res.max_runs || 0));
-        goToNewRun(res);
+        setRuns(res?.runs || null);
+        setShowUpload((res?.current_runs || 0) < (res?.max_runs || 0));
+        if (res) {
+          goToNewRun(res, navigate);
+        }
       } catch (error) {
         console.error("Error uploading CV", error);
       }
@@ -81,9 +70,12 @@ export default function Index() {
         permanent,
         setToast
       );
-      setRuns(res.runs || null);
-      setShowUpload((res.current_runs || 0) < (res.max_runs || 0));
-      goToNewRun(res);
+      setRuns(res?.runs || null);
+      setShowUpload((res?.current_runs || 0) < (res?.max_runs || 0));
+
+      if (res) {
+        goToNewRun(res, navigate);
+      }
     } catch (e) {
       console.log(e);
     }

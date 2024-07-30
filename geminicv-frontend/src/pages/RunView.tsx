@@ -25,7 +25,7 @@ export default function RunView() {
       return;
     }
     const res = await api.getRun(userData.token, cvrunid);
-    setScans(res.scans || null);
+    setScans(res?.scans || null);
     setRun(res)
 
     setAttempts((prevAttempts) => prevAttempts + 1);

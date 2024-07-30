@@ -22,10 +22,10 @@ export default function DumpRun() {
     }
     try {
       const res = await api.getRun(userData.token, cvrunid);
-      setScans(res.scans || null);
+      setScans(res?.scans || null);
       setRun(res || null);
 
-      const shouldShow = (res.scans && res.scans.length < 5) || !res.scans;
+      const shouldShow = (res && res.scans && res.scans.length < 5) || !res?.scans || !res;
 
       setShowLoadScreen(shouldShow);
     } catch (e) {

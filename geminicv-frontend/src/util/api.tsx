@@ -49,27 +49,32 @@ class API {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Login failed");
+      const responseJson = await response.json();
+
+      if (responseJson.error) {
+        setToast({
+          show: true,
+          success: false,
+          header: responseJson.detail || "Error uploading login",
+          text: responseJson.error,
+        });
+        return null;
       }
 
-      const data: UserDetails = await response.json();
       setToast({
         show: true,
         success: true,
         header: "Login",
         text: "Login successful!",
       });
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: "Login",
-          text: `Login failed: ${error.message}`,
-        });
-      }
+      return responseJson;
+    } catch (e) {
+      setToast({
+        show: true,
+        success: false,
+        header: "Error uploading CV",
+        text: "",
+      });
 
       return null;
     }
@@ -82,44 +87,49 @@ class API {
     permanent: boolean,
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo | null> {
-    formData.append("region", region);
-    const permentry = permanent ? "true" : "false";
-    formData.append("permanent", permentry);
+    try {
+      formData.append("region", region);
+      const permentry = permanent ? "true" : "false";
+      formData.append("permanent", permentry);
 
-    const response = await this.fetchWithToken(
-      `${this.apiUrl}/geminicv/uploadcv`,
-      {
-        method: "POST",
-        body: formData,
-      },
-      token
-    );
-
-    const responseJson = await response.json();
-    console.log(response.status);
-    if (responseJson.error) {
+      const response = await this.fetchWithToken(
+        `${this.apiUrl}/geminicv/uploadcv`,
+        {
+          method: "POST",
+          body: formData,
+        },
+        token
+      );
+      const responseJson = await response.json();
+      if (responseJson.error) {
+        setToast({
+          show: true,
+          success: false,
+          header: responseJson.detail || "Error uploading CV",
+          text: responseJson.error,
+        });
+        return null;
+      }
+      setToast({
+        show: true,
+        success: true,
+        header: "Upload CV",
+        text: "CV uploaded successfully!",
+      });
+      return responseJson;
+    } catch (e) {
       setToast({
         show: true,
         success: false,
-        header: responseJson.detail || "error up cv",
-        text: responseJson.error,
+        header: "Error uploading CV",
+        text: "",
       });
+      console.log(e);
       return null;
     }
-
-    if (responseJson.status == 500) {
-      setToast({
-        show: true,
-        success: false,
-        header: responseJson.detail || "error up cv",
-        text: responseJson.error || "error 500",
-      });
-    }
-
-    return responseJson;
   }
 
-  public async getRuns(token: string | null): Promise<RunInfo> {
+  public async getRuns(token: string | null): Promise<RunInfo | null> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/allruns`,
@@ -129,16 +139,21 @@ class API {
         token
       );
       const data = await response.json();
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error fetching runs:", error.message);
+      if (data.error) {
+        console.log(data.error);
       }
-      throw error;
+
+      return data;
+    } catch (e) {
+      console.log(e);
+      return null;
     }
   }
 
-  public async getRun(token: string | null, cvrunid: string): Promise<Run> {
+  public async getRun(
+    token: string | null,
+    cvrunid: string
+  ): Promise<Run | null> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/run`,
@@ -149,27 +164,31 @@ class API {
         token
       );
       const data = await response.json();
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error("Error fetching runs:", error.message);
+      if (data.error) {
+        console.log(data.error);
       }
-      throw error;
+      return data;
+    } catch (e) {
+      console.log(e);
+      return null;
     }
   }
 
   public async uploadText(
     token: string | null,
     text: string,
-    region: string, // send this as well
+    region: string,
     permanent: boolean,
     setToast: (toast: ToastDetails) => void
-  ): Promise<RunInfo> {
+  ): Promise<RunInfo | null> {
     try {
       const response = await this.fetchWithToken(
         `${this.apiUrl}/geminicv/uploadtext`,
         {
           method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
             text: text,
             region: region,
@@ -178,22 +197,33 @@ class API {
         },
         token
       );
-
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      if (error instanceof Error) {
+      const responseJson = await response.json();
+      if (responseJson.error) {
         setToast({
           show: true,
           success: false,
-          header: "Text send fail",
-          text: `Text send failed: ${error.message}`,
+          header: responseJson.detail || "Error uploading Text",
+          text: responseJson.error,
         });
-
-        console.error("Error creating users:", error.message);
+        return null;
       }
-      throw error;
+      setToast({
+        show: true,
+        success: true,
+        header: "Text upload",
+        text: "Text uploaded successfully!",
+      });
+      return responseJson;
+    } catch (e) {
+      setToast({
+        show: true,
+        success: false,
+        header: "Error uploading Text",
+        text: "",
+      });
+      console.log(e);
     }
+    return null;
   }
 }
 

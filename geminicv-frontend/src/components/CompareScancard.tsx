@@ -6,6 +6,8 @@ import { MainContext } from "../App";
 
 import ToggleSwitch from "./ToggleSwitch";
 import ComppareScanCardDetail from "./CompareScancardDetail";
+import { goToNewRun } from "../util/util";
+import { useNavigate } from "react-router-dom";
 
 export interface CompareScanCardProps {
   bestScan: Scan;
@@ -26,6 +28,8 @@ export default function CompareScancard({
 
   const [toggleIsBest, SettoggleIsBest] = useState<boolean>(true);
 
+  const navigate = useNavigate();
+
   async function copyToClipBoard() {
     try {
       const textValue = toggleIsBest ? bestText : startText;
@@ -39,13 +43,16 @@ export default function CompareScancard({
   async function sendText() {
     try {
       const textValue = toggleIsBest ? bestText : startText;
-      await api.uploadText(
+      const res = await api.uploadText(
         userData.token,
         textValue,
         run.language,
         run.permanent,
         setToast
       );
+      if (res) {
+        goToNewRun(res, navigate);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -54,7 +61,6 @@ export default function CompareScancard({
   return (
     <div className="bg-white p-6 rounded-lg shadow-md mb-4">
       <div className="flex flex-col space-y-4">
-     
         <ComppareScanCardDetail
           startScan={startScan}
           bestScan={bestScan}
