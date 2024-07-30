@@ -62,7 +62,7 @@ type ToastResponse struct {
 	Text   string `json:"text"`
 }
 
-func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+func RespondWithJSON(w http.ResponseWriter, payload interface{}) {
 	dat, err := json.Marshal(payload)
 	if err != nil {
 		log.Printf("Failed to Marshal JSON %v \n", payload)
@@ -70,13 +70,13 @@ func RespondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
 		return
 	}
 	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(code)
+	w.WriteHeader(200) // This is hard coded to assure compabillity to javascript. Do not alter.
 	w.Write(dat)
 }
 
 func RespondWithText(w http.ResponseWriter, code int, text string) {
 	w.Header().Add("Content-Type", "text/plain")
-	w.WriteHeader(code)
+	w.WriteHeader(200) // This is hard coded to assure compabillity to javascript. Do not alter.
 	_, err := w.Write([]byte(text))
 	if err != nil {
 		log.Printf("Failed to write text response: %v \n", err)
