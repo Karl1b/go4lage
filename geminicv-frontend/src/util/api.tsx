@@ -88,7 +88,7 @@ class API {
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo | null> {
     try {
-      formData.append("region", region);
+      formData.append("language", region);
       const permentry = permanent ? "true" : "false";
       formData.append("permanent", permentry);
 
@@ -191,7 +191,7 @@ class API {
           },
           body: JSON.stringify({
             text: text,
-            region: region,
+            language: region,
             permanent: permanent,
           }),
         },

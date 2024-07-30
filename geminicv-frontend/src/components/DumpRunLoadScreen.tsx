@@ -54,7 +54,7 @@ export default function DumpRunLoadScreen({ scans }: DumpRunLoadScreenProps) {
 
         <div className="flex">
           <Loader status={regionChooserLoad} />{" "}
-          <p className="m-5">Choosing region</p>
+          <p className="m-5">Starting process</p>
         </div>
         <div>
           {ratingImprovements.map((imp, index) => (

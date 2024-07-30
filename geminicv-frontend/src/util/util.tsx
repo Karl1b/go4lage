@@ -11,5 +11,6 @@ export function goToNewRun(runInfo: RunInfo, navigate: (path: string) => void) {
   const newestRun = runInfo.runs.reduce((latest, current) => {
     return new Date(current.timestamp) > new Date(latest.timestamp) ? current : latest;
   });
+
   navigate(`/dumprun/${newestRun.id}`);
 }

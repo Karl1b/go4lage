@@ -182,8 +182,8 @@ export default function Index() {
                     className="mt-2 block w-full border rounded-lg p-2"
                   />
                 </div>
-                <Button kind="primary">
-                  <button type="submit">Upload CV</button>
+                <Button kind="primary" type="submit">
+                  Upload CV
                 </Button>
               </form>
             </div>

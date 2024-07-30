@@ -13,22 +13,21 @@ export default function RunView() {
   const navigate = useNavigate();
   const [scans, setScans] = useState<Scan[] | null>(null);
   const [showScanGraph, setShowScanGraph] = useState<boolean>(true);
-  const [attempts, setAttempts] = useState<number>(0);
+
   const [showLoadingSpinner, SetShowLoadingSpinner] = useState<boolean>(false);
-  const [run,setRun] = useState<Run | null>(null);
+  const [run, setRun] = useState<Run | null>(null);
 
   const { id } = useParams();
   const cvrunid = id || null;
 
   async function getRun() {
-    if (!cvrunid || attempts >= 20) {
+    if (!cvrunid) {
       return;
     }
     const res = await api.getRun(userData.token, cvrunid);
     setScans(res?.scans || null);
-    setRun(res)
+    setRun(res);
 
-    setAttempts((prevAttempts) => prevAttempts + 1);
     const shouldShow = (res && res.scans.length < 5) || !res;
 
     SetShowLoadingSpinner(shouldShow);
@@ -40,7 +39,7 @@ export default function RunView() {
 
   useEffect(() => {
     const interValChecker = setInterval(() => {
-      if (((scans && scans.length < 5) || !scans) && attempts < 45) {
+      if ((scans && scans.length < 5) || !scans) {
         getRun();
       } else {
         SetShowLoadingSpinner(false);
@@ -49,7 +48,7 @@ export default function RunView() {
     return () => {
       clearInterval(interValChecker);
     };
-  }, [userData, cvrunid, attempts]);
+  }, [userData, cvrunid, scans]);
 
   return (
     <>
@@ -83,9 +82,7 @@ export default function RunView() {
         {scans?.map((scan: Scan) => {
           return (
             <div key={scan.id} className="w-full">
-              {run && 
-              <Scancard scan={scan} run={run} />
-              }
+              {run && <Scancard scan={scan} run={run} />}
             </div>
           );
         })}

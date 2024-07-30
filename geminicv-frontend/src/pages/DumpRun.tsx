@@ -25,7 +25,8 @@ export default function DumpRun() {
       setScans(res?.scans || null);
       setRun(res || null);
 
-      const shouldShow = (res && res.scans && res.scans.length < 5) || !res?.scans || !res;
+      const shouldShow =
+        (res && res.scans && res.scans.length < 5) || !res?.scans || !res;
 
       setShowLoadScreen(shouldShow);
     } catch (e) {
@@ -35,18 +36,18 @@ export default function DumpRun() {
 
   useEffect(() => {
     getRun();
-  }, []);
+  }, [cvrunid]);
 
   useEffect(() => {
     const interValChecker = setInterval(() => {
       if ((scans && scans.length < 5) || !scans) {
-        getRun();
+             getRun();
       }
     }, 2000);
     return () => {
       clearInterval(interValChecker);
     };
-  }, [userData, cvrunid]);
+  }, [userData, cvrunid, scans]);
 
   return (
     <>

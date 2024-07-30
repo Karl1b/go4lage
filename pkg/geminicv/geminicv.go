@@ -276,7 +276,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	region := r.FormValue("region")
+	region := r.FormValue("language")
 	role := r.FormValue("permanent")
 
 	file, _, err := r.FormFile("upload")
@@ -583,6 +583,8 @@ func analyseCV(text string, run db.Cvrun, queries *db.Queries) {
 
 func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run db.Cvrun, isStartVersion bool) {
 
+	fmt.Println("this is cvRunScan with lang: ", lang)
+
 	instruction := cvCheck.en
 	if lang == "de" {
 		instruction = cvCheck.de
@@ -611,7 +613,6 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 	err = json.Unmarshal([]byte(resp), &geminiResp)
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
 
 	newUUID, err := uuid.NewUUID()
@@ -654,7 +655,7 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 }
 
 func createImprovement(lang string, text string, temp float32, queries *db.Queries, run db.Cvrun, instruction string) {
-
+	fmt.Println("this is createimprovement with lang: ", lang)
 	// create improvement
 	improvement, err := callGemini(instruction, text, temp)
 	if err != nil {

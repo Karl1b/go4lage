@@ -5,6 +5,7 @@ type ButtonProps = {
   children: React.ReactNode
   onClick?: () => void
   className?: string
+  type?: 'submit' | 'button' | 'reset' | undefined
 }
 
 export default function Button({
@@ -12,6 +13,7 @@ export default function Button({
   children,
   onClick,
   className = '',
+  type = undefined,
 }: ButtonProps) {
   const baseClasses =
     'm-2 p-2 rounded transition ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50'
@@ -34,7 +36,7 @@ export default function Button({
   }
 
   return (
-    <button onClick={onClick} className={classes}>
+    <button onClick={onClick} className={classes} type={type}>
       {children}
     </button>
   )

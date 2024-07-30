@@ -4,16 +4,19 @@ import Button from "../stylecomponents/Button";
 import api from "../util/api";
 import { MainContext } from "../App";
 import ScanCardDetail from "./ScanCardDetail";
+import { goToNewRun } from "../util/util";
+import { useNavigate } from "react-router-dom";
 
 export interface ScanCardProps {
   scan: Scan;
   run: Run;
 }
 
-export default function Scancard({ scan,run }: ScanCardProps) {
+export default function Scancard({ scan, run }: ScanCardProps) {
   const [showText, setShowText] = useState<boolean>(false);
- const [textValue, setTextValue] = useState<string>(scan.text);
+  const [textValue, setTextValue] = useState<string>(scan.text);
   const { userData, setToast } = useContext(MainContext);
+  const navigate = useNavigate();
 
   async function copyToClipBoard() {
     try {
@@ -26,8 +29,16 @@ export default function Scancard({ scan,run }: ScanCardProps) {
 
   async function sendText() {
     try {
-      
-      await api.uploadText(userData.token, textValue,run.language,run.permanent, setToast);
+      const res = await api.uploadText(
+        userData.token,
+        textValue,
+        run.language,
+        run.permanent,
+        setToast
+      );
+      if (res) {
+        goToNewRun(res, navigate);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -44,13 +55,8 @@ export default function Scancard({ scan,run }: ScanCardProps) {
 
         <ScanCardDetail scan={scan} />
 
-  
         <div className="flex justify-center space-x-4">
-
-          <Button
-            kind="primary"
-            onClick={() => setShowText(!showText)}
-          >
+          <Button kind="primary" onClick={() => setShowText(!showText)}>
             {showText ? "Hide" : "Show"} CV
           </Button>
         </div>
@@ -69,16 +75,10 @@ export default function Scancard({ scan,run }: ScanCardProps) {
               style={{ whiteSpace: "pre-wrap", minHeight: "50vh" }}
             />
             <div className="flex flex-row justify-end space-x-4">
-              <Button
-                kind="secondary"
-                onClick={copyToClipBoard}
-              >
+              <Button kind="secondary" onClick={copyToClipBoard}>
                 Copy to Clipboard
               </Button>
-              <Button
-                kind="primary"
-                onClick={sendText}
-              >
+              <Button kind="primary" onClick={sendText}>
                 Use as new start point
               </Button>
             </div>
