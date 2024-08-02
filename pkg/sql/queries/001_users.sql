@@ -30,7 +30,15 @@ RETURNING *;
 UPDATE users
 SET
     token = $2, 
-    token_created_at = CURRENT_TIMESTAMP
+    token_created_at = CURRENT_TIMESTAMP,
+    last_login = CURRENT_TIMESTAMP
+WHERE id = $1
+RETURNING *;
+
+-- name: UpdateLastLoginByID :one
+UPDATE users
+SET
+    last_login = CURRENT_TIMESTAMP
 WHERE id = $1
 RETURNING *;
 

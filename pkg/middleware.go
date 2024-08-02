@@ -139,6 +139,18 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				return
 			}
 
+			if user.LastLogin.Time.Add(time.Duration(Settings.UserLoginTrackingTimeMins) * time.Minute).Before(time.Now()) {
+				_, err = app.Queries.UpdateLastLoginByID(context.Background(), user.ID)
+				if err != nil {
+					utils.RespondWithJSON(w, utils.ErrorResponse{
+						Detail: "Error updating last login time",
+						Error:  err.Error(),
+					})
+					return
+				}
+				go4users.Del(user.ID.String())
+			}
+
 			ctx := context.WithValue(r.Context(), utils.UserKey{}, user)
 			r = r.WithContext(ctx)
 

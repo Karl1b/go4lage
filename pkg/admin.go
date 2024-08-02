@@ -70,10 +70,10 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 	var Answer Response
 
-	user, err := app.Queries.SelectUserByEmail(context.Background(), strings.ToLower(reqBody.Email))
+	user, err := app.Queries.SelectUserByEmail(context.Background(), strings.TrimSpace(strings.ToLower(reqBody.Email)))
 	if err != nil {
 		fmt.Println(err)
-		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error getting Token"})
+		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Select user by mail failed", Error: err.Error()})
 		return
 	}
 
@@ -87,7 +87,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !user.IsActive.Bool && !user.IsSuperuser.Bool {
-		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "User is not active!"})
+		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "User is not active", Error: "user is not active"})
 		return
 	}
 
@@ -97,15 +97,17 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	if Settings.Superuser2FA && user.IsSuperuser.Bool {
 		valid := totp.Validate(reqBody.Twofactorkey, user.Twofactorsecret.String)
 		if !(valid) {
-			utils.RespondWithJSON(w, Response{Token: "Error validating 2FA."})
+			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "2fa not valid", Error: "2fa not valid"})
 			return
 		}
 	}
-
+	//todo: fix last login
 	if !user.Token.Valid || user.Token.String == "" || user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) || user.IsSuperuser.Bool {
 		newToken, err := utils.GenerateTokenHex(32)
 		if err != nil {
-			utils.RespondWithJSON(w, Response{Token: "Error generating Token results from database"})
+
+			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error logging in", Error: err.Error()})
+			return
 		}
 
 		updatedUser, err := app.Queries.UpdateTokenByID(context.Background(), db.UpdateTokenByIDParams{
@@ -113,7 +115,10 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 			Token: sql.NullString{String: newToken, Valid: true},
 		})
 		if err != nil {
-			utils.RespondWithJSON(w, Response{Token: "Error writing updated user to database"})
+
+			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error writing updated user to database", Error: err.Error()})
+			return
+
 		}
 		Answer.Token = updatedUser.Token.String
 	}
@@ -149,7 +154,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := reqBody.Email
+	email := strings.TrimSpace(strings.ToLower(reqBody.Email))
 	if !utils.IsValidEmail(email) {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
@@ -184,7 +189,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if reqBody.Email != "" && utils.IsValidEmail(reqBody.Email) {
-		updateParams.Email = reqBody.Email // Assuming Email is a string and not sql.NullString in your schema
+		updateParams.Email = email
 	} else if reqBody.Email != "" && !utils.IsValidEmail(reqBody.Email) {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
@@ -217,7 +222,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if reqBody.Username == "" {
-		updateParams.Username = reqBody.Email
+		updateParams.Username = email
 	} else {
 		updateParams.Username = reqBody.Username
 	}
@@ -940,7 +945,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	email := reqBody.Email
+	email := strings.ToLower(strings.TrimSpace(reqBody.Email))
 	if !utils.IsValidEmail(email) {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
