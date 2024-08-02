@@ -41,7 +41,7 @@ export default function BulkCreateUsers() {
 
   return (
     <div className="flex flex-col items-center">
-      <h4 className="mb-4 p-2 text-2xl font-bold">Bulk create users</h4>
+      <h1 className="mb-4 p-2">Bulk create users</h1>
       <div onClick={handleDownloadTemplate}>
         <Button
           kind="secondary"

@@ -1,10 +1,9 @@
-import React from 'react'
-
 type ButtonProps = {
   kind?: 'primary' | 'secondary' | 'danger'
   children: React.ReactNode
   onClick?: () => void
   className?: string
+  type?: 'submit' | 'button' | 'reset' | undefined
 }
 
 export default function Button({
@@ -12,6 +11,7 @@ export default function Button({
   children,
   onClick,
   className = '',
+  type = undefined,
 }: ButtonProps) {
   const baseClasses =
     'm-2 p-2 rounded transition ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50'
@@ -21,7 +21,7 @@ export default function Button({
   switch (kind) {
     case 'primary':
       classes +=
-        ' bg-pink text-white hover:bg-slate-800 focus:ring-slate-800'
+        ' bg-darkblue text-white hover:bg-slate-800 focus:ring-slate-800'
       break
     case 'secondary':
       classes += ' bg-gray-700 text-white hover:bg-slate-800 focus:ring-gray-600'
@@ -34,8 +34,9 @@ export default function Button({
   }
 
   return (
-    <button onClick={onClick} className={classes}>
+    <button onClick={onClick} className={classes} type={type}>
       {children}
     </button>
   )
 }
+
