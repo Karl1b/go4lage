@@ -95,6 +95,7 @@ func StartServer() {
 
 	gcv := geminicv.GeApp{
 		Queries: queries,
+		Utils:   &Settings,
 	}
 
 	r.Route("/geminicv", func(r chi.Router) {

@@ -178,7 +178,7 @@ class API {
       url: `${this.apiUrl}/geminicv/run`,
       options: {
         method: "GET",
-        headers: { ID: cvrunid },
+        headers: { Id: cvrunid },
       },
       token: token,
       toastHeader: "",
