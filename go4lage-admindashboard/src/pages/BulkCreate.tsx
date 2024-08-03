@@ -14,6 +14,10 @@ export default function BulkCreateUsers() {
     }
     try {
       const blob = await api.downloadCSVtemplate(userData.token)
+      if (!blob) {
+        return
+      }
+      
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

@@ -6,24 +6,10 @@ import (
 	"strconv"
 
 	"github.com/joho/godotenv"
+	"github.com/karl1b/go4lage/pkg/utils"
 )
 
-type go4lageSettings struct {
-	ApiPort                   string
-	Port                      string
-	Debug                     bool
-	Baseurl                   string
-	Apiurl                    string
-	GooseDriver               string
-	GooseDbString             string
-	LoginThrottleTimeS        int
-	Superuser2FA              bool
-	UserTokenValidMins        int
-	SuperuserTokenValidMins   int
-	UserLoginTrackingTimeMins int
-}
-
-var Settings go4lageSettings
+var Settings utils.Go4lageSettings
 
 func init() {
 

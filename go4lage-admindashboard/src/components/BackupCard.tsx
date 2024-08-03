@@ -20,6 +20,9 @@ export default function GPcard({ backup, getBackups }: BackupCardProps) {
     }
     try {
       const blob = await api.downloadBackup(userData.token, backup.file_name)
+      if (!blob) {
+        return
+      } 
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
