@@ -11,6 +11,14 @@ import {
   LogDetail,
 } from './types'
 
+interface FetchWithTokenProps {
+  url: string
+  options: RequestInit
+  token: string | null
+  toastHeader: string | null
+  setToast: ((toast: ToastDetails) => void | null) | null
+}
+
 class API {
   apiUrl: string
   constructor() {
@@ -25,78 +33,101 @@ class API {
     }
   }
 
-  private async fetchWithToken(
-    url: string,
-    options: RequestInit,
-    token: string | null
-  ) {
-    if (!token) throw new Error('Token is required')
+  private async fetchWithToken({
+    url,
+    options,
+    token,
+    toastHeader,
+    setToast,
+  }: FetchWithTokenProps) {
+    if (!token && setToast) {
+      setToast({
+        show: true,
+        success: false,
+        header: 'Token is missing',
+        text: 'Try login and out again',
+      })
+      return
+    }
 
     const headers = new Headers(options.headers)
     headers.append('Authorization', 'Token ' + token)
 
     const response = await fetch(url, { ...options, headers })
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+
+    const contentType = response.headers.get('content-type')
+    if (contentType && contentType.includes('application/json')) {
+      const responseJson = await response.json()
+      if (responseJson.error && setToast) {
+        setToast({
+          show: true,
+          success: false,
+          header: toastHeader || 'Toastheader missing',
+          text: `${responseJson.detail} ${responseJson.error}`,
+        })
+        return
+      }
+      if (responseJson.text && setToast) {
+        setToast({
+          show: true,
+          success: true,
+          header: toastHeader || 'Toastheader missing',
+          text: `${responseJson.text}`,
+        })
+        return
+      }
+
+      if (!response.ok) {
+        if (setToast) {
+          setToast({
+            show: true,
+            success: false,
+            header: 'Error outside go4lage',
+            text: `${response.status}`,
+          })
+        }
+        return
+      }
+      return responseJson
     }
 
     return response
   }
 
   public async dashboardinfo(): Promise<DashboardInfo> {
-    try {
-      const response = await fetch(this.apiUrl + '/dashboardinfo', {
-        method: 'GET',
-      })
-
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching dashboard info:', error.message)
-      }
-      throw error
-    }
+    const response = await fetch(this.apiUrl + '/dashboardinfo', {
+      method: 'GET',
+    })
+    const data = await response.json()
+    return data
   }
 
-  public async allusers(token: string): Promise<User[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/allusers`,
-        {
-          method: 'GET',
-        },
-        token
-      )
+  public async allusers(token: string): Promise<User[] | null> {
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/allusers`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
 
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching all users:', error.message)
-      }
-      throw error
-    }
+    return response || null
   }
 
   public async logout(token: string): Promise<null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/logout`,
-        {
-          method: 'GET',
-        },
-        token
-      )
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/logout`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
 
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error logging out:', error.message)
-      }
-      throw error
-    }
+    return response
   }
 
   public async editGroupPermissions(
@@ -105,36 +136,17 @@ class API {
     permissions: Permission[],
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/editgrouppermissions`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', GroupId: groupId },
-          body: JSON.stringify(permissions),
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Edit Group Permissions',
-        text: 'Permissions updated successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Edit Group Permissions',
-          text: `Error updating permissions: ${error.message}`,
-        })
-
-        console.error('Error editing group permissions:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/editgrouppermissions`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', GroupId: groupId },
+        body: JSON.stringify(permissions),
+      },
+      token: token,
+      toastHeader: 'Edit Group Permissions',
+      setToast: setToast,
+    })
   }
 
   public async createoneuser(
@@ -142,59 +154,35 @@ class API {
     user: NewUser,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/oneuser`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(user),
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Create User',
-        text: 'User created successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Create User',
-          text: `Error creating user: ${error.message}`,
-        })
-
-        console.error('Error creating a user:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/oneuser`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user),
+      },
+      token: token,
+      toastHeader: 'Create User',
+      setToast: setToast,
+    })
   }
 
   public async oneuser(
     token: string | null,
     idValue: string
   ): Promise<User | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/oneuser`,
-        {
-          method: 'GET',
-          headers: { UserId: idValue },
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching user:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/oneuser`,
+      options: {
+        method: 'GET',
+        headers: { UserId: idValue },
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async editoneuserGroups(
@@ -203,36 +191,17 @@ class API {
     groups: Group[],
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/editusergroups`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', UserId: idValue },
-          body: JSON.stringify(groups),
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Edit User',
-        text: 'User updated successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Edit User',
-          text: `Error updating user: ${error.message}`,
-        })
-
-        console.error('Error editing user:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/editusergroups`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', UserId: idValue },
+        body: JSON.stringify(groups),
+      },
+      token: token,
+      toastHeader: 'Edit User',
+      setToast: setToast,
+    })
   }
 
   public async editoneuser(
@@ -241,285 +210,197 @@ class API {
     user: NewUser,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/oneuser`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', UserId: idValue },
-          body: JSON.stringify(user),
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Edit User',
-        text: 'User updated successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Edit User',
-          text: `Error updating user: ${error.message}`,
-        })
-
-        console.error('Error editing user:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/oneuser`,
+      options: {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', UserId: idValue },
+        body: JSON.stringify(user),
+      },
+      token: token,
+      toastHeader: 'Edit User',
+      setToast: setToast,
+    })
   }
 
   public async getGroups(token: string | null): Promise<Group[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getgroups`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching groups:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getgroups`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async getBackups(token: string | null): Promise<Backup[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getbackups`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching backups:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getbackups`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async getLogs(token: string | null, uri: string): Promise<Log[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getlogs${uri}`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching logs:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getlogs${uri}`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async getErrorLogs(token: string | null): Promise<LogDetail[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geterrorlogs`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching logs:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/geterrorlogs`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async createBackup(
     token: string | null,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/createbackup`,
-        {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Create Backup',
-        text: 'Created Backup Successfully',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Create User',
-          text: `Error creating Backup: ${error.message}`,
-        })
-
-        console.error('Error creating a backup:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/createbackup`,
+      options: {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      },
+      token: token,
+      toastHeader: 'Create Backup',
+      setToast: setToast,
+    })
   }
 
   public async downloadBackup(
     token: string | null,
     fileName: string
-  ): Promise<Blob> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/downloadbackup`,
-        {
-          method: 'GET',
-          headers: {
-            FileName: fileName,
-          },
+  ): Promise<Blob | null> {
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/downloadbackup`,
+      options: {
+        method: 'GET',
+        headers: {
+          FileName: fileName,
         },
-        token
-      )
-      const blob = await response.blob()
-      return blob
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error downloading Backup:', error.message)
-      }
-      throw error
-    }
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+    const blob = await response?.blob()
+    return blob || null
   }
 
   public async deletebackup(
     token: string | null,
     fileName: string
   ): Promise<null> {
-    try {
-      console.log(fileName)
-      await this.fetchWithToken(
-        `${this.apiUrl}/deletebackup`,
-        {
-          method: 'DELETE',
-          headers: {
-            FileName: fileName,
-          },
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/deletebackup`,
+      options: {
+        method: 'DELETE',
+        headers: {
+          FileName: fileName,
         },
-        token
-      )
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
 
-      return null
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error downloading Backup:', error.message)
-      }
-      throw error
-    }
+    return null
   }
 
   public async getPermissions(token: string | null): Promise<Permission[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getpermissions`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching permissions:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getpermissions`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async getGroupById(
     token: string | null,
     groupId: string
   ): Promise<Group | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getgroup`,
-        {
-          method: 'GET',
-          headers: { GroupId: groupId },
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching group by ID:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getgroup`,
+      options: {
+        method: 'GET',
+        headers: { GroupId: groupId },
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
+
   public async getPermissionById(
     token: string | null,
     permissionId: string
   ): Promise<Group | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getpermission`,
-        {
-          method: 'GET',
-          headers: { PermissionId: permissionId },
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching group by ID:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getpermission`,
+      options: {
+        method: 'GET',
+        headers: { PermissionId: permissionId },
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async getPermissionForGroup(
     token: string | null,
     groupId: string
   ): Promise<Permission[]> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/getpermissionsforgroup`,
-        {
-          method: 'GET',
-          headers: { GroupId: groupId },
-        },
-        token
-      )
-      const data = await response.json()
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error fetching permissions for group:', error.message)
-      }
-      throw error
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/getpermissionsforgroup`,
+      options: {
+        method: 'GET',
+        headers: { GroupId: groupId },
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
   }
 
   public async login(
@@ -528,43 +409,47 @@ class API {
     tfa: string | null,
     setToast: (toast: ToastDetails) => void
   ): Promise<UserDetails | null> {
-    try {
-      const response = await fetch(this.apiUrl + '/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: email,
-          password: password,
-          tfa: tfa,
-        }),
-      })
+    const response = await fetch(this.apiUrl + '/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        tfa: tfa,
+      }),
+    })
 
-      if (!response.ok) {
-        throw new Error('Login failed')
-      }
-
-      const data: UserDetails = await response.json()
+    if (!response.ok) {
       setToast({
         show: true,
-        success: true,
+        success: false,
         header: 'Login',
-        text: 'Login successful!',
+        text: 'Login failed',
       })
-      return data
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Login',
-          text: `Login failed: ${error.message}`,
-        })
-      }
-
       return null
     }
+
+    const responseJson = await response.json()
+
+    if (responseJson.error) {
+      setToast({
+        show: true,
+        success: false,
+        header: 'Login',
+        text: `${responseJson.detail} ${responseJson.error}`,
+      })
+      return null
+    }
+
+    setToast({
+      show: true,
+      success: true,
+      header: 'Login',
+      text: 'Login successful!',
+    })
+    return responseJson
   }
 
   public async deletePermission(
@@ -572,35 +457,16 @@ class API {
     permissionId: string,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/deletepermission`,
-        {
-          method: 'DELETE',
-          headers: { PermissionId: permissionId },
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Delete Permission',
-        text: 'Permission deleted successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Delete Permission',
-          text: `Error deleting permission: ${error.message}`,
-        })
-
-        console.error('Error deleting a permission:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/deletepermission`,
+      options: {
+        method: 'DELETE',
+        headers: { PermissionId: permissionId },
+      },
+      token: token,
+      toastHeader: 'Delete Permission',
+      setToast: setToast,
+    })
   }
 
   public async deleteUser(
@@ -608,35 +474,16 @@ class API {
     userId: string,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/deleteuser`,
-        {
-          method: 'DELETE',
-          headers: { UserId: userId },
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Delete User',
-        text: 'User deleted successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Delete User',
-          text: `Error deleting user: ${error.message}`,
-        })
-
-        console.error('Error deleting a user:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/deleteuser`,
+      options: {
+        method: 'DELETE',
+        headers: { UserId: userId },
+      },
+      token: token,
+      toastHeader: 'Delete User',
+      setToast: setToast,
+    })
   }
 
   public async createGroup(
@@ -644,36 +491,18 @@ class API {
     groupName: string,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/creategroup`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({
-            name: groupName,
-          }),
-        },
-        token
-      )
-      setToast({
-        show: true,
-        success: true,
-        header: 'Create group',
-        text: 'Group created successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Create group',
-          text: `Error creating group: ${error.message}`,
-        })
-
-        console.error('Error creating a group:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/creategroup`,
+      options: {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: groupName,
+        }),
+      },
+      token: token,
+      toastHeader: 'Create group',
+      setToast: setToast,
+    })
   }
 
   public async createPermission(
@@ -681,36 +510,18 @@ class API {
     permissionName: string,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/createpermission`,
-        {
-          method: 'PUT',
-          body: JSON.stringify({
-            name: permissionName,
-          }),
-        },
-        token
-      )
-      setToast({
-        show: true,
-        success: true,
-        header: 'Create group',
-        text: 'Group created successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Create group',
-          text: `Error creating group: ${error.message}`,
-        })
-
-        console.error('Error creating a group:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/createpermission`,
+      options: {
+        method: 'PUT',
+        body: JSON.stringify({
+          name: permissionName,
+        }),
+      },
+      token: token,
+      toastHeader: 'Create Permission',
+      setToast: setToast,
+    })
   }
 
   public async deleteGroup(
@@ -718,54 +529,30 @@ class API {
     groupId: string,
     setToast: (toast: ToastDetails) => void
   ) {
-    try {
-      await this.fetchWithToken(
-        `${this.apiUrl}/deletegroup`,
-        {
-          method: 'DELETE',
-          headers: { GroupId: groupId },
-        },
-        token
-      )
-
-      setToast({
-        show: true,
-        success: true,
-        header: 'Delete Group',
-        text: 'Group deleted successfully!',
-      })
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Delete Group',
-          text: `Error deleting group: ${error.message}`,
-        })
-
-        console.error('Error deleting a group:', error.message)
-      }
-      throw error
-    }
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/deletegroup`,
+      options: {
+        method: 'DELETE',
+        headers: { GroupId: groupId },
+      },
+      token: token,
+      toastHeader: 'Delete Group',
+      setToast: setToast,
+    })
   }
 
-  public async downloadCSVtemplate(token: string): Promise<Blob> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/downloadcsvtemplate`,
-        {
-          method: 'GET',
-        },
-        token
-      )
-      const blob = await response.blob()
-      return blob
-    } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error downloading CSV template:', error.message)
-      }
-      throw error
-    }
+  public async downloadCSVtemplate(token: string): Promise<Blob | null> {
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/downloadcsvtemplate`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+    const blob = await response?.blob()
+    return blob || null
   }
 
   public async bulkCreateUsers(
@@ -773,38 +560,25 @@ class API {
     formData: FormData,
     setToast: (toast: ToastDetails) => void
   ): Promise<void> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/bulkcreateusers`,
-        {
-          method: 'POST',
-          body: formData,
-        },
-        token
-      )
-      const data = await response.json()
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/bulkcreateusers`,
+      options: {
+        method: 'POST',
+        body: formData,
+      },
+      token: token,
+      toastHeader: 'Bulk Create Users',
+      setToast: setToast,
+    })
 
-      setToast({
-        show: true,
-        success: true,
-        header: 'Bulk Create Users',
-        text: 'Users created successfully!',
-      })
+    setToast({
+      show: true,
+      success: true,
+      header: 'Bulk Create Users',
+      text: 'Users created successfully!',
+    })
 
-      console.log('Users created successfully:', data)
-    } catch (error) {
-      if (error instanceof Error) {
-        setToast({
-          show: true,
-          success: false,
-          header: 'Bulk Create Users',
-          text: `Error creating users: ${error.message}`,
-        })
-
-        console.error('Error creating users:', error.message)
-      }
-      throw error
-    }
+    console.log('Users created successfully:', response)
   }
 }
 

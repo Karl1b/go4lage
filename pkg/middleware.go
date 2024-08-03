@@ -74,7 +74,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			// Retrieve the user by token
 			user, err := getUserByToken(token, app.Queries)
 			if err != nil {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "Error Getting User By Token",
 					Error:  err.Error(),
 				})
@@ -82,7 +82,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			}
 
 			if !user.IsActive.Bool && !user.IsSuperuser.Bool {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "User inactive.",
 					Error:  "user is not active",
 				})
@@ -90,7 +90,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			}
 
 			if user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.SuperuserTokenValidMins)*time.Minute).Before(time.Now()) {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "Login again.",
 					Error:  "token outdated",
 				})
@@ -98,7 +98,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			}
 
 			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "Login again.",
 					Error:  "token outdated",
 				})
@@ -110,7 +110,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if permission != "" {
 				hasPermission, err = userHasPermission(user, permission, app.Queries)
 				if err != nil {
-					utils.RespondWithJSON(w, utils.ErrorResponse{
+					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 						Detail: "Error getting permissions for user",
 						Error:  err.Error(),
 					})
@@ -123,7 +123,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 
 				hasGroup, err = userHasGroup(user, group, app.Queries)
 				if err != nil {
-					utils.RespondWithJSON(w, utils.ErrorResponse{
+					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 						Detail: "Error getting group for user",
 						Error:  err.Error(),
 					})
@@ -132,7 +132,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			}
 
 			if !(hasPermission || hasGroup || (group == "" && permission == "")) {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "You do not have the permission or are not in the correct group to do this",
 					Error:  "permission check failed",
 				})
@@ -142,7 +142,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if user.LastLogin.Time.Add(time.Duration(Settings.UserLoginTrackingTimeMins) * time.Minute).Before(time.Now()) {
 				_, err = app.Queries.UpdateLastLoginByID(context.Background(), user.ID)
 				if err != nil {
-					utils.RespondWithJSON(w, utils.ErrorResponse{
+					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 						Detail: "Error updating last login time",
 						Error:  err.Error(),
 					})

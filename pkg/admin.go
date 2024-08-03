@@ -31,13 +31,13 @@ func (app *App) dashboardinfo(w http.ResponseWriter, _ *http.Request) {
 
 	Answer.Tfa = Settings.Superuser2FA
 
-	utils.RespondWithJSON(w, Answer)
+	app.Utils.RespondWithJSON(w, Answer)
 }
 
 func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	err := loginthrottler.check(r.RemoteAddr) // Auth throttle
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Auththrottle",
 			Error:  err.Error(),
 		})
@@ -72,14 +72,13 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.Queries.SelectUserByEmail(context.Background(), strings.TrimSpace(strings.ToLower(reqBody.Email)))
 	if err != nil {
-		fmt.Println(err)
-		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Select user by mail failed", Error: err.Error()})
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Select user by mail failed", Error: err.Error()})
 		return
 	}
 
 	err = utils.CompareHashAndPassword(user.Password, reqBody.Password)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error comparing password",
 			Error:  err.Error(),
 		})
@@ -87,7 +86,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !user.IsActive.Bool && !user.IsSuperuser.Bool {
-		utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "User is not active", Error: "user is not active"})
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "User is not active", Error: "user is not active"})
 		return
 	}
 
@@ -97,7 +96,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 	if Settings.Superuser2FA && user.IsSuperuser.Bool {
 		valid := totp.Validate(reqBody.Twofactorkey, user.Twofactorsecret.String)
 		if !(valid) {
-			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "2fa not valid", Error: "2fa not valid"})
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "2fa not valid", Error: "2fa not valid"})
 			return
 		}
 	}
@@ -106,7 +105,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 		newToken, err := utils.GenerateTokenHex(32)
 		if err != nil {
 
-			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error logging in", Error: err.Error()})
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error logging in", Error: err.Error()})
 			return
 		}
 
@@ -116,14 +115,14 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 		})
 		if err != nil {
 
-			utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error writing updated user to database", Error: err.Error()})
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{Detail: "Error writing updated user to database", Error: err.Error()})
 			return
 
 		}
 		Answer.Token = updatedUser.Token.String
 	}
 
-	utils.RespondWithJSON(w, Answer)
+	app.Utils.RespondWithJSON(w, Answer)
 }
 
 func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
@@ -156,7 +155,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 
 	email := strings.TrimSpace(strings.ToLower(reqBody.Email))
 	if !utils.IsValidEmail(email) {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
 			Error:  "",
 		})
@@ -166,7 +165,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -175,7 +174,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 
 	olduser, err := app.Queries.SelectUserById(context.Background(), useriduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting olduser from db",
 			Error:  err.Error(),
 		})
@@ -191,7 +190,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if reqBody.Email != "" && utils.IsValidEmail(reqBody.Email) {
 		updateParams.Email = email
 	} else if reqBody.Email != "" && !utils.IsValidEmail(reqBody.Email) {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
 			Error:  "",
 		})
@@ -201,7 +200,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	if reqBody.Password != "" {
 		updateParams.Password, err = utils.HashPassword(reqBody.Password)
 		if err != nil {
-			utils.RespondWithJSON(w, utils.ErrorResponse{
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 				Detail: "Error hashing password",
 				Error:  err.Error(),
 			})
@@ -229,7 +228,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 
 	_, err = app.Queries.UpdateUserByID(context.Background(), updateParams)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error updating User",
 			Error:  err.Error(),
 		})
@@ -238,7 +237,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
-	utils.RespondWithJSON(w, utils.ErrorResponse{
+	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 		Detail: "User updated",
 		Error:  "",
 	})
@@ -251,7 +250,7 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -301,7 +300,7 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 }
 func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
@@ -309,7 +308,7 @@ func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 	groupId := r.Header.Get("GroupId")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -357,7 +356,7 @@ func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 
 }
 
@@ -366,7 +365,7 @@ func (app *App) editUserPermissions(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -413,7 +412,7 @@ func (app *App) editUserPermissions(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 
 }
 
@@ -421,14 +420,14 @@ func (app *App) getGroups(w http.ResponseWriter, _ *http.Request) {
 
 	groups, err := app.Queries.GetGroups(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all groups",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, groups)
+	app.Utils.RespondWithJSON(w, groups)
 }
 
 func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
@@ -436,7 +435,7 @@ func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 	groupId := r.Header.Get("GroupId")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
 			Error:  err.Error(),
 		})
@@ -445,14 +444,14 @@ func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 
 	groups, err := app.Queries.GetGroupById(context.Background(), groupiduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all groups",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, groups)
+	app.Utils.RespondWithJSON(w, groups)
 }
 
 func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
@@ -460,7 +459,7 @@ func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
 	permissionId := r.Header.Get("PermissionId")
 	permissioniduuid, err := uuid.Parse(permissionId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
 			Error:  err.Error(),
 		})
@@ -469,14 +468,14 @@ func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
 
 	permission, err := app.Queries.GetPermissionById(context.Background(), permissioniduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting permission by Id",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, permission)
+	app.Utils.RespondWithJSON(w, permission)
 }
 
 func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
@@ -499,7 +498,7 @@ func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if reqBody.Name == "" {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "no empty names allowed",
 			Error:  "no empty names allowed",
 		})
@@ -511,14 +510,14 @@ func (app *App) createPermission(w http.ResponseWriter, r *http.Request) {
 		ID:   uuid.New(),
 	})
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error creating new permission",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, newPermission)
+	app.Utils.RespondWithJSON(w, newPermission)
 
 }
 func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
@@ -543,7 +542,7 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if reqBody.Name == "" {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "no empty names allowed",
 			Error:  "no empty names allowed",
 		})
@@ -555,14 +554,14 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 		ID:   uuid.New(),
 	})
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error creating new permission",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, newGroup)
+	app.Utils.RespondWithJSON(w, newGroup)
 
 }
 
@@ -571,7 +570,7 @@ func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 	PermissionId := r.Header.Get("PermissionId")
 	permissionuuid, err := uuid.Parse(PermissionId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse permission ID",
 			Error:  err.Error(),
 		})
@@ -579,14 +578,14 @@ func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 	}
 	err = app.Queries.DeletePermissionById(context.Background(), permissionuuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all permissions",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 }
 
 func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
@@ -594,7 +593,7 @@ func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	GroupId := r.Header.Get("GroupId")
 	groupuuid, err := uuid.Parse(GroupId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse group ID",
 			Error:  err.Error(),
 		})
@@ -602,28 +601,28 @@ func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	}
 	err = app.Queries.DeleteGroupById(context.Background(), groupuuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error deleting group",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 }
 
 func (app *App) getPermissions(w http.ResponseWriter, _ *http.Request) {
 
 	permissions, err := app.Queries.GetPermissions(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all permissions",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, permissions)
+	app.Utils.RespondWithJSON(w, permissions)
 }
 
 func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
@@ -631,7 +630,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 	groupId := r.Header.Get("GroupId")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
 			Error:  err.Error(),
 		})
@@ -646,7 +645,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 
 	permissions, err := app.Queries.GetPermissions(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions",
 			Error:  err.Error(),
 		})
@@ -655,7 +654,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 
 	permissionsForGroup, err := app.Queries.GetPermissionsByGroupId(context.Background(), groupiduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
 			Error:  err.Error(),
 		})
@@ -675,7 +674,7 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	utils.RespondWithJSON(w, response)
+	app.Utils.RespondWithJSON(w, response)
 }
 
 func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
@@ -683,14 +682,14 @@ func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to create backup",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, utils.ErrorResponse{
+	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 		Detail: string(output),
 		Error:  "",
 	})
@@ -699,7 +698,7 @@ func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to get user from context",
 			Error:  "failed to get user from context",
 		})
@@ -713,7 +712,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 		Token: sql.NullString{String: "", Valid: false},
 	})
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to null token",
 			Error:  "failed to get user from context",
 		})
@@ -721,7 +720,7 @@ func (app *App) logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
-	utils.RespondWithJSON(w, utils.ErrorResponse{
+	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 		Detail: "User token cleared",
 		Error:  "",
 	})
@@ -749,7 +748,7 @@ func (app *App) getBackups(w http.ResponseWriter, _ *http.Request) {
 		}
 	}
 
-	utils.RespondWithJSON(w, filenames)
+	app.Utils.RespondWithJSON(w, filenames)
 }
 
 func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
@@ -758,7 +757,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "File not found",
 			Error:  err.Error(),
 		})
@@ -767,7 +766,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error opening file",
 			Error:  err.Error(),
 		})
@@ -779,7 +778,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", "attachment; filename=\""+fileName+"\"")
 
 	if _, err := io.Copy(w, file); err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error sending file",
 			Error:  err.Error(),
 		})
@@ -792,7 +791,7 @@ func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
 	filePath := "./backup/" + fileName
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "File not found",
 			Error:  err.Error(),
 		})
@@ -800,14 +799,14 @@ func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := os.Remove(filePath); err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to delete file",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 }
 
 func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
@@ -815,7 +814,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not parse user ID",
 			Error:  err.Error(),
 		})
@@ -831,7 +830,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 
 	groups, err := app.Queries.GetGroups(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get groups",
 			Error:  err.Error(),
 		})
@@ -840,7 +839,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 
 	groupsForUser, err := app.Queries.GetGroupsByUserId(context.Background(), useriduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get groups from db",
 			Error:  err.Error(),
 		})
@@ -860,7 +859,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	utils.RespondWithJSON(w, response)
+	app.Utils.RespondWithJSON(w, response)
 
 }
 
@@ -869,7 +868,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
 			Error:  err.Error(),
 		})
@@ -885,7 +884,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 	permissions, err := app.Queries.GetPermissions(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions",
 			Error:  err.Error(),
 		})
@@ -894,7 +893,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 	permissionsForUser, err := app.Queries.GetPermissionsByUserId(context.Background(), useriduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
 			Error:  err.Error(),
 		})
@@ -914,7 +913,7 @@ func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
-	utils.RespondWithJSON(w, response)
+	app.Utils.RespondWithJSON(w, response)
 }
 
 func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
@@ -947,7 +946,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	email := strings.ToLower(strings.TrimSpace(reqBody.Email))
 	if !utils.IsValidEmail(email) {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Email format. Is the email valid?",
 			Error:  "",
 		})
@@ -956,7 +955,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	password := reqBody.Password
 	if password == "" {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Pasword Is the password valid?",
 			Error:  "",
 		})
@@ -974,7 +973,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 	newpassword, err := utils.HashPassword(password)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error hashing password",
 			Error:  err.Error(),
 		})
@@ -992,7 +991,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 		IsSuperuser: sql.NullBool{Bool: reqBody.IsSuperuser, Valid: true},
 	})
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "nice",
 			Error:  err.Error(),
 		})
@@ -1012,7 +1011,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 				Name: g,
 			})
 			if err != nil {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "error creating new group",
 					Error:  err.Error(),
 				})
@@ -1025,7 +1024,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 			GroupID: dbGroup.ID,
 		})
 		if err != nil {
-			utils.RespondWithJSON(w, utils.ErrorResponse{
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 				Detail: "error instering into usergroups",
 				Error:  err.Error(),
 			})
@@ -1046,7 +1045,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 				Name: p,
 			})
 			if err != nil {
-				utils.RespondWithJSON(w, utils.ErrorResponse{
+				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "error creating new group",
 					Error:  err.Error(),
 				})
@@ -1059,7 +1058,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 			PermissionID: dbPermission.ID,
 		})
 		if err != nil {
-			utils.RespondWithJSON(w, utils.ErrorResponse{
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 				Detail: "error instering into userpermissions",
 				Error:  err.Error(),
 			})
@@ -1068,7 +1067,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	utils.RespondWithJSON(w, utils.ToastResponse{
+	app.Utils.RespondWithJSON(w, utils.ToastResponse{
 		Header: "User",
 		Text:   "User created",
 	},
@@ -1081,7 +1080,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -1092,7 +1091,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 
 	err = app.Queries.DeleteUserById(context.Background(), useriduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error deleting this user",
 			Error:  err.Error(),
 		})
@@ -1102,7 +1101,7 @@ func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 	// The user is changed and hence needs to be deleted from cache.
 	go4users.Del(userid)
 
-	utils.RespondWithJSON(w, struct{}{})
+	app.Utils.RespondWithJSON(w, struct{}{})
 
 }
 
@@ -1181,7 +1180,7 @@ func (app *App) bulkCreateUsers(w http.ResponseWriter, r *http.Request) {
 		// e.g., checking if the user was created successfully before proceeding to the next record.
 	}
 
-	utils.RespondWithJSON(w, utils.ErrorResponse{
+	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 		Detail: "nice",
 		Error:  "",
 	})
@@ -1192,7 +1191,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 	userid := r.Header.Get("UserId")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting parsing ID",
 			Error:  err.Error(),
 		})
@@ -1201,7 +1200,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 
 	user, err := app.Queries.SelectUserById(context.Background(), useriduuid)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting this user",
 			Error:  err.Error(),
 		})
@@ -1222,7 +1221,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 
 	usergroups, err := app.Queries.GetGroupsByUserId(context.Background(), user.ID)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting groups for user",
 			Error:  err.Error(),
 		})
@@ -1237,7 +1236,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 
 	userpermissions, err := app.Queries.GetPurePermissionsByUserId(context.Background(), user.ID)
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting permissions for user",
 			Error:  err.Error(),
 		})
@@ -1263,7 +1262,7 @@ func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 		Permissions:  permissionstring,
 	}
 
-	utils.RespondWithJSON(w, responseuser)
+	app.Utils.RespondWithJSON(w, responseuser)
 
 }
 
@@ -1271,7 +1270,7 @@ func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 
 	allUsers, err := app.Queries.SelectAllUsers(context.Background())
 	if err != nil {
-		utils.RespondWithJSON(w, utils.ErrorResponse{
+		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting all users",
 			Error:  err.Error(),
 		})
@@ -1297,7 +1296,7 @@ func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 
 		usergroups, err := app.Queries.GetGroupsByUserId(context.Background(), user.ID)
 		if err != nil {
-			utils.RespondWithJSON(w, utils.ErrorResponse{
+			app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 				Detail: "Error getting groups for user",
 				Error:  err.Error(),
 			})
@@ -1325,7 +1324,7 @@ func (app *App) allusers(w http.ResponseWriter, _ *http.Request) {
 
 	}
 
-	utils.RespondWithJSON(w, Responseusers)
+	app.Utils.RespondWithJSON(w, Responseusers)
 
 }
 
@@ -1342,7 +1341,7 @@ func (app *App) GetLogs(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to fetch log counts", http.StatusInternalServerError)
 		return
 	}
-	utils.RespondWithJSON(w, logCounts)
+	app.Utils.RespondWithJSON(w, logCounts)
 
 }
 
@@ -1384,5 +1383,5 @@ func (app *App) GetErrorLogs(w http.ResponseWriter, _ *http.Request) {
 
 	}
 
-	utils.RespondWithJSON(w, ErrorLogResponse)
+	app.Utils.RespondWithJSON(w, ErrorLogResponse)
 }

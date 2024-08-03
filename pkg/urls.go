@@ -18,6 +18,7 @@ import (
 // App
 type App struct {
 	Queries *db.Queries
+	Utils   *utils.Go4lageSettings
 }
 
 func StartServer() {
@@ -27,6 +28,7 @@ func StartServer() {
 
 	app := App{
 		Queries: queries,
+		Utils:   &Settings,
 	}
 
 	r := chi.NewRouter()

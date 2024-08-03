@@ -33,6 +33,9 @@ export default function ShowUsers() {
       }
       try {
         const response = await api.allusers(userData.token)
+        if (!response) {
+          return
+        }
         console.log('Fetched users:', response)
         await db.open()
         await db.users.clear()

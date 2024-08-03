@@ -62,25 +62,49 @@ type ToastResponse struct {
 	Text   string `json:"text"`
 }
 
-func RespondWithJSON(w http.ResponseWriter, payload interface{}) {
-	dat, err := json.Marshal(payload)
+type Go4lageSettings struct {
+	ApiPort                   string
+	Port                      string
+	Debug                     bool
+	Baseurl                   string
+	Apiurl                    string
+	GooseDriver               string
+	GooseDbString             string
+	LoginThrottleTimeS        int
+	Superuser2FA              bool
+	UserTokenValidMins        int
+	SuperuserTokenValidMins   int
+	UserLoginTrackingTimeMins int
+}
+
+func (settings *Go4lageSettings) RespondWithJSON(w http.ResponseWriter, payload interface{}) {
+	var dat []byte
+	var err error
+
+	if !settings.Debug {
+		if errorResp, ok := payload.(*ErrorResponse); ok {
+
+			cleanedPayload := ErrorResponse{
+				Detail: errorResp.Detail,
+				Error:  "",
+			}
+			dat, err = json.Marshal(cleanedPayload)
+		} else {
+			dat, err = json.Marshal(payload)
+		}
+	} else {
+		dat, err = json.Marshal(payload)
+	}
+
 	if err != nil {
 		log.Printf("Failed to Marshal JSON %v \n", payload)
 		w.WriteHeader(500)
 		return
 	}
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(200) // This is hard coded to assure compabillity to javascript. Do not alter.
-	w.Write(dat)
-}
 
-func RespondWithText(w http.ResponseWriter, code int, text string) {
-	w.Header().Add("Content-Type", "text/plain")
-	w.WriteHeader(200) // This is hard coded to assure compabillity to javascript. Do not alter.
-	_, err := w.Write([]byte(text))
-	if err != nil {
-		log.Printf("Failed to write text response: %v \n", err)
-	}
+	w.Header().Add("Content-Type", "application/json")
+	w.WriteHeader(200) // This is hard coded to assure compatibility to javascript. Do not alter.
+	w.Write(dat)
 }
 
 func SetUp() (*sql.DB, func()) {
