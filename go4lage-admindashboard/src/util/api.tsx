@@ -55,9 +55,23 @@ class API {
 
     const response = await fetch(url, { ...options, headers })
 
+    if (!response.ok) {
+      if (setToast) {
+        setToast({
+          show: true,
+          success: false,
+          header: 'Error outside go4lage',
+          text: `${response.status}`,
+        })
+      }
+      return
+    }
+
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.includes('application/json')) {
+      console.log('inside the content type')
       const responseJson = await response.json()
+      console.log(responseJson)
       if (responseJson.error && setToast) {
         setToast({
           show: true,
@@ -67,27 +81,17 @@ class API {
         })
         return
       }
-      if (responseJson.text && setToast) {
+      if ((responseJson.text || responseJson.header) && setToast) {
+        console.log('inside correct toat')
         setToast({
           show: true,
           success: true,
           header: toastHeader || 'Toastheader missing',
-          text: `${responseJson.text}`,
+          text: `${responseJson.header} ${responseJson.text}`,
         })
         return
       }
 
-      if (!response.ok) {
-        if (setToast) {
-          setToast({
-            show: true,
-            success: false,
-            header: 'Error outside go4lage',
-            text: `${response.status}`,
-          })
-        }
-        return
-      }
       return responseJson
     }
 
@@ -140,7 +144,7 @@ class API {
       url: `${this.apiUrl}/editgrouppermissions`,
       options: {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', GroupId: groupId },
+        headers: { 'Content-Type': 'application/json', Id: groupId },
         body: JSON.stringify(permissions),
       },
       token: token,
@@ -175,7 +179,7 @@ class API {
       url: `${this.apiUrl}/oneuser`,
       options: {
         method: 'GET',
-        headers: { UserId: idValue },
+        headers: { Id: idValue },
       },
       token: token,
       toastHeader: null,
@@ -195,7 +199,7 @@ class API {
       url: `${this.apiUrl}/editusergroups`,
       options: {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', UserId: idValue },
+        headers: { 'Content-Type': 'application/json', Id: idValue },
         body: JSON.stringify(groups),
       },
       token: token,
@@ -214,7 +218,7 @@ class API {
       url: `${this.apiUrl}/oneuser`,
       options: {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', UserId: idValue },
+        headers: { 'Content-Type': 'application/json', Id: idValue },
         body: JSON.stringify(user),
       },
       token: token,
@@ -303,9 +307,7 @@ class API {
       url: `${this.apiUrl}/downloadbackup`,
       options: {
         method: 'GET',
-        headers: {
-          FileName: fileName,
-        },
+        headers: { Id: fileName },
       },
       token: token,
       toastHeader: null,
@@ -323,9 +325,7 @@ class API {
       url: `${this.apiUrl}/deletebackup`,
       options: {
         method: 'DELETE',
-        headers: {
-          FileName: fileName,
-        },
+        headers: { Id: fileName },
       },
       token: token,
       toastHeader: null,
@@ -357,7 +357,7 @@ class API {
       url: `${this.apiUrl}/getgroup`,
       options: {
         method: 'GET',
-        headers: { GroupId: groupId },
+        headers: { Id: groupId },
       },
       token: token,
       toastHeader: null,
@@ -375,7 +375,7 @@ class API {
       url: `${this.apiUrl}/getpermission`,
       options: {
         method: 'GET',
-        headers: { PermissionId: permissionId },
+        headers: { Id: permissionId },
       },
       token: token,
       toastHeader: null,
@@ -393,7 +393,7 @@ class API {
       url: `${this.apiUrl}/getpermissionsforgroup`,
       options: {
         method: 'GET',
-        headers: { GroupId: groupId },
+        headers: { Id: groupId },
       },
       token: token,
       toastHeader: null,
@@ -478,7 +478,7 @@ class API {
       url: `${this.apiUrl}/deleteuser`,
       options: {
         method: 'DELETE',
-        headers: { UserId: userId },
+        headers: { Id: userId },
       },
       token: token,
       toastHeader: 'Delete User',
@@ -533,7 +533,7 @@ class API {
       url: `${this.apiUrl}/deletegroup`,
       options: {
         method: 'DELETE',
-        headers: { GroupId: groupId },
+        headers: { Id: groupId },
       },
       token: token,
       toastHeader: 'Delete Group',
