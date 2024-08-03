@@ -162,7 +162,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -237,9 +237,9 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
-	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
-		Detail: "User updated",
-		Error:  "",
+	app.Utils.RespondWithJSON(w, utils.ToastResponse{
+		Header: "User updated",
+		Text:   "",
 	})
 
 }
@@ -247,7 +247,7 @@ func (app *App) editoneuser(w http.ResponseWriter, r *http.Request) {
 func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -305,7 +305,7 @@ func (app *App) editUserGroups(w http.ResponseWriter, r *http.Request) {
 func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
 
-	groupId := r.Header.Get("GroupId")
+	groupId := r.Header.Get("Id")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -362,7 +362,7 @@ func (app *App) editGroupPermissions(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) editUserPermissions(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -432,7 +432,7 @@ func (app *App) getGroups(w http.ResponseWriter, _ *http.Request) {
 
 func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 
-	groupId := r.Header.Get("GroupId")
+	groupId := r.Header.Get("Id")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -456,7 +456,7 @@ func (app *App) getGroupById(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) getPermissionById(w http.ResponseWriter, r *http.Request) {
 
-	permissionId := r.Header.Get("PermissionId")
+	permissionId := r.Header.Get("Id")
 	permissioniduuid, err := uuid.Parse(permissionId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -567,7 +567,7 @@ func (app *App) createGroup(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
-	PermissionId := r.Header.Get("PermissionId")
+	PermissionId := r.Header.Get("Id")
 	permissionuuid, err := uuid.Parse(PermissionId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -590,7 +590,7 @@ func (app *App) deletePermission(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) deleteGroup(w http.ResponseWriter, r *http.Request) {
 	defer nullGroupsAndPermissions()
-	GroupId := r.Header.Get("GroupId")
+	GroupId := r.Header.Get("Id")
 	groupuuid, err := uuid.Parse(GroupId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -627,7 +627,7 @@ func (app *App) getPermissions(w http.ResponseWriter, _ *http.Request) {
 
 func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 
-	groupId := r.Header.Get("GroupId")
+	groupId := r.Header.Get("Id")
 	groupiduuid, err := uuid.Parse(groupId)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -752,7 +752,7 @@ func (app *App) getBackups(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
-	fileName := r.Header.Get("FileName")
+	fileName := r.Header.Get("Id")
 	filePath := "./backup/" + fileName
 
 	// Check if the file exists
@@ -787,7 +787,7 @@ func (app *App) downloadBackup(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
-	fileName := r.Header.Get("FileName")
+	fileName := r.Header.Get("Id")
 	filePath := "./backup/" + fileName
 
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
@@ -811,7 +811,7 @@ func (app *App) deleteBackup(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -865,7 +865,7 @@ func (app *App) getUserGroups(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) getUserPermissions(w http.ResponseWriter, r *http.Request) {
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -1077,7 +1077,7 @@ func (app *App) createoneuser(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) deleteoneuser(w http.ResponseWriter, r *http.Request) {
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -1188,7 +1188,7 @@ func (app *App) bulkCreateUsers(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) oneuser(w http.ResponseWriter, r *http.Request) {
 
-	userid := r.Header.Get("UserId")
+	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
