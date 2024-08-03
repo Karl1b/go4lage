@@ -1,5 +1,13 @@
 import { Run, RunInfo, ToastDetails, UserDetails } from "./types";
 
+interface FetchWithTokenProps {
+  url: string;
+  options: RequestInit;
+  token: string | null;
+  toastHeader: string | null;
+  setToast: ((toast: ToastDetails) => void | null) | null;
+}
+
 class API {
   apiUrl: string;
   constructor() {
@@ -14,19 +22,62 @@ class API {
     }
   }
 
-  private async fetchWithToken(
-    url: string,
-    options: RequestInit,
-    token: string | null
-  ) {
-    if (!token) throw new Error("Token is required");
+  private async fetchWithToken({
+    url,
+    options,
+    token,
+    toastHeader,
+    setToast,
+  }: FetchWithTokenProps) {
+    if (!token && setToast) {
+      setToast({
+        show: true,
+        success: false,
+        header: "Token is missing",
+        text: "Try login and out again",
+      });
+      return;
+    }
 
     const headers = new Headers(options.headers);
     headers.append("Authorization", "Token " + token);
 
     const response = await fetch(url, { ...options, headers });
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      const responseJson = await response.json();
+      if (responseJson.error && setToast) {
+        setToast({
+          show: true,
+          success: false,
+          header: toastHeader || "Toastheader missing",
+          text: `${responseJson.detail} ${responseJson.error}`,
+        });
+        return;
+      }
+      if (responseJson.text && setToast) {
+        setToast({
+          show: true,
+          success: true,
+          header: toastHeader || "Toastheader missing",
+          text: `${responseJson.text}`,
+        });
+        return;
+      }
+
+      if (!response.ok) {
+        if (setToast) {
+          setToast({
+            show: true,
+            success: false,
+            header: "Error outside go4lage",
+            text: `${response.status}`,
+          });
+        }
+        return;
+      }
+      return responseJson;
     }
 
     return response;
@@ -72,7 +123,7 @@ class API {
       setToast({
         show: true,
         success: false,
-        header: "Error uploading CV",
+        header: "Error outside go4lage",
         text: "",
       });
 
@@ -87,91 +138,54 @@ class API {
     permanent: boolean,
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo | null> {
-    try {
-      formData.append("language", region);
-      const permentry = permanent ? "true" : "false";
-      formData.append("permanent", permentry);
+    formData.append("language", region);
+    const permentry = permanent ? "true" : "false";
+    formData.append("permanent", permentry);
 
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geminicv/uploadcv`,
-        {
-          method: "POST",
-          body: formData,
-        },
-        token
-      );
-      const responseJson = await response.json();
-      if (responseJson.error) {
-        setToast({
-          show: true,
-          success: false,
-          header: responseJson.detail || "Error uploading CV",
-          text: responseJson.error,
-        });
-        return null;
-      }
-      setToast({
-        show: true,
-        success: true,
-        header: "Upload CV",
-        text: "CV uploaded successfully!",
-      });
-      return responseJson;
-    } catch (e) {
-      setToast({
-        show: true,
-        success: false,
-        header: "Error uploading CV",
-        text: "",
-      });
-      console.log(e);
-      return null;
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/geminicv/uploadcv`,
+      options: {
+        method: "POST",
+        body: formData,
+      },
+      token: token,
+      toastHeader: "CV uploaded",
+      setToast: setToast,
+    });
+
+    return response;
   }
 
   public async getRuns(token: string | null): Promise<RunInfo | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geminicv/allruns`,
-        {
-          method: "GET",
-        },
-        token
-      );
-      const data = await response.json();
-      if (data.error) {
-        console.log(data.error);
-      }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/geminicv/allruns`,
+      options: {
+        method: "GET",
+      },
+      token: token,
+      toastHeader: "",
+      setToast: null,
+    });
 
-      return data;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
+    return response;
   }
 
   public async getRun(
     token: string | null,
     cvrunid: string
   ): Promise<Run | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geminicv/run`,
-        {
-          method: "GET",
-          headers: { CVrunID: cvrunid },
-        },
-        token
-      );
-      const data = await response.json();
-      if (data.error) {
-        console.log(data.error);
-      }
-      return data;
-    } catch (e) {
-      console.log(e);
-      return null;
-    }
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/geminicv/run`,
+      options: {
+        method: "GET",
+        headers: { ID: cvrunid },
+      },
+      token: token,
+      toastHeader: "",
+      setToast: null,
+    });
+
+    return response;
   }
 
   public async uploadText(
@@ -181,49 +195,24 @@ class API {
     permanent: boolean,
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo | null> {
-    try {
-      const response = await this.fetchWithToken(
-        `${this.apiUrl}/geminicv/uploadtext`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: text,
-            language: region,
-            permanent: permanent,
-          }),
-        },
-        token
-      );
-      const responseJson = await response.json();
-      if (responseJson.error) {
-        setToast({
-          show: true,
-          success: false,
-          header: responseJson.detail || "Error uploading Text",
-          text: responseJson.error,
-        });
-        return null;
-      }
-      setToast({
-        show: true,
-        success: true,
-        header: "Text upload",
-        text: "Text uploaded successfully!",
-      });
-      return responseJson;
-    } catch (e) {
-      setToast({
-        show: true,
-        success: false,
-        header: "Error uploading Text",
-        text: "",
-      });
-      console.log(e);
-    }
-    return null;
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/geminicv/run`,
+      options: {
+        method: "POST",
+
+        body: JSON.stringify({
+          text: text,
+          language: region,
+          permanent: permanent,
+        }),
+      },
+
+      token: token,
+      toastHeader: "Error Uploading text",
+      setToast: setToast,
+    });
+
+    return response;
   }
 }
 
