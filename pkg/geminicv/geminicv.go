@@ -552,7 +552,7 @@ func cleanText(text string) (string, error) {
 	text = regexp.MustCompile(`\*{1,2}`).ReplaceAllString(text, "")
 	text = strings.TrimSpace(text)
 
-	if len(text) >= 25000 {
+	if len(text) >= 50000 {
 		return "", errors.New("text too long")
 	}
 
