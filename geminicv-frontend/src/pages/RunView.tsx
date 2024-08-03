@@ -60,22 +60,33 @@ export default function RunView() {
         ) : (
           <></>
         )}
-        <Button
-          kind="primary"
-          onClick={() => {
-            navigate("/");
-          }}
-        >
-          Back to Start
-        </Button>
-        <Button
-          kind="secondary"
-          onClick={() => {
-            setShowScanGraph(!showScanGraph);
-          }}
-        >
-          {showScanGraph ? "Hide graph" : "Show graph"}
-        </Button>
+
+        <div className="flex justify-between">
+          <div>
+            <Button
+              kind="primary"
+              onClick={() => navigate(`/dumprun/${cvrunid}`)}
+            >
+              Back to basic view
+            </Button>
+            <Button
+              kind="secondary"
+              onClick={() => {
+                setShowScanGraph(!showScanGraph);
+              }}
+            >
+              {showScanGraph ? "Hide graph" : "Show graph"}
+            </Button>
+          </div>
+          <Button
+            kind="primary"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Back to Start
+          </Button>
+        </div>
 
         {showScanGraph && <ScanGraph scans={scans} />}
 

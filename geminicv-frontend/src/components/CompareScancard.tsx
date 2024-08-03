@@ -13,14 +13,16 @@ export interface CompareScanCardProps {
   bestScan: Scan;
   startScan: Scan;
   run: Run;
+  startIsBest: boolean;
 }
 
 export default function CompareScancard({
   startScan,
   run,
   bestScan,
+  startIsBest,
 }: CompareScanCardProps) {
-  const [showText, setShowText] = useState<boolean>(false);
+  const [showText, setShowText] = useState<boolean>(true);
 
   const [bestText, setBestText] = useState<string>(bestScan.text);
   const [startText, setStartText] = useState<string>(startScan.text);
@@ -67,22 +69,37 @@ export default function CompareScancard({
           run={run}
         />
 
-        <div className="flex justify-center space-x-4">
+        <div className="flex justify-center ">
           <Button kind="primary" onClick={() => setShowText(!showText)}>
             {showText ? "Hide" : "Show"} CV
           </Button>
         </div>
 
         {showText && (
-          <div className="flex flex-col space-y-4">
-            <div className="flex  justify-center m-5 mb-6 p-6 max-w-md bg-white rounded-xl shadow-md">
-              <p>your uploaded CV</p>
-              <ToggleSwitch
-                isChecked={toggleIsBest}
-                onChange={() => SettoggleIsBest(!toggleIsBest)}
-              />
-              <p>Gemini's best rated CV</p>
-            </div>
+          <div className="flex flex-col space-y-4 ">
+            {!startIsBest && (
+              <div className="flex flex-row justify-center ">
+                <div>
+                  <div className="flex flex-col  m-5 mb-6 p-6 max-w-md bg-white rounded-xl shadow-md">
+                    <div>
+                      <p className="m-5">
+                        Toggle to compare the start and best version.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-row">
+                      <p>your uploaded CV</p>
+                      <ToggleSwitch
+                        isChecked={toggleIsBest}
+                        onChange={() => SettoggleIsBest(!toggleIsBest)}
+                      />
+                      <p>Gemini's best rated CV</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <p className="text-lg">
               Edit the text and send it to the backend as a new run for fine
               tuning. Tips: Name every skill you used in a position and your

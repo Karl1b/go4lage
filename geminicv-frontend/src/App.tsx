@@ -25,8 +25,9 @@ export const MainContext = createContext<IMainContext>({
 
 function App() {
   const [userData, setUserData] = useState<UserDetails>(
-    getUserDataFromSession()
+  getUserDataFromSession()
   );
+
   const [toast, setToast] = useState<ToastDetails>({
     show: false,
     success: true,
@@ -76,10 +77,12 @@ function App() {
 export default App;
 
 function getUserDataFromSession() {
+  //return { token: null, email: null };
+
   const storedUserData = sessionStorage.getItem("userData");
   if (storedUserData) {
     return JSON.parse(storedUserData);
   } else {
-    return { username: null, email: null };
+    return { token: null, email: null };
   }
 }

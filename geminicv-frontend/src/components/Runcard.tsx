@@ -17,10 +17,10 @@ export default function RunCard({ run }: RunCardProps) {
   return (
     <div className="flex justify-center cursor-pointer">
       <div
-        className="bg-gray-300 p-1 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full"
+        className="bg-gray-300 p-2 rounded-lg border shadow-lg hover:bg-bright transition-colors w-full flex justify-center"
         onClick={() => navigate(`/dumprun/${run.id}`)}
       >
-        <p>{formattedTimeStamp}</p>
+        <p className="mr-2">Click to see your optimized run from: </p><p className="font-bold">{formattedTimeStamp}</p>
       </div>
     </div>
   );

@@ -2,12 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-body, html {
-    overflow-x: hidden;
-  }
-
-
-
+body,
+html {
+  overflow-x: hidden;
+}
 
 h1 {
   color: white;
@@ -15,5 +13,23 @@ h1 {
     1px 1px 0 #000;
   font-family: Arial, sans-serif;
   font-size: 48px;
+  margin: 10px;
+}
+
+h2 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 36px;
+  margin: 10px;
+}
+
+h3 {
+  color: white;
+  text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000,
+    1px 1px 0 #000;
+  font-family: Arial, sans-serif;
+  font-size: 24px;
   margin: 10px;
 }

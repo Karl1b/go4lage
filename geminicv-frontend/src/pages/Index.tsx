@@ -83,23 +83,11 @@ export default function Index() {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-gray-50 shadow-lg rounded-lg">
-      {runs && (
-        <Button
-          kind="primary"
-          onClick={() => {
-            setShowInstruction(!showInstruction);
-          }}
-        >
-          {!showInstruction ? "show instruction" : "hide instruction"}
-        </Button>
-      )}
-
-      {showInstruction && <Anleitung />}
-
       {runs ? (
         <>
           <p className="text-lg mb-6 text-center">
-            Here are your past Gemini CV help runs:
+            Here are your past Gemini CV help runs. Click on them to see the
+            results.
           </p>
         </>
       ) : (
@@ -116,6 +104,19 @@ export default function Index() {
           );
         })}
       </div>
+      {showInstruction && <Anleitung />}
+      {runs && (
+        <div className="flex justify-center mb-5">
+          <Button
+            kind="primary"
+            onClick={() => {
+              setShowInstruction(!showInstruction);
+            }}
+          >
+            {!showInstruction ? "show instruction" : "hide instruction"}
+          </Button>
+        </div>
+      )}
 
       {showUpload && (
         <div>
@@ -248,12 +249,22 @@ function Anleitung() {
   return (
     <>
       <p className="text-lg mb-4">
-        <b>1. Upload your current CV. </b> You can do this via file upload or
+        <b>1. Choose your target region</b> You have the option to choose
+        between the US and German market.
+      </p>
+      <p className="text-lg mb-4">
+        <b>2. Choose mode</b> Tell in advance if you are looking for freelance
+        gigs with hourly payment or if you are looking for a permanent position
+        instead.
+      </p>
+
+      <p className="text-lg mb-4">
+        <b>3. Upload your current CV. </b> You can do this via file upload or
         copy & paste plain test. Gemini CV helper will improve your CV,
         recommend a next career step, and also rate your market value.
       </p>
       <p className="text-lg mb-4">
-        <b>2. Use your optimized CV for your job application. </b> You have the
+        <b>4. Use your optimized CV for your job application. </b> You have the
         potential to raise the starting point for your salary negotiations. Our
         tests show that an increase of $5k to $10k per year is realistic.
       </p>

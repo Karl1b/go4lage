@@ -95,6 +95,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			Detail: "Error parsing uuid",
 			Error:  err.Error(),
 		})
+		return
 	}
 
 	cvrun, err := app.Queries.ReadCVrun(context.Background(), cvrunuuid)
@@ -103,6 +104,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			Detail: "Error parsing uuid",
 			Error:  err.Error(),
 		})
+		return
 	}
 
 	_, err = app.Queries.CheckCVrunUser(context.Background(), db.CheckCVrunUserParams{
@@ -115,6 +117,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			Detail: "Error is this User owner of the run?",
 			Error:  err.Error(),
 		})
+		return
 	}
 
 	scans, err := app.Queries.SelectAllCVRunScans(context.Background(), cvrunuuid)
@@ -123,6 +126,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 			Detail: "Error getting all runs",
 			Error:  err.Error(),
 		})
+		return
 	}
 
 	type ScanDetail struct {
@@ -584,8 +588,6 @@ func analyseCV(text string, run db.Cvrun, queries *db.Queries) {
 
 func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run db.Cvrun, isStartVersion bool) {
 
-	fmt.Println("this is cvRunScan with lang: ", lang)
-
 	instruction := cvCheck.en
 	if lang == "de" {
 		instruction = cvCheck.de
@@ -656,7 +658,7 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 }
 
 func createImprovement(lang string, text string, temp float32, queries *db.Queries, run db.Cvrun, instruction string) {
-	fmt.Println("this is createimprovement with lang: ", lang)
+
 	// create improvement
 	improvement, err := callGemini(instruction, text, temp)
 	if err != nil {

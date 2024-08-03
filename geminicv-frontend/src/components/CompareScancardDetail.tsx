@@ -131,12 +131,13 @@ export default function CompareScanCardDetail({ startScan, bestScan, run }: Comp
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-lg">
       <div className="">
+      
         <Bar data={data} options={options} />
       </div>
       <div className="flex">
         <div className="flex flex-col">
           <div className="text-center font-semibold">
-            Start Scan - Annual Gross Salary:
+            Start Scan - Annual Gross Salary: 
           </div>
           <div className="flex justify-center">
             <p className="m-5">Min: {formatCash(startScan.anual_gross_salary_min)}</p>

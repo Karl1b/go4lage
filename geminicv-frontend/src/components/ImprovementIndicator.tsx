@@ -11,9 +11,9 @@ export default function DumpRunLoadScreen({
   improvement,
   run,
 }: ImprovementIndicatorProps) {
-  const isPositive = improvement > 0;
+  const isPositive = improvement >= 0;
   const isGerman = run.language === "de";
-  const isPermanent = run.permanent
+  const isPermanent = run.permanent;
 
   const formattedImprovement = new Intl.NumberFormat(
     isGerman ? "de-DE" : "en-US",
@@ -25,22 +25,26 @@ export default function DumpRunLoadScreen({
   ).format(Math.abs(improvement));
 
   const texts = {
-    title: isGerman ? "Gehaltsauswirkung" : "Salary Impact",
+    title: isGerman ? "Gehaltsauswirkung" : "Salary impact",
     estimated: isGerman ? "Geschätzte" : "Estimated",
     increase: isGerman ? "Erhöhung" : "increase",
     decrease: isGerman ? "Verringerung" : "decrease",
-    annualSalary: isGerman ? isPermanent? "des Brutto Jahresgehalts" : "des Stundensatzes" : isPermanent? "in annual salary" : "in hourly rate",
+    annualSalary: isGerman
+      ? isPermanent
+        ? "des Brutto Jahresgehalts"
+        : "des Stundensatzes"
+      : isPermanent
+      ? "in annual salary"
+      : "in hourly rate",
     bestVersion: isGerman
-      ? "Die ursprüngliche Version des Lebenslaufs bietet bereits ein gutes Gehaltspotenzial."
-      : "The initial resume version yields a good potential salary.",
+      ? "Die ursprüngliche Version des Lebenslaufs bietet bereits ein gutes Gehaltspotenzial und konnte durch Gemini CV nicht weiter verbessert werden."
+      : "The initial resume version yields a good potential salary and could not be improved by Gemini CV",
   };
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-800">{texts.title}</h2>
-      <span
-        className={`text-2xl ${isPositive ? "text-high" : "text-red-500"}`}
-      >
+      <h1 className="text-black">{texts.title}</h1>
+      <span className={`text-2xl ${isPositive ? "text-high" : "text-red-500"}`}>
         {isPositive ? "▲" : "▼"}
       </span>
 
@@ -59,7 +63,7 @@ export default function DumpRunLoadScreen({
       </div>
       {startisbest && (
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <p className="text-blue-700 font-medium text-center">
+          <p className="text-bright font-medium text-center">
             {texts.bestVersion}
           </p>
         </div>

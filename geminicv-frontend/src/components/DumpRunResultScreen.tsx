@@ -77,14 +77,22 @@ export default function DumpRunResultScreen({ run }: DumpRunResultScreenProps) {
         </div>
       )}
 
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <Button kind="secondary" onClick={() => navigate(`/run/${cvrunid}`)}>
           See detailed Results
         </Button>
+        <Button
+            kind="primary"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
+            Back to Start
+          </Button>
       </div>
 
       {startScan && bestScan && run && (
-        <CompareScancard startScan={startScan} bestScan={bestScan} run={run} />
+        <CompareScancard startScan={startScan} bestScan={bestScan} run={run} startIsBest={startIsBest}/>
       )}
     </>
   );

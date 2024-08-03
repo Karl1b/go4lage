@@ -37,7 +37,7 @@ export default function Login() {
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-secondary flex-col">
-        <Logo size="200px" /> <h1>Gemini CV</h1>
+        <Logo size="200px" /> <h1>Gemini CV</h1> <h3 className="text-slate-600 animate-bounce">Generate a powerfull AI-optimized CV!</h3 >
         <div className="bg-section p-8 rounded-lg shadow-lg w-full max-w-md">
           <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
           <div>

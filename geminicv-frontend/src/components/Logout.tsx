@@ -8,6 +8,7 @@ export default function Logout() {
 
   function logout() {
     const emptyUser: UserDetails = { email: null, token: null };
+    sessionStorage.clear();
     setUserData(emptyUser);
   }
 
