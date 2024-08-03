@@ -18,7 +18,7 @@ export default function UserCard({ user }: IUserCardProps) {
         className="bg-gray-300 p-1 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full"
         onClick={() => navigate(`/manageuser/${user.id}`)}
       >
-        <h2 className="text-2xl font-bold text-center">{user.first_name} {user.last_name}</h2>
+        <p className="text-2xl font-bold text-center">{user.first_name} {user.last_name}</p>
         <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6  2xl:grid-cols-8 gap-1">
           <div className="col-span-1">
             <label className="block text-sm font-medium leading-6 text-gray-900">Username</label>

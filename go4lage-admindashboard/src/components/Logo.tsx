@@ -1,16 +1,19 @@
-
-import logo from '../assets/Go-Logo_White.svg'
-
+import { useNavigate } from 'react-router-dom'
+import logo from '../assets/go4lage-logo-plain.svg'
 
 export default function Logo() {
+  const navigate = useNavigate()
+
   return (
     <>
-      <a href="/">
-        <div className="m-0 mt-[-16px] md:mt-[-12px]">
-          <img src={logo} width="100px" />
-        </div>
-      </a>
-      
+      <div
+        className="m-0 cursor-pointer"
+        onClick={() => {
+          navigate('/')
+        }}
+      >
+        <img src={logo} width="100px" />
+      </div>
     </>
   )
 }

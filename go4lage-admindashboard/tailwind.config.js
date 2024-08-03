@@ -11,13 +11,18 @@ const config = {
         secondary: 'rgba(112, 112, 112, <alpha-value>)',
         tertiary: 'rgba(215, 215, 215, <alpha-value>)',
         pink:'#aa0069'
+        
       },
       backgroundColor: {
         primary: '#073fb9',
-        secondary: '#adadad', // '#6d6d6d',
-        section: '#d0d0d0',
+        secondary: '#8d8d8d', // '#6d6d6d',
+        section: '#adadad',
         highlight: 'rgba(240,230 , 190, <alpha-value>)',
-        pink:'#aa0069'
+        pink:'#aa0069',
+        darkblue:'#28527a'
+      },
+      backgroundImage: {
+        'gradient-custom': 'linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965)',
       },
     },
   },

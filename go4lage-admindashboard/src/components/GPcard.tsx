@@ -23,7 +23,7 @@ export default function GPcard({ item, isGroup }: GPProps) {
       onClick={handleNavigation}
     >
       <div className="bg-gray-300 p-4 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full">
-        <h2 className="text-2xl font-bold text-center">{item.name}</h2>
+        <p className="text-2xl font-bold text-center">{item.name}</p>
       </div>
     </div>
   )

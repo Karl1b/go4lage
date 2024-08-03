@@ -7,7 +7,7 @@ export default function Logs() {
   return (
     <>
       <div className="flex justify-center">
-        <h2 className="text-xl font-bold">Logs</h2>
+        <h1 className="">Logs</h1>
       </div>
       <div className="flex justify-center">
         <Button

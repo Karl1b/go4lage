@@ -41,7 +41,7 @@ export default function GPcard({ backup, getBackups }: BackupCardProps) {
   return (
     <div className="flex justify-center cursor-pointer">
       <div className="bg-gray-300 p-4 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full flex justify-around items-center">
-        <h2 className="text-2xl font-bold text-center">{backup.file_name}</h2>
+        <p className="text-2xl font-bold text-center">{backup.file_name}</p>
 
         <Button onClick={downloadBackup} kind="primary">
           Download

@@ -73,7 +73,7 @@ export default function UserForm({
   return (
     <div className="flex justify-center">
       <div className="bg-transparent p-2 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-2xl">
-        <h1 className="text-2xl font-bold mb-6 text-center">{headText}</h1>
+        <h1 className=" mb-6 text-center">{headText}</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="col-span-1">
             <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
@@ -163,7 +163,7 @@ export default function UserForm({
           </div>
         </div>
         <div className="relative mb-4">
-          <h2 className="text-xl font-bold mb-4 text-center">Groups</h2>
+          <h2 className="mb-4 text-center">Groups</h2>
           <div className="flex flex-wrap">
             {groups.map((group, index) => (
               <Checkbox
@@ -176,7 +176,7 @@ export default function UserForm({
           </div>
         </div>
         <div className="relative mb-4">
-          <h2 className="text-xl font-bold mb-4 text-center">
+          <h2 className="mb-4 text-center">
             Pure permissions
           </h2>
           <div className="flex flex-wrap">

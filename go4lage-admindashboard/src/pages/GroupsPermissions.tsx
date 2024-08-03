@@ -46,14 +46,15 @@ export default function GroupsPermissions() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold p-2 text-center">Groups</h1>
+      <h1 className="p-2 text-center">Groups</h1>
 
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-5">
         {groups?.map((group: Group) => {
           return <GPcard key={group.id} item={group} isGroup={true} />
         })}
       </div>
-      <h1 className="text-2xl font-bold m-6 text-center">Permissions</h1>
+
+      <h1 className=" m-6 text-center">Permissions</h1>
 
       <div className="flex justify-center">
         {permissions?.map((permission: Permission) => {
@@ -66,9 +67,7 @@ export default function GroupsPermissions() {
       <div className="flex justify-center">
         <div className="m-2">
           <div className="flex justify-center">
-            <h1 className="text-2xl font-bold m-6 text-center">
-              Create new group
-            </h1>
+            <h1 className=" m-6 text-center">Create new group</h1>
           </div>
 
           <div className="flex justify-center">
@@ -96,9 +95,7 @@ export default function GroupsPermissions() {
         <div>
           <div className="m-2">
             <div className="flex justify-center">
-              <h1 className="text-2xl font-bold m-6 text-center">
-                Create new permission
-              </h1>
+              <h1 className="m-6 text-center">Create new permission</h1>
             </div>
 
             <div className="flex justify-center">

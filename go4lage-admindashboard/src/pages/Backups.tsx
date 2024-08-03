@@ -27,7 +27,7 @@ export default function Backups() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold p-2 text-center">Backups</h1>
+      <h1 className="p-2 text-center">Backups</h1>
       <div className="flex justify-center">
         <Button
         kind='primary'
