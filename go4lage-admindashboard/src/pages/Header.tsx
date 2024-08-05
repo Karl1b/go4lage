@@ -3,17 +3,21 @@ import ButtonGroup from '../components/ButtonGroup'
 import Logo from '../components/Logo'
 import Logout from '../components/Logout'
 import Button from '../stylecomponents/Button'
+import { useNavigate } from 'react-router-dom'
 
 export default function Header() {
   //const { userData } = useContext(MainContext);
   const [menuOpen, setMenuOpen] = useState(false)
+  const navigate = useNavigate()
 
   return (
     <header className="sticky-top-0 bg-gradient-custom flex justify-center text-slate-100">
       <div className="hidden md:flex flex-col ">
         <div className="flex justify-around items-center w-screen">
           <Logo />
-          <div className="">
+          <div className="cursor-pointer" onClick={()=>{
+            navigate("/")
+          }}>
             <h1>Admin Dashboard</h1>
           </div>
           <div className="font-semibold">

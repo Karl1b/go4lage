@@ -1,30 +1,24 @@
 <section id="geminicv">
-  <h1>Recipe CV Assistant with AI</h1>
+  <h1>Recipe CV Assistant with LLM API</h1>
 
   <p>
     As an example of how to use Go4Lage, I present my entry to the Google Gemini
     AI Challenge. The task was to create a web application that utilizes the
-    Gemini AI API.
+    Gemini AI API. I used this challenge to put Go4Lage to the test and was able
+    to create a working backend with minimal effort. This was a random choice,
+    as I simply spotted the challenge on LinkedIn.
   </p>
 
-  <p>My entry achieves the following:</p>
-
-  <p>
-    The user uploads their CV or CV draft in PDF or Text format. The application
-    then:
-  </p>
+  <p><b>Gemini CV</b> does the following:</p>
 
   <ul>
     <li>
-      Determines the candidate's region (US or Germany) to tailor its
-      calculations
+      The user uploads their CV or CV draft in PDF or Text format. The
+      application then:
     </li>
     <li>Analyzes the performance of the current CV</li>
-    <li>Launches several agents to improve the CV</li>
-    <li>
-      Reanalyzes the various CV versions and provides the user with the best
-      version to maximize their yearly salary
-    </li>
+    <li>Attempts to create an improved CV</li>
+    <li>Compares the results and lets the user choose the best CV version.</li>
   </ul>
 
   <p>
@@ -42,8 +36,8 @@
     required for bugs.
   </p>
   <p>
-    The result is a performant application with minimal vendor lock-in, apart
-    from the Gemini AI for now.
+    The result is a performant application with minimal vendor lock-in. With a
+    code lenght of roughly only 1000 lines. (without prompts)
   </p>
   <p>
     The only significant dependency is the Gemini AI API, which was part of the
@@ -53,4 +47,89 @@
     must accept outcomes that may question the value of a specific business
     model.
   </p>
+
+  <h2>Test GeminiCV Locally</h2>
+  <p>
+    Follow the steps below to run the app locally on your machine. Note that you
+    need to get your own Gemini API key for it to work:
+  </p>
+  <pre><code>#!/bin/bash
+    git clone git@github.com:Karl1b/go4lage.git
+    cd go4lage
+    git checkout geminicv
+    cp docker.env .env
+    # Adjust the .env
+    docker-compose build
+    docker-compose up -d
+    docker-compose exec app /app/go4lage createsuperuser
+</code></pre>
+  <p>You can now go to the URL /admin to use Go4Lage's admin dashboard.</p>
+
+  <h1>Detailed Steps to Create the Backend</h1>
+  <p>
+    This is a short walkthrough. Simply git checkout geminicv to see the code.
+  </p>
+  <h2>SQL Database / Model</h2>
+  <p>
+    <b>1. Create your SQL schema at ./pkg/sql/schema/:</b> Use native SQL to
+    define it. This needs to be really well-defined before you go into
+    production. Do not change the base structures at any point, instead, extend
+    them.
+  </p>
+  <p>
+    <b>2. Create your SQL queries at ./pkg/sql/queries/:</b> Use native SQL to
+    define them. LLMs are a great help if you struggle with more complex SQL
+    queries.
+  </p>
+  <p>
+    <b>3. Automatically generate the Go queries:</b> run sqlc generate. This
+    will give you all the Go code needed, and you can use autocomplete.
+  </p>
+  <p>
+    One common mistake is using a different DB like SQLite for development and
+    production. Instead, simply use Postgres as indicated in the setup.
+    ./go4lage rungoose up and ./go4lage rungoose down will be your friends. This
+    is even faster than deleting and recreating your SQLite DB.
+  </p>
+
+  <h2>The Endpoints</h2>
+  <p>This is the actual logic layer.</p>
+  <p>
+    <b>1. Create a specific app folder for your package:</b> In this case, it is
+    ./pkg/geminicv
+  </p>
+  <p>
+    <b>2. Create your package Go files:</b> I used 2 files, one for the prompts
+    and one for the endpoint. You have access to the user via the Context: user,
+    ok := r.Context().Value(utils.UserKey{}).(db.User)
+  </p>
+  <h2>Register your API endpoints at the url.go file</h2>
+  <p>
+    <b>1. Initialize your app struct:</b> This way you will have access to the
+    SQL queries and .env options.
+  </p>
+  <p>
+    <b>2. Route your endpoints:</b> Use the desired auth middleware with
+    permissions and groups if needed.
+  </p>
+
+  <h2>.env Options</h2>
+  <p>
+    For this app, I needed 3 more settings:
+    <br />The API Key, for obvious reasons:
+    GEMINIKEY=y0urS3cr3tKeyGo3sheReDon0tShare <br />A limit for runs per user,
+    simply to avoid abuse: CVRUNS_PER_USER=20 <br />A timeout for the Gemini LLM
+    API response: SCAN_TIMEOUT_SECONDS=211
+  </p>
+
+  <h2>Connect the Frontend</h2>
+  <p>
+    Go4Lage is not specific to React, and it is not necessary to let Go4Lage
+    serve the frontend. But in this example, I did it like this and used the
+    ./root folder as the build destination for my React Vite builder. I simply
+    liked to have it as an all-in-one package, but again, this is only a plus
+    and not needed. You can simply point your frontend endpoints to the backend
+    and you are ready.
+  </p>
+  <p>The React frontend is also provided as an example.</p>
 </section>

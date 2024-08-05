@@ -50,6 +50,7 @@ func StartServer() {
 	*/
 	r.With(app.DatabaseLogger).Get("/", root)
 	r.With(app.DatabaseLogger).Get("/imprint", root)
+	r.With(app.DatabaseLogger).Get("/geminicv", root)
 
 	r.Get("/*", root) // * for statics
 

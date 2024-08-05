@@ -1,7 +1,4 @@
 import { useContext, useEffect, useState } from 'react'
-
-import { db } from '../db/db'
-
 import api from '../util/api'
 import { User, Group } from '../util/types'
 import SearchBar from '../components/SearchBar'
@@ -10,23 +7,11 @@ import { MainContext } from '../App'
 
 export default function ShowUsers() {
   const { userData } = useContext(MainContext)
+  const [allUserData, setAllUserData] = useState<User[]>([])
   const [showData, setShowData] = useState<User[]>([])
   const [availableGroups, setAvailableGroups] = useState<Group[]>([])
 
   useEffect(() => {
-    let isMounted: boolean = true
-    async function showAll() {
-      try {
-        const collection = db.users
-        const result = await collection.toArray()
-        if (isMounted) {
-          setShowData(result)
-        }
-      } catch (e) {
-        console.log(e)
-      }
-    }
-
     async function fetchUsers() {
       if (!userData || !userData.token) {
         return
@@ -36,14 +21,8 @@ export default function ShowUsers() {
         if (!response) {
           return
         }
-        console.log('Fetched users:', response)
-        await db.open()
-        await db.users.clear()
-        await db.users.bulkAdd(response)
-        const usersFromDb = await db.users.toArray()
-        if (isMounted) {
-          setShowData(usersFromDb)
-        }
+        setAllUserData(response)
+        setShowData(response) // Initialize showData with all users
       } catch (err) {
         if (err instanceof Error) {
           console.error('Error fetching users:', err)
@@ -55,38 +34,26 @@ export default function ShowUsers() {
         }
       }
     }
-
     async function getGroups() {
       try {
         const res = await api.getGroups(userData.token)
-        if (isMounted) {
-          setAvailableGroups(res || [])
-        }
+
+        setAvailableGroups(res || [])
       } catch (e) {
         console.error('Error fetching groups:', e)
       }
     }
-
-    fetchUsers().then(showAll)
+    fetchUsers()
     getGroups()
-
-    return () => {
-      async function clearDB() {
-        try {
-          await db.open()
-          await db.users.clear()
-        } catch (e) {
-          console.log(e)
-        }
-      }
-      clearDB()
-      isMounted = false
-    }
   }, [userData])
 
   return (
     <div className="flex flex-col justify-center items-center">
-      <SearchBar setShowData={setShowData} availableGroups={availableGroups} />
+      <SearchBar
+        setShowData={setShowData}
+        availableGroups={availableGroups}
+        allUsers={allUserData}
+      />
       <UserCardContainer showData={showData} />
     </div>
   )
