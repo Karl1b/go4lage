@@ -69,10 +69,23 @@ class API {
 
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.includes('application/json')) {
-      console.log('inside the content type')
+      
       const responseJson = await response.json()
-      console.log(responseJson)
-      if (responseJson.error && setToast) {
+
+      if (responseJson == null) {
+        if (setToast) {
+          setToast({
+            show: true,
+            success: false,
+            header: 'Error',
+            text: 'Received empty response',
+          })
+        }
+        return
+      }
+
+      
+      if (responseJson?.error && setToast) {
         setToast({
           show: true,
           success: false,
@@ -81,7 +94,7 @@ class API {
         })
         return
       }
-      if ((responseJson.text || responseJson.header) && setToast) {
+      if ((responseJson?.text || responseJson.header) && setToast) {
         console.log('inside correct toat')
         setToast({
           show: true,
@@ -255,7 +268,7 @@ class API {
     return response
   }
 
-  public async getLogs(token: string | null, uri: string): Promise<Log[]> {
+  public async getLogs(token: string | null, uri: string): Promise<Log[] | null> {
     const response = await this.fetchWithToken({
       url: `${this.apiUrl}/getlogs${uri}`,
       options: {
@@ -461,7 +474,7 @@ class API {
       url: `${this.apiUrl}/deletepermission`,
       options: {
         method: 'DELETE',
-        headers: { PermissionId: permissionId },
+        headers: { Id: permissionId },
       },
       token: token,
       toastHeader: 'Delete Permission',

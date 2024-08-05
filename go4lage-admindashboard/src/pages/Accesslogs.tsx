@@ -44,52 +44,78 @@ export default function AccessLogs() {
         borderColor: '#ff6384',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
       },
+      {
+        label: 'Geminicv Count',
+        data: [],
+        borderColor: '#006384',
+        backgroundColor: 'rgba(120, 99, 132, 0.5)',
+      },
     ],
   })
 
   const getLogs = useCallback(async (userData: UserDetails) => {
     const indexLogPromise = api.getLogs(userData.token, '/-')
     const imprintLogPromise = api.getLogs(userData.token, '/imprint')
+    const geminicvLogPromise = api.getLogs(userData.token, '/geminicv')
 
-    const [indexLogsRes, imprintLogsRes] = await Promise.all([
+    const [indexLogsRes, imprintLogsRes, geminicvLogsRes] = await Promise.all([
       indexLogPromise,
       imprintLogPromise,
+      geminicvLogPromise,
     ])
 
+    console.log(indexLogPromise)
+    console.log(imprintLogPromise)
+    console.log(geminicvLogPromise)
+
     // Merge logs by matching dates
-    const mergedLogs = indexLogsRes.map((indexLog) => {
-      const imprintLog = imprintLogsRes.find(
+    const mergedLogs = indexLogsRes?.map((indexLog) => {
+      const imprintLog = imprintLogsRes?.find(
         (imprint) => imprint.log_date === indexLog.log_date
       ) || { total_count: 0 }
+
+      const geminicvLog = geminicvLogsRes?.find(
+        (geminicv) => geminicv.log_date === indexLog.log_date
+      ) || { total_count: 0 }
+
       return {
         log_date: indexLog.log_date,
         index_count: indexLog.total_count,
         imprint_count: imprintLog.total_count,
+        geminicv_count: geminicvLog.total_count,
       }
     })
 
     // Update the chart data using the merged logs
     setChartData({
-      labels: mergedLogs.map((log) => log.log_date), // Set labels to the dates from mergedLogs
+      labels: mergedLogs?.map((log) => log.log_date), // Set labels to the dates from mergedLogs
       datasets: [
         {
           label: 'Index Count',
-          data: mergedLogs.map((log) => log.index_count),
+          data: mergedLogs?.map((log) => log.index_count) || [0],
           borderColor: '#42a5f5',
           backgroundColor: 'rgba(66, 165, 245, 0.5)',
         },
         {
           label: 'Imprint Count',
-          data: mergedLogs.map((log) => log.imprint_count),
+          data: mergedLogs?.map((log) => log.imprint_count) || [0],
           borderColor: '#ff6384',
           backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        },
+        {
+          label: 'Geminicv Count',
+          data: mergedLogs?.map((log) => log.geminicv_count) || [0],
+          borderColor: '#006384',
+          backgroundColor: 'rgba(120, 99, 132, 0.5)',
         },
       ],
     })
   }, [])
 
   useEffect(() => {
-    getLogs(userData)
+    if (userData) {
+      getLogs(userData)
+    }
   }, [userData, getLogs])
 
   return (
@@ -97,8 +123,8 @@ export default function AccessLogs() {
       <h2 className="text-xl font-bold">Logs Timeline</h2>
       <p>
         This is the daily total count of index hits versus the daily total
-        counts of imprint hits. It gives an approximation of how many people are
-        actually interested in the creator of the project.
+        counts of imprint hits and geminicv hits. It gives an approximation of
+        how many people are actually interested in the creator of the project.
       </p>
       <div className="flex justify-center">
         <Line data={chartData} />
