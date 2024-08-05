@@ -65,7 +65,7 @@ export default function DumpRunResultScreen({ run }: DumpRunResultScreenProps) {
     <>
       {startScan && (
         <div>
-          <div className="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md m-5">
+          <div className="max-w-lg mx-auto p-6 bg-white rounded-xl shadow-md m-5">
             <div className="flex items-center justify-between m-4">
               <ImprovementIndicator
                 startisbest={startIsBest}
