@@ -129,8 +129,8 @@ export default function CompareScanCardDetail({ startScan, bestScan, run }: Comp
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-lg">
-      <div className="">
+    <div className="grid grid-cols-1 xl:grid-cols-2 gap-2 text-lg">
+      <div className="hidden lg:grid text-center">
       
         <Bar data={data} options={options} />
       </div>

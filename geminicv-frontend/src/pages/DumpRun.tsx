@@ -8,6 +8,7 @@ import DumpRunResultScreen from "../components/DumpRunResultScreen";
 
 export default function DumpRun() {
   const { userData } = useContext(MainContext);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [scans, setScans] = useState<Scan[] | null>(null);
   const [showLoadScreen, setShowLoadScreen] = useState<boolean>(true);
 
@@ -31,6 +32,8 @@ export default function DumpRun() {
       setShowLoadScreen(shouldShow);
     } catch (e) {
       console.log(e);
+    } finally {
+      setInitialLoad(false);
     }
   }
 
@@ -41,7 +44,7 @@ export default function DumpRun() {
   useEffect(() => {
     const interValChecker = setInterval(() => {
       if ((scans && scans.length < 5) || !scans) {
-             getRun();
+        getRun();
       }
     }, 2000);
     return () => {
@@ -51,10 +54,16 @@ export default function DumpRun() {
 
   return (
     <>
-      {showLoadScreen ? (
-        <DumpRunLoadScreen scans={scans} />
+      {initialLoad ? (
+        <></>
       ) : (
-        <>{run && <DumpRunResultScreen run={run} />}</>
+        <>
+          {showLoadScreen ? (
+            <DumpRunLoadScreen scans={scans} />
+          ) : (
+            <>{run && <DumpRunResultScreen run={run} />}</>
+          )}
+        </>
       )}
     </>
   );

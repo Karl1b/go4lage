@@ -196,7 +196,7 @@ class API {
     setToast: (toast: ToastDetails) => void
   ): Promise<RunInfo | null> {
     const response = await this.fetchWithToken({
-      url: `${this.apiUrl}/geminicv/run`,
+      url: `${this.apiUrl}/geminicv/uploadtext`,
       options: {
         method: "POST",
 

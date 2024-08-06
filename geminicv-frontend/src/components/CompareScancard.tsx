@@ -87,13 +87,13 @@ export default function CompareScancard({
                       </p>
                     </div>
 
-                    <div className="flex flex-row">
-                      <p>your uploaded CV</p>
+                    <div className="flex flex-row justify-center">
+                      <p className="">your CV</p>
                       <ToggleSwitch
                         isChecked={toggleIsBest}
                         onChange={() => SettoggleIsBest(!toggleIsBest)}
                       />
-                      <p>Gemini's best rated CV</p>
+                      <p className="">Gemini's best CV</p>
                     </div>
                   </div>
                 </div>

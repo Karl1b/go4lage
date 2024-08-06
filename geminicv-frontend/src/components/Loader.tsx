@@ -17,7 +17,7 @@ export default function Loader({ status }: LoaderProps) {
       />
       <div className="relative z-10 flex items-center justify-center w-full h-full">
         {status === "idle" && (
-          <div className="w-3 h-3 bg-gray-500 rounded-full animate-pulse" />
+          <div className="w-3 h-3 bg-gray-700 rounded-full animate-pulse" />
         )}
         {status === "loading" && (
           <div className="flex space-x-1">

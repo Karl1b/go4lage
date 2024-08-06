@@ -90,8 +90,8 @@ export default function ScanCardDetail({ scan }: ScanCardProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-lg">
-      <div className="">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 text-lg">
+      <div className="hidden lg:grid">
         <Bar data={data} options={options} />
       </div>
       <div className="flex">
