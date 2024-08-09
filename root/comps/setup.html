@@ -1,66 +1,78 @@
 <section id="setup">
   <h2>Setup</h2>
 
-  <h3>Variant One: With Docker (Compose)</h3>
-
-  <ol>
-    <li>Clone this repo.</li>
-    <li>Copy the <b>docker </b>environment settings to the .env file</li>
-    <li>Adjust the .env file to your needs.</li>
-    <li>Start the docker compose network.</li>
-    <li>Hack inside the container and create your superuser.</li>
-  </ol>
-
-<pre><code>#!/bin/bash
-    git clone git@github.com:Karl1b/go4lage.git
-    cd go4lage
-    cp dockerenv.env .env
-    docker-compose up -d
-    docker-compose exec app /app/go4lage createsuperuser
-</code></pre>
-
+  <h3>All native for development</h3>
+  <hr />
+  <p>1. Clone this repo.</p>
+  <p>2. Navigate to the SQL package and generate SQL Queries with sqlc.</p>
   <p>
-    Congratulations, you did setup a high performance dockerized webservice in
-    less than 2 minutes.
+    3. Copy the native environment settings to the .env file. There are 3 .env
+    files prepared: nativeenv.env, dockerenv.env, and prodenv.env.
   </p>
-
+  <p>4. Adjust the .env file to your needs.</p>
   <p>
-    The recommended way of finishing the setup is to run a native NGINX instance
-    as main reverse proxy.
+    5. Set up the PostgreSQL database and user. Grant the user all rights on the
+    database.
   </p>
-
-  <h3>Variant Two: Without Docker with Native DB</h3>
-  <p>(Useful for Development)</p>
-  <ol>
-    <li>Clone this repo.</li>
-    <li>Navigate to the SQL package and generate SQL Queries with sqlc</li>
-    <li>Copy the native environment settings to the .env file</li>
-    <li>Adjust the .env file to your needs.</li>
-    <li>Setup postgres db and user. Grant the user all rights on the db.</li>
-    <li>build the application</li>
-    <li>Migrate your database.</li>
-  </ol>
+  <p>6. Build the application.</p>
+  <p>7. Migrate your database.</p>
+  <p>8. create your superuser.</p>
+  <p>9. Start the server.</p>
+  <p>10. Visit the docu at http://localhost:8080/</p>
+  <p>11. Visit the admin dashboard at http://localhost:8080/admin</p>
 
   <pre><code>#!/bin/bash
-    git clone git@github.com:Karl1b/go4lage.git
-    cd go4lage/pkg/sql
-    sqlc generate
-    cd ../..
-    cp nativeenv.env .env
-    go build 
-    ./go4lage rungoose up
-    ./go4lage createsuperuser
-    ./go4lage startserver
+git clone git@github.com:Karl1b/go4lage.git
+cd go4lage/pkg/sql
+sqlc generate
+cd ../..
+cp nativeenv.env .env
+go build 
+./go4lage rungoose up
+./go4lage createsuperuser
+./go4lage startserver
 </code></pre>
 
   <p>
-    Congratulations, you did setup a native high performance webservice in less
-    than 5 minutes.
+    Congratulations, you've set up a native high-performance web service in less
+    than 5 minutes 😊.
   </p>
   <p>
-    It is recommended to use the same database for production and development,
-    with go4lage it is really simple to do. you can use $./go4lage rungoose down
-    to down migrations and for applying new queries run sqlc generate, as shown
-    in the code block. There is hence no need for a development only SQLlite db.
+    We recommend using the same database for production and development. With
+    go4lage, it's really simple to do. You can use
+    <code>./go4lage rungoose down</code> to roll back one migration at a time(!)
+    and up vice versa for all migrations. There's no need for a development-only
+    SQLite database that you delete and recreate over and over.
+  </p>
+
+  <h3>Variant with Docker (Compose) for Production</h3>
+  <hr />
+  <p>1. Clone this repo.</p>
+  <p>
+    2. Copy the Docker environment settings to the .env file. There are 3 .env
+    files prepared: nativeenv.env, dockerenv.env, and prodenv.env.
+  </p>
+  <p>3. Adjust the .env file to your needs.</p>
+  <p>4. Start the Docker Compose network.</p>
+  <p>5. Hack inside the container and create your superuser.</p>
+  <p>6. Visit the docu at http://localhost:8080/</p>
+  <p>7. Visit the admin dashboard at http://localhost:8080/admin</p>
+
+  <pre><code>#!/bin/bash
+git clone git@github.com:Karl1b/go4lage.git
+cd go4lage
+cp dockerenv.env .env
+docker-compose up -d
+docker exec -it docu_app /app/go4lage createsuperuser
+</code></pre>
+
+  <p>
+    Congratulations, you've set up a high-performance dockerized web service in
+    less than 2 minutes 😊.
+  </p>
+
+  <p>
+    We recommend finishing the setup by running a native NGINX instance as the
+    main reverse proxy.
   </p>
 </section>

@@ -13,6 +13,7 @@ var rootFiles map[string][]byte
 func init() {
 	rootFiles = make(map[string][]byte)
 	utils.FileCacheInit("root", Settings.Baseurl, Settings.Apiurl, Settings.ApiPort, &rootFiles)
+
 }
 
 func root(w http.ResponseWriter, r *http.Request) {

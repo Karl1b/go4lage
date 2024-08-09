@@ -168,14 +168,16 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 			(*cache)[path] = []byte(replacedContent)
 		}
 	}
+	re := regexp.MustCompile(`\{\%.*?\%\}`)
 
 	// Defines the non dynamic placeholder {%%}
 
 	for range 10 {
-		re := regexp.MustCompile(`\{\%.*?\%\}`)
+
 		// Perform the placeholder replacement for each file
 
 		foundRegex := false
+
 		for path, content := range *cache {
 
 			updatedContent := re.ReplaceAllStringFunc(string(content), func(match string) string {
@@ -200,15 +202,17 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 
 				if replacement, exists := (*cache)[lookKey]; exists {
 
-					if !re.Match(replacement) {
-						return string(replacement)
+					if re.Match(replacement) {
+						return string(content)
 					} else {
 						foundRegex = true
-						return string(content)
+						return string(replacement)
 					}
+
 				}
-				log.Fatal("No file found for :", key, " in: ", path)
-				return "" //unreachable anyway
+				log.Fatal("you fucked up in: ", path)
+				return ""
+
 			})
 
 			(*cache)[path] = []byte(updatedContent)

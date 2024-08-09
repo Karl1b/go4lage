@@ -1,0 +1,70 @@
+<section id="contribute">
+  <h1>Contribute to go4lage</h1>
+  <hr />
+  <p>
+    We warmly welcome contributions! If you'd like to contribute, please send us
+    an email or open an issue on GitHub if you find a bug.
+  </p>
+  <p>
+    Feel free to fork the project and make your own modifications. However, we
+    do conduct quality control for the main project. Some features are
+    intentionally left out, especially those requiring proprietary elements,
+    like shared login systems, and hot topics like email. Even projects that are
+    also free and open source need to be reviewed. If they have a paid tier or a
+    business connection, they may have a conflict of interest that affects their
+    usefulness, even if it's not obvious at first glance. This is not a
+    political stance; it's about maintaining code quality and keeping complexity
+    low.
+  </p>
+
+  <h2>Planned Tasks and Ideas</h2>
+  <hr />
+  <p>
+    <b>Server-side Rendering:</b> We plan to enable go4lage to serve server-side
+    content with a cached template structure. However, we currently lack the
+    experience to address SSR issues comprehensively. We'll tackle this later,
+    once we have more insights.
+  </p>
+  <p>
+    <b>Testing:</b> Go4lage should have a robust and well-designed testing
+    workflow. Testing is crucial and should not be dictated by compliance alone.
+  </p>
+  <p>
+    <b>Visuals:</b> We need a better homepage and improved visuals. Our
+    expertise in UI and UX is limited, and we would greatly appreciate any help
+    in this area.
+  </p>
+  <p>
+    <b>Performance Tests:</b> Go4lage is expected to be fast enough for most
+    applications, but stress testing is essential. We need to determine how many
+    users it can serve with a fixed amount of computing power, under various
+    scenarios. We also need to consider optimizations for NGINX, the compiler,
+    and PostgreSQL. Additionally, the cost-effectiveness of running multiple
+    databases with multiple instances needs evaluation.
+  </p>
+  <p>
+    <b>Cache Optimization:</b> We were unsure which Go cache library would best
+    suit go4lage, so we wrapped it to allow easy exchange:
+  </p>
+  <pre><code>type go4Cache struct {
+      c cache.Cache
+  }</code></pre>
+  <p>
+    The task is to build a test suite and experiment with different cache
+    libraries. If someone has prior knowledge of the best option, that would be
+    great, but testing is still necessary.
+  </p>
+
+  <p>
+    <b>Examples:</b> Documentation through examples is very effective. We could
+    provide another example project. How about a nice to-do list app?
+  </p>
+
+  <p>
+    <b>Cache Extension to SQLC:</b> Currently, users and groups are well-cached,
+    but there's no cache layer for apps created with go4lage. One possible
+    approach is to fork or extend SQLC to integrate a cache layer, which would
+    speed up production database calls. However, this would require additional
+    work and RAM usage. This is a promising idea that needs a reality check.
+  </p>
+</section>
