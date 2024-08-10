@@ -168,64 +168,31 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 			(*cache)[path] = []byte(replacedContent)
 		}
 	}
-	re := regexp.MustCompile(`\{\%.*?\%\}`)
+	re := regexp.MustCompile(`\{%([^%}])*%\}`)
 
 	// Defines the non dynamic placeholder {%%}
 
+	regexFound := false
 	for range 10 {
 
 		// Perform the placeholder replacement for each file
-
-		foundRegex := false
-
 		for path, content := range *cache {
-
-			updatedContent := re.ReplaceAllStringFunc(string(content), func(match string) string {
-				// Trim the surrounding {% and %} from the match
-				trimSpecific := func(match string) string {
-					prefix := "{%"
-					suffix := "%}"
-					if strings.HasPrefix(match, prefix) && strings.HasSuffix(match, suffix) {
-						return match[len(prefix) : len(match)-len(suffix)]
-					}
-					return match
-				}
-
-				key := trimSpecific(match)
-
-				// Check if the key exists in the *cache
-
-				lookKey, err := CacheReader(key)
-				if err != nil {
-					log.Fatal("Errror Cachereader :", err)
-				}
-
-				if replacement, exists := (*cache)[lookKey]; exists {
-
-					if re.Match(replacement) {
-						return string(content)
-					} else {
-						foundRegex = true
-						return string(replacement)
-					}
-
-				}
-				log.Fatal("you fucked up in: ", path)
-				return ""
-
-			})
-
-			(*cache)[path] = []byte(updatedContent)
+			updatedContent, replaced := replacePlaceholders(string(content), re, cache)
+			if replaced {
+				(*cache)[path] = []byte(updatedContent)
+			}
+			if re.Match((*cache)[path]) {
+				regexFound = true
+			}
 		}
 
-		if !foundRegex {
+		if !regexFound {
 			return nil
 		}
+		regexFound = false
 
 	}
-
 	log.Fatal("Do you have a cyclic component?")
-
 	return nil
 }
 
@@ -266,4 +233,44 @@ func CacheReader(path string) (string, error) {
 		}
 	}
 	return path, nil
+}
+
+func replacePlaceholders(content string, re *regexp.Regexp, cache *map[string][]byte) (string, bool) {
+	replacementMade := false
+
+	result := re.ReplaceAllStringFunc(content, func(match string) string {
+		// Trim the surrounding {% and %} from the match
+		trimSpecific := func(match string) string {
+			prefix := "{%"
+			suffix := "%}"
+			if strings.HasPrefix(match, prefix) && strings.HasSuffix(match, suffix) {
+				return match[len(prefix) : len(match)-len(suffix)]
+			}
+			return match
+		}
+
+		key := trimSpecific(match)
+
+		// Check if the key exists in the cache
+		lookKey, err := CacheReader(key)
+		if err != nil {
+			log.Fatalf("Error CacheReader: %v", err)
+		}
+
+		if replacement, exists := (*cache)[lookKey]; exists {
+			if re.Match(replacement) {
+				// If the replacement still contains a regex match,
+				// return the original match without marking as replaced
+				return match
+			} else {
+				replacementMade = true
+				return string(replacement)
+			}
+		}
+
+		// If the key doesn't exist in the cache, return the original match
+		return match
+	})
+
+	return result, replacementMade
 }
