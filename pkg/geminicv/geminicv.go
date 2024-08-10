@@ -429,9 +429,9 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	type RequestBody struct {
-		Text string `json:"text"`
-		Lang string `json:"language"`
-		Role string `json:"role"`
+		Text      string `json:"text"`
+		Lang      string `json:"language"`
+		Permanent bool   `json:"permanent"`
 	}
 
 	var reqBody RequestBody
@@ -463,12 +463,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	if reqBody.Lang == "de" {
 		lang = "de"
 	}
-
-	permanent := true
-
-	if reqBody.Role == "freelance" {
-		permanent = false
-	}
+	permanent := reqBody.Permanent
 
 	run, err := app.Queries.CreateCVRun(context.Background(), db.CreateCVRunParams{
 		ID:        newuuid,
