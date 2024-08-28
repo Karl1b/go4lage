@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -676,22 +677,20 @@ func (app *App) getPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 
 	app.Utils.RespondWithJSON(w, response)
 }
-
 func (app *App) createBackup(w http.ResponseWriter, _ *http.Request) {
 	cmd := exec.Command("/bin/bash", "./backup.sh")
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-
+		log.Printf("Backup error: %v\nOutput: %s", err, output)
 		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to create backup",
 			Error:  err.Error(),
 		})
 		return
 	}
-
 	app.Utils.RespondWithJSON(w, utils.ErrorResponse{
-		Detail: string(output),
-		Error:  "",
+		Detail: "Backup Creation requested",
+		Error:  string(output),
 	})
 }
 

@@ -13,8 +13,7 @@ mkdir -p $BACKUP_DIR
 mkdir -p $DATA_DIR
 
 # Run pg_dump and compress the output
-PGPASSWORD="go4lage" pg_dump -U go4lage -d go4lage | gzip > $SQL_BACKUP_FILE
-
+PGPASSWORD="$DB_PASSWORD" pg_dump -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" | gzip >$SQL_BACKUP_FILE
 # Check if pg_dump was successful
 if [ $? -ne 0 ]; then
   echo "pg_dump failed. Backup aborted."

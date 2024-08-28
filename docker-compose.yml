@@ -16,6 +16,11 @@ services:
     container_name: "${APP_NAME}_app"
     networks:
       - app_network
+    environment:
+      - DB_HOST=db
+      - DB_USER=go4lage
+      - DB_PASSWORD=go4lage
+      - DB_NAME=go4lage
     restart: unless-stopped
 
   db:
