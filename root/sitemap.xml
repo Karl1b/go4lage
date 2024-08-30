@@ -49,4 +49,12 @@
     <priority>0.7</priority>
   </url>
 
+    <!-- GeminiCV Page -->
+  <url>
+    <loc>https://go4lage.com/imprint</loc>
+    <lastmod>2024-08-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
 </urlset>
