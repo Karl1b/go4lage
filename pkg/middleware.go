@@ -130,8 +130,8 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 					return
 				}
 			}
+			if !(hasPermission || hasGroup) && !(group == "" && permission == "") {
 
-			if !(hasPermission || hasGroup || (group == "" && permission == "")) {
 				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
 					Detail: "You do not have the permission or are not in the correct group to do this",
 					Error:  "permission check failed",
