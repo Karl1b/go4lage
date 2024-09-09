@@ -43,9 +43,13 @@ services:
 
 volumes:
   postgres_data:
+    name: ${APP_NAME}_postgres_data
   data:
+    name: ${APP_NAME}_app_data
   data_backup:
+    name: ${APP_NAME}_app_backup
 
 networks:
   app_network:
+    name: ${APP_NAME}_network
     driver: bridge
