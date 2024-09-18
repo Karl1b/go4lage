@@ -1,0 +1,107 @@
+
+.main-title {
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 2.5em;
+    margin-bottom: 20px;
+}
+
+.divider {
+    border: none;
+    border-top: 2px solid var(--primary-color);
+    margin: 20px 0;
+}
+
+.intro-text {
+    font-size: 1.2em;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+
+
+.logo-container {
+    text-align: center;
+    margin-bottom: 30px;
+    white-space: nowrap;
+}
+
+.logo, .mascot {
+    display: inline-block;
+    max-width: 150px;
+    width: 40%;
+    height: auto;
+    vertical-align: middle;
+}
+
+.logo {
+    margin-right: 20px;
+}
+
+@media (max-width: 480px) {
+    .logo, .mascot {
+        max-width: 100px;
+    }
+    
+    .logo {
+        margin-right: 10px;
+    }
+}
+
+.features, .ideal-for {
+    background-color: #f0f8ff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.features h2, .ideal-for h2 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+}
+
+.features ul, .ideal-for ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.features li, .ideal-for li {
+    margin-bottom: 10px;
+    padding-left: 20px;
+    position: relative;
+}
+
+.features li:before, .ideal-for li:before {
+    content: "✓";
+    color: #3498db;
+    position: absolute;
+    left: 0;
+}
+
+.cta-section {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: var(--secondary-color);
+}
+
+@media (max-width: 600px) {
+    .logo-container {
+        flex-direction: column;
+    }
+}

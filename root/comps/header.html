@@ -1,80 +1,24 @@
-<header>
-  <div
-    style="display: flex; justify-content: space-around; align-items: center"
-  >
-    <a href="/" aria-label="Return to home">
-      <div style="margin: 10px">
-        <img
-          src="/pics/go4lage-logo-plain.svg"
-          width="75px"
-          alt="Go4lage logo"
-        />
-      </div>
+<input type="checkbox" id="burger-menu" class="burger-menu-check">
+<header class="header">
+  <div class="header-content">
+    <a href="/" class="logo" aria-label="Return to home">
+      <img src="/pics/go4lage-logo-plain.svg" width="50px" height="45px" alt="Go4lage logo" />
     </a>
-    <div class="header-mobile">
-      <h1 style="margin: 20px">Documentation</h1>
-    </div>
-    <div class="header-desktop">
-      <h1 style="margin: 20px">Documentation</h1>
-    </div>
+    <h1 class="header-title">Go4lage Documentation</h1>
     <div></div>
-  </div>
-  <div class="header-bar">
-    <div>
-      <a
-        href="/overview"
-        style="
-          display: inline-block;
-          margin: 5px;
-          min-width: 25px;
-          min-height: 15px;
-        "
-        >Overview</a>
-    </div>
-    <div>
-      <a
-        href="/setup"
-        style="
-          display: inline-block;
-          margin: 5px;
-          min-width: 25px;
-          min-height: 15px;
-        "
-        >Setup</a>
-    </div>
-    <div>
-      <a
-        href="/guide"
-        style="
-          display: inline-block;
-          margin: 5px;
-          min-width: 25px;
-          min-height: 15px;
-        "
-        >Guide</a>
-    </div>
-   
-    <div>
-      <a
-        href="/contribute"
-        style="
-          display: inline-block;
-          margin: 5px;
-          min-width: 25px;
-          min-height: 15px;
-        "
-        >Contribute</a>
-    </div>
-    <div>
-      <a
-        href="/geminicv"
-        style="
-          display: inline-block;
-          margin: 5px;
-          min-width: 25px;
-          min-height: 15px;
-        "
-        >Gemini CV</a>
-    </div>
+    <label for="burger-menu" class="burger-menu-label">
+      <span></span>
+      <span></span>
+      <span></span>
+    </label>
   </div>
 </header>
+<nav class="header-bar">
+  <div class="nav-links">
+    <a href="/overview">Overview</a>
+    <a href="/setup">Setup</a>
+    <a href="/guide">Guide</a>
+    <a href="/contribute">Contribute</a>
+    <a href="/geminicv">Gemini CV</a>
+  </div>
+</nav>

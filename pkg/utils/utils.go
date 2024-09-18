@@ -192,7 +192,15 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 		regexFound = false
 
 	}
-	log.Fatal("Do you have a cyclic component?")
+	var badpaths []string
+
+	for path, _ := range *cache {
+		if re.Match((*cache)[path]) {
+			badpaths = append(badpaths, path)
+		}
+	}
+
+	log.Fatal("Do you have a cyclic component?: ", badpaths)
 	return nil
 }
 

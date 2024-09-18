@@ -11,10 +11,107 @@
   </head>
   <body>
  {%comps/header.html%}
-    <div class="content">
-      {%comps/sidebar.html%}
-      <div class="contentwrapper">{%comps/geminicv.html%}</div>
-    </div>
+ 
+ <main>
+
+   <section id="geminicv" class="geminicv-section">
+     <h2>Recipe CV Assistant with LLM API</h2>
+     <hr>
+     <p>As a demonstration of how to utilize Go4Lage, I present my entry to the Google Gemini AI Challenge. The objective was to create a web application leveraging the Gemini AI API. This challenge provided an opportunity to test Go4Lage, resulting in a functional backend with minimal effort, all sparked by a spontaneous decision after noticing the challenge on LinkedIn.</p>
+     
+     <h2>Gemini CV Features</h2>
+    
+  <p><strong>Gemini CV</strong> performs two main functions:</p>
+  <ul class="feature-list">
+    <li>Generates a new CV for you.</li>
+    <li>Optimizes the CV for maximum salary potential.</li>
+  </ul>
+  
+  <p><strong>Gemini CV</strong> includes the following features:</p>
+  <ul class="feature-list">
+    <li>Allows users to upload their CV or draft in PDF or Text format.</li>
+    <li>Analyzes the performance of the current CV.</li>
+    <li>Generates an improved version of the CV.</li>
+    <li>Compares the results and allows the user to choose the best version.</li>
+    <li>Users can repeat the process iteratively, making manual adjustments in between.</li>
+  </ul>
+  
+  <p>This process provides users with an optimized CV, saving time and effort, and potentially <strong>increasing their salary by 5-10%.</strong></p>
+  
+  <h2>Project Insights</h2>
+  <p>This project served as a testing ground for the initial design of Go4Lage, helping to fix minor bugs and address unforeseen issues. While initially intended as a test, the project turned out to be both enjoyable and rewarding.</p>
+  
+  <p>The development process was swift and straightforward, with minimal attention needed for bug fixes.</p>
+  
+  <p>The result is a performant application with minimal vendor lock-in, and a codebase of roughly 1,000 lines in the backend (excluding prompts, of course).</p>
+  
+  <p>The only significant dependency is the Gemini AI API, encapsulated in a custom wrapper that allows interchangeability with other LLM APIs, including free options like Ollama. While this might not align with Google's expectations, a development challenge must be open to outcomes that question the value of a specific business model. This approach is not only easier but also avoids many potential bugs.</p>
+  
+  <h2>Watch the Video</h2>
+  <p>The competition required a video submission on YouTube. As a developer and not a video creator, the result may not be a masterpiece, but it gets the job done. <a href="https://www.youtube.com/watch?v=jHNNeVSqJMI" target="_blank" rel="noopener noreferrer">Watch GeminiCV on YouTube</a>.</p>
+  
+  <h2>Test GeminiCV Locally</h2>
+  <p>Follow the steps below to run the app locally on your machine. Note that you will need your own Gemini API key for it to work:</p>
+  <div class="code-block">
+    <pre><code>#!/bin/bash
+git clone https://github.com/Karl1b/go4lage.git
+cd go4lage
+git checkout geminicv
+cp dockerenv.env .env
+# Adjust the .env file as needed
+docker-compose build
+docker-compose up -d
+docker exec -it geminicv_app /app/go4lage createsuperuser</code></pre>
+  </div>
+  <p>You can now go to the URL /admin to use Go4Lage's admin dashboard.</p>
+  
+  <h2>Screenshots</h2>
+  <div class="screenshots">
+    <img src="pics/screen1.png" width="550" height="643" alt="Example screenshot 1" />
+    <img src="pics/screen2.png" width="550" height="896"alt="Example screenshot 2" />
+    <img src="pics/screen3.png" width="550" height="596"alt="Example screenshot 3" />
+  </div>
+  
+  <div class="steps-section">
+    <h2>Steps to Create the Backend</h2>
+    <p>This is a brief walkthrough. Simply git checkout geminicv to see the code.</p>
+    
+    <h3>SQL Database / Model</h3>
+    <ol>
+      <li><strong>Create your SQL schema at ./pkg/sql/schema/:</strong> Use native SQL to define it. This should be well-defined before going into production. Do not modify the base structures; instead, extend them as needed.</li>
+      <li><strong>Create your SQL queries at ./pkg/sql/queries/:</strong> Use native SQL to define them. LLMs can assist with more complex SQL queries.</li>
+      <li><strong>Automatically generate the Go queries:</strong> Run <code>sqlc generate</code>. This will provide all the necessary Go code with autocomplete support.</li>
+    </ol>
+    <p>In general: Avoid using a different database like SQLite for development and production. Instead, use Postgres as indicated in the setup. <code>./go4lage rungoose up</code> and <code>./go4lage rungoose down</code> will be your go-to commands. This approach is faster than deleting and recreating your SQLite database.</p>
+    
+    <h3>Endpoints</h3>
+    <p>This is the logic layer of the application.</p>
+    <ol>
+      <li><strong>Create a specific app folder for your package:</strong> In this case, it is <code>./pkg/geminicv</code>.</li>
+      <li><strong>Create your package Go files:</strong> Use two files, one for the prompts and one for the endpoint. Access the user via the context: <code>user, ok := r.Context().Value(utils.UserKey{}).(db.User)</code>.</li>
+    </ol>
+    
+    <h3>Register API Endpoints</h3>
+    <p>Register your endpoints in the <code>url.go</code> file.</p>
+    <ol>
+      <li><strong>Initialize your app struct:</strong> This gives you access to the SQL queries and .env options.</li>
+      <li><strong>Route your endpoints:</strong> Use the appropriate authentication middleware with permissions and groups if needed.</li>
+    </ol>
+    
+    <h3>.env Configuration</h3>
+    <p>For this app, three additional settings are required:</p>
+    <ul>
+      <li>API Key: <code>GEMINIKEY=y0urS3cr3tKeyGo3sheReDon0tShare</code></li>
+      <li>Limit on runs per user to prevent abuse: <code>CVRUNS_PER_USER=20</code></li>
+      <li>Timeout for the Gemini LLM API response: <code>SCAN_TIMEOUT_SECONDS=211</code></li>
+    </ul>
+    
+    <h3>Frontend Integration</h3>
+    <p>Go4Lage is not specific to React, and it's not necessary to let Go4Lage serve the frontend. In this example, I used the <code>./root</code> folder as the build destination for my React Vite builder. This approach creates an all-in-one package, but it is optional. You can point your frontend endpoints to the backend and be ready to go.</p>
+    <p>The React frontend is also provided as an example in this repository.</p>
+  </div>
+</section>
+</main>
       {%comps/footer.html%}
   </body>
 </html>

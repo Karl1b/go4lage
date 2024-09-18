@@ -4,17 +4,359 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Go4lage - Free and Open Source Web Framework in Go</title>
-    <meta name="description" content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend and server-side rendered applications.">
-    <meta name="keywords" content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer">
+    <meta
+      name="description"
+      content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend and server-side rendered applications."
+    />
+    <meta
+      name="keywords"
+      content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer"
+    />
     <link rel="stylesheet" href="css/style.css" />
-    <link rel="canonical" href="https://go4lage.com/guide"/>
+    <link rel="stylesheet" href="css/guide.css" />
+    <link rel="canonical" href="https://go4lage.com/guide" />
   </head>
   <body>
- {%comps/header.html%}
-    <div class="content">
-      {%comps/sidebar.html%}
-      <div class="contentwrapper">{%comps/guide.html%}</div>
-    </div>
-      {%comps/footer.html%}
+    {%comps/header.html%}
+    <main>
+
+      <section class="guide-section">
+        <nav class="mini-navbar">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#env-file">Environment File</a></li>
+            <li><a href="#static-file-server">Static File Server</a></li>
+            <li><a href="#groups-permissions">Groups and permissions</a></li>
+            <li><a href="#react-vite">React Vite Integration</a></li>
+            <li><a href="#go4lage-commands">Go4lage commands</a></li>
+            <li><a href="#nginx-config">Nginx config</a></li>
+          </ul>
+        </nav>
+
+        <div class="guide-content">
+          <h2>Guide</h2>
+          <hr>
+          <p>
+            In this guide, we explain general aspects of Go4lage. The main idea
+            is that classic documentation is unnecessary as the code is so
+            simple. Just read the source code and see how this documentation is
+            made as well.
+          </p>
+
+        
+
+          <div class="env-file">
+
+            <h3 id="env-file">Environment File Explanation</h3>
+            <p>
+              When developing or deploying Go4lage, you need to adjust the .env
+              file. As shown in the setup, there are three .env files prepared:
+              one for native development, one for Docker development, and one for
+              production (also Docker-based).
+            </p>
+
+            <div class="code-block">
+              <pre><code># .env
+DB_URL=postgres://go4lage:go4lage@localhost:5432/go4lage?sslmode=disable
+GOOSE_DBSTRING="user=go4lage password=go4lage dbname=go4lage sslmode=disable"
+GOOSE_DRIVER=postgres 
+BASEURL=http://127.0.0.1
+APIURL=http://localhost
+PORT=8080
+APIPORT=
+USER_TOKEN_VALID_MINS=2400
+SUPERUSER_2FA=false
+SUPERUSER_TOKEN_VALID_MINS=600
+LOGINTHROTTLE_TIME_S=1
+DEBUG=true</code></pre>
+            </div>
+
+            <div id="db-url" class="env-item">
+              <h4>
+                DB_URL=postgres://go4lage:go4lage@db:5432/go4lage?sslmode=disable
+              </h4>
+              <p>
+                This is the information for the Postgres driver: username,
+                password, database, host, port.
+              </p>
+            </div>
+
+            <div id="goose-dbstring" class="env-item">
+              <h4>
+                GOOSE_DBSTRING="host=db user=go4lage password=go4lage
+                dbname=go4lage sslmode=disable"
+              </h4>
+              <p>This is the information for the built-in Goose driver.</p>
+            </div>
+
+            <div class="env-item">
+              <h4>GOOSE_DRIVER=postgres</h4>
+              <p>This specifies the database driver for Goose.</p>
+            </div>
+
+            <div id="baseurl" class="env-item">
+              <h4>BASEURL=http://127.0.0.1</h4>
+              <p>
+                Your base URL. Change this to https://example.com for
+                production.
+              </p>
+            </div>
+
+            <div class="env-item">
+              <h4>APIURL=http://localhost</h4>
+              <p>
+                Your API URL. Change this to your API URL (needed for more
+                complex setups).
+              </p>
+            </div>
+
+            <div class="env-item">
+              <h4>PORT=8080</h4>
+              <p>
+                The port of this app. Make this consistent with the Docker
+                build.
+              </p>
+            </div>
+
+            <div class="env-item">
+              <h4>APIPORT=8080</h4>
+              <p>
+                The API port of this app. This is most likely empty for
+                dockerized builds.
+              </p>
+            </div>
+
+            <div id="user-token" class="env-item">
+              <h4>USER_TOKEN_VALID_MINS=2400</h4>
+              <p>
+                Specifies how long a bearer token for a user is valid. After
+                this time, the user has to log in again.
+              </p>
+            </div>
+
+            <div id="superuser-2fa" class="env-item">
+              <h4>SUPERUSER_2FA=true</h4>
+              <p>
+                If true, then 2FA for superusers is mandatory. If you activate
+                this later, you'll have to create new superusers.
+              </p>
+            </div>
+
+            <div class="env-item">
+              <h4>SUPERUSER_TOKEN_VALID_MINS=600</h4>
+              <p>
+                Similar to USER_TOKEN_VALID_MINS, but for superusers. It could
+                be set to a shorter time for security reasons.
+              </p>
+            </div>
+
+            <div class="env-item">
+              <h4>LOGINTHROTTLE_TIME_S=1</h4>
+              <p>
+                This is the auth throttle time. One IP address has to wait this
+                value in seconds before it can try to log in again after
+                entering wrong credentials.
+              </p>
+            </div>
+
+            <div id="debug" class="env-item">
+              <h4>DEBUG=true</h4>
+              <p>
+                If debug is true, the frontend will receive error details. This
+                is useful for debugging and development but should be turned off
+                for production.
+              </p>
+            </div>
+          </div>
+
+          <div id="static-file-server" class="static-file-server">
+            <h3>Go4lage as Static File Server</h3>
+            <p>
+              In the directory, there is a 'root' folder. Go4lage will copy the
+              content from this folder into the cache. It will replace
+              components with a Jinja-like syntax and will replace API endpoints
+              accordingly.
+            </p>
+            <ul>
+              <li>
+                <code>index.html</code> is the default entry point for the plain
+                URL.
+              </li>
+              <li>
+                The <code>admin/</code> folder is the default folder for the
+                admin dashboard.
+              </li>
+            </ul>
+            <p>
+              The files are also cache-busted - they are renamed at startup, and
+              a random string is added so you can cache aggressively with your
+              main reverse proxy.
+            </p>
+          </div>
+       
+
+        <div id="groups-permissions" class="groups-permissions">
+          <h3>Groups and Permissions</h2>
+           <p>Go4lage comes with a group and permission system.</p> 
+          <p>In go4lage the groups and permissions are simple strings.</p>
+
+          <p>
+            Users have groups and groups have permissions. A group is also a
+            permission.
+          </p>
+          <p>
+            If you have a simple app then using only groups might be good
+            enough.
+          </p>
+
+          <p>AuthMiddleware comes with two string options. groups and permissions.</p>
+
+          <pre><code>go
+      r.Use(app.AuthMiddleware("staff", "")) 
+    </code></pre>
+
+          <p>
+            In this example every user that has the group "staff" can use the
+            endpoint.
+          </p>
+          <p></p>
+
+          <pre><code>go
+      r.Use(app.AuthMiddleware("controller", "can_do_something")) 
+    </code></pre>
+
+          <p>
+            In this example every user with the group "controller" can access
+            the endpoint, AND every user with the permission "can_do_something"
+          </p>
+
+          <p>
+            Also normal users have to be set to active. Superusers can always
+            access everything.
+          </p>
+
+          <p>
+            If you need to go more complex you can add the permissions also to
+            groups. For this you can code this in setup.go there is an example
+            provided. see func <code>SetupGroupsAndPermissions()</code> Or you can manage this manually later via the admin
+            dashboard gui.
+          </p>
+
+          <p>
+            If you need to implement permissions on specific db objects you need
+            to implement your own checks
+          </p>
+        </div>
+
+        <div id="react-vite" class="react-vite">
+          <h3>Go4lage serving react vite</h3>
+   
+          <p>
+            Go4lage can serve a react vite pwa directly. 
+            But this it not a must as a pwa can be served from another url as well.
+          </p>
+<p>For this to happen, simply adjust the vite config to build in the root folder and disable vite's cache busting and use an app name instead. Go4lage has it's own cache busting.</p>
+<pre><code>#vites.config.ts
+export default defineConfig({
+  plugins: [react()],
+  build: {
+    outDir: '../root',
+    emptyOutDir: false,
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name]-app.js',
+        chunkFileNames: 'assets/[name]-app.js',
+        assetFileNames: 'assets/[name]-app.[ext]',
+      },
+    },
+  },
+})
+</code></pre>
+
+<p>In the API class or function you need to have the <code>const apiUrlstring = '{ % Apiurl % }'</code> without space. This will be automatically replaced in production code with the Api url and still work in dev mode.</p>
+
+
+<pre><code>#api.tsx
+class API {
+  apiUrl: string
+  constructor() {
+    const apiUrlstring = '{ %A piurl % }' // without space
+
+    const trimmedString = apiUrlstring.slice(2, -2).trim()
+
+    if (trimmedString === 'Apiurl') {
+      this.apiUrl = 'http://127.0.0.1:8080/adminapi'
+    } else {
+      this.apiUrl = apiUrlstring + '/adminapi'
+    }
+  }
+</code></pre>
+        </div>     
+        <div id="go4lage-commands" class="go4lage-commands">
+          <h3>Go4lage build in commands</h3>
+
+          <p>Go4Lage comes with CLI commands that are powered by cobra. That help you to develop or to get things done. They are defined in the <code>main.go</code> file.</p>
+          <h4>startserver</h4>
+          <p><code>./go4lage startserver</code>This starts the server. It is often used straight after build: <code>go build && ./go4lage startserver </code></p>
+          <h4>createsuperuser</h4>
+          <p><code>./go4lage createsuperuser</code>This creates a superuser. Use this at least one time, then you can use the <code>/admin</code> dashboard</p>
+          <h4>createfakeusers</h4>
+          <p><code>./go4lage createfakeusers 100</code>This creates 100 fakeusers for testing.</p>
+          <h4>setupgp</h4>
+          <p><code>./go4lage setupgp</code>This creates hard coded groups and permissions. It is only aditive and will not delete anything.</p>
+          <h4>rungoose</h4>
+          <p>This is your wrapper on the database. you can very simple reset your data or remigrate with this. Those are the most important, and even faster than switching a sqlLite db.:</p>
+          <ul>
+            <li><code>./go4lage rungoose up</code></li>
+            <li><code>./go4lage rungoose down</code> This runs one downmigration, you have to confirm this with y.</li>
+          </ul>
+        </div>
+
+        <div id="nginx-config" class="nginx-config">
+          <h3>Nginx config</h3>
+          <p>Go4lage can run with any reverse proxy or even without one. However I recommend using nginx for SSL and as a balancer if you want to run more than just one instance of Go4lage on a server. </p>
+          <p>We warmly recommend certbot <a href="https://certbot.eff.org/" target="_blank">https://certbot.eff.org/</a> for SSL.</p>
+          <p>This is Go4lages Nginx config, you can probably cache for longer...:</p>
+          <pre><code>#nginx config
+server {
+    listen 80;
+    server_name go4lage.com www.go4lage.com;
+    return 301 https://go4lage.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name www.go4lage.com;
+    ssl_certificate /etc/letsencrypt/live/go4lage.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/go4lage.com/privkey.pem;
+    return 301 https://go4lage.com$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name go4lage.com;
+    client_max_body_size 10M;
+    ssl_certificate /etc/letsencrypt/live/go4lage.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/go4lage.com/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    add_header Cache-Control "public, max-age=3600";
+
+    location / {
+        proxy_pass http://127.0.0.1:8088;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}</code></pre> 
+</div>
+</div>
+      </section>     
+    </main>
+
+
+    {%comps/footer.html%}
   </body>
 </html>
