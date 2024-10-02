@@ -16,7 +16,6 @@ import (
 	"github.com/pquerna/otp/totp"
 	"github.com/pressly/goose/v3"
 
-	"github.com/karl1b/go4lage/pkg/utils"
 	"github.com/pquerna/otp"
 )
 
@@ -39,7 +38,7 @@ func CreateSuperuser() {
 	for {
 		fmt.Println("Enter Email:")
 		fmt.Scanln(&email)
-		if utils.IsValidEmail(email) {
+		if IsValidEmail(email) {
 			break
 		}
 		fmt.Println("Enter a valid email")
@@ -54,16 +53,16 @@ func CreateSuperuser() {
 		return
 	}
 
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
-	newToken, err := utils.GenerateTokenHex(32)
+	newToken, err := GenerateTokenHex(32)
 	if err != nil {
 		return
 	}
 
-	newpassword, err := utils.HashPassword(password)
+	newpassword, err := HashPassword(password)
 	if err != nil {
 		panic(err)
 	}
@@ -128,7 +127,7 @@ func CreateFakeUsers(a string) {
 		panic(err)
 	}
 
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
@@ -136,14 +135,14 @@ func CreateFakeUsers(a string) {
 
 		email := "fakemail" + strconv.Itoa(i) + "@fake.com"
 		password := strconv.Itoa(i)
-		newpassword, err := utils.HashPassword(password)
+		newpassword, err := HashPassword(password)
 		if err != nil {
 			panic(err)
 		}
 		tfsecret := sql.NullString{String: "", Valid: true}
 
 		name := "Fakeuser" + strconv.Itoa(i)
-		newToken, err := utils.GenerateTokenHex(32)
+		newToken, err := GenerateTokenHex(32)
 		if err != nil {
 			return
 		}
@@ -175,7 +174,7 @@ This does setup your groups and permissions, so that you do not have to enter th
 It is purely additive. It will not delete anything.
 */
 func SetupGroupsAndPermissions() {
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 

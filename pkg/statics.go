@@ -4,15 +4,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
-
-	"github.com/karl1b/go4lage/pkg/utils"
 )
 
 var rootFiles map[string][]byte
 
 func init() {
 	rootFiles = make(map[string][]byte)
-	utils.FileCacheInit("root", Settings.Baseurl, Settings.Apiurl, Settings.ApiPort, &rootFiles)
+	FileCacheInit("root", Settings.Baseurl, Settings.Apiurl, Settings.ApiPort, &rootFiles)
 
 }
 
@@ -33,7 +31,7 @@ func serveFiles(w http.ResponseWriter, r *http.Request, files *map[string][]byte
 
 		path := (pathVariant + r.URL.Path)[1:]
 
-		path, err := utils.CacheReader(path)
+		path, err := CacheReader(path)
 
 		if err != nil {
 			log.Println("Error cache reader", err)

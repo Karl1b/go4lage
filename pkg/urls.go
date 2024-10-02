@@ -9,18 +9,17 @@ import (
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/cors"
 	"github.com/karl1b/go4lage/pkg/sql/db"
-	"github.com/karl1b/go4lage/pkg/utils"
 	_ "github.com/lib/pq"
 )
 
 // App
 type App struct {
 	Queries *db.Queries
-	Utils   *utils.Go4lageSettings
+	Utils   *Go4lageSettings
 }
 
 func StartServer() {
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
