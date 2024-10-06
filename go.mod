@@ -5,6 +5,7 @@ go 1.22.2
 toolchain go1.23.1
 
 require (
+	github.com/DeanPDX/dotconfig v1.0.0-alpha.2.0.20241002151108-35e06d10a4ac
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/cors v1.2.1
 	github.com/google/uuid v1.6.0
@@ -22,7 +23,6 @@ require (
 )
 
 require (
-	github.com/DeanPDX/dotconfig v1.0.0-alpha.2
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/lib/pq v1.10.9
 	github.com/pquerna/otp v1.4.0

@@ -1,5 +1,6 @@
 
 .main-title {
+    margin-top: 0.25em;
     color: var(--primary-color);
     text-align: center;
     font-size: 2.5em;
@@ -29,9 +30,9 @@
 
 .logo, .mascot {
     display: inline-block;
-    max-width: 150px;
-    width: 40%;
-    height: auto;
+    
+    width: auto;
+    height: 140px;
     vertical-align: middle;
 }
 
@@ -49,30 +50,30 @@
     }
 }
 
-.features, .ideal-for {
+.features, .checklist {
     background-color: #f0f8ff;
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
 }
 
-.features h2, .ideal-for h2 {
+.features h2, .checklist h2 {
     color: #2c3e50;
     margin-bottom: 15px;
 }
 
-.features ul, .ideal-for ul {
+.features ul, .checklist ul {
     list-style-type: none;
     padding-left: 0;
 }
 
-.features li, .ideal-for li {
+.features li, .checklist li {
     margin-bottom: 10px;
     padding-left: 20px;
     position: relative;
 }
 
-.features li:before, .ideal-for li:before {
+.features li:before, .checklist li:before {
     content: "✓";
     color: #3498db;
     position: absolute;

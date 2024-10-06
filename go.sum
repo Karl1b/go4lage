@@ -8,6 +8,8 @@ github.com/ClickHouse/clickhouse-go/v2 v2.17.1 h1:ZCmAYWpu75IyEi7+Yrs/uaAjiCGY5w
 github.com/ClickHouse/clickhouse-go/v2 v2.17.1/go.mod h1:rkGTvFDTLqLIm0ma+13xmcCfr/08Gvs7KmFt1tgiWHQ=
 github.com/DeanPDX/dotconfig v1.0.0-alpha.2 h1:PHai7UEp04rjzB+lpSNfsOqjWFmX3FBUhNBGONrDrkA=
 github.com/DeanPDX/dotconfig v1.0.0-alpha.2/go.mod h1:18zbUTCrXlYeQqJmrtjBVtNFTUPEfqTzdrf8dh1kHNc=
+github.com/DeanPDX/dotconfig v1.0.0-alpha.2.0.20241002151108-35e06d10a4ac h1:Cy81AmekfXSgJW/wEPsaSd6Y1q6tauV7UyLMsYNDLXo=
+github.com/DeanPDX/dotconfig v1.0.0-alpha.2.0.20241002151108-35e06d10a4ac/go.mod h1:18zbUTCrXlYeQqJmrtjBVtNFTUPEfqTzdrf8dh1kHNc=
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 h1:TngWCqHvy9oXAN6lEVMRuU21PR1EtLVZJmdB18Gu3Rw=

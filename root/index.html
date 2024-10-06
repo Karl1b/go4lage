@@ -4,23 +4,26 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Go4lage - Free and Open Source Web Framework in Go</title>
-    <meta name="description" content="Go4lage is a free, open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend and server-side rendered applications.">
+    <meta name="description" content="Go4lage is a free, open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications.">
     <meta name="keywords" content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer">
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/welcome.css" />
     <link rel="canonical" href="https://go4lage.com/" />
 </head>
 <body>
+  
     {%comps/header.html%}
+  
     <main>
         <section id="welcome" class="container">
-            <h1 class="main-title" style="margin-top: 1em;">Welcome to Go4lage</h1>
+            <h1 class="main-title">Welcome to Go4lage</h1>
             <hr class="divider" />
             
             <div class="intro-text">
                 <p>
-                    Go4lage is your ideal platform for launching small to medium-sized projects. 
-                    Ready to power your backend for Client-Side Rendering (CSR) projects, it's time to rock your development! &#128170;
+
+Go4lage is a powerful, open-source backend framework tailored for small to medium-sized projects. Built with Go, it offers exceptional performance and simplicity for your Client-Side Rendering (CSR) applications. Perfect for self-hosting and designed with concurrent capabilities, Go4lage empowers smaller teams to compete with industry giants while keeping costs remarkably low. With its "batteries included" approach, you'll have 80% of essential features ready with just 20% of the effort. Time to supercharge your backend and elevate your development process! 💪🚀
+
                 </p>
             </div>
 
@@ -42,16 +45,7 @@
                 </ul>
             </div>
 
-            <div class="ideal-for">
-                <h2>Go4lage is Perfect for You If:</h2>
-                <ul>
-                    <li>You have a small team of 1-5 people working on the code.</li>
-                    <li>You prefer self-hosting your backend instead of relying on cloud services like Firebase, Azure, or AWS.</li>
-                    <li>You're competent and willing to learn Golang and SQL.</li>
-                    <li>Your app needs a headless backend (CSR - Client Side Rendering).</li>
-                    <li>Your app targets a user base under a quarter million, not requiring global-scale infrastructure.</li>
-                </ul>
-            </div>
+            {%comps/checklist.html%}
 
             <div class="cta-section">
                 <p>Ready to elevate your project with Go4lage? Dive into our documentation and start building today!</p>

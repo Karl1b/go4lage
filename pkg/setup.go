@@ -237,6 +237,7 @@ func SetupGroupsAndPermissions() {
 // This runs goose out of go4lage.
 func RunGoose(cmd string) {
 	// Open the DB connection
+
 	db, err := sql.Open(Settings.GooseDriver, Settings.GooseDbString)
 	if err != nil {
 		log.Fatal("failed to open DB: ", err)

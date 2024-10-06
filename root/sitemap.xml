@@ -9,10 +9,10 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- Overview Page -->
+  <!-- Features Page -->
   <url>
-    <loc>https://go4lage.com/overview</loc>
-    <lastmod>2024-08-25</lastmod>
+    <loc>https://go4lage.com/features</loc>
+    <lastmod>2024-10-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -56,5 +56,12 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+
+      <!-- GeminiCV Page -->
+  <url>
+    <loc>https://go4lage.com/checklist</loc>
+    <lastmod>2024-10-06</lastmod>
+    <changefreq>monthly</changefreq>
+    <prior
 
 </urlset>

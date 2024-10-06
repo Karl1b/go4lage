@@ -6,7 +6,7 @@
     <title>Go4lage - Free and Open Source Web Framework in Go</title>
     <meta
       name="description"
-      content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend and server-side rendered applications."
+      content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications."
     />
     <meta
       name="keywords"
@@ -24,7 +24,7 @@
         <nav class="mini-navbar">
           <h3>Quick Links</h3>
           <ul>
-            <li><a href="#env-file">Environment File</a></li>
+           
             <li><a href="#static-file-server">Static File Server</a></li>
             <li><a href="#groups-permissions">Groups and permissions</a></li>
             <li><a href="#react-vite">React Vite Integration</a></li>
@@ -42,132 +42,6 @@
             simple. Just read the source code and see how this documentation is
             made as well.
           </p>
-
-        
-
-          <div class="env-file">
-
-            <h3 id="env-file">Environment File Explanation</h3>
-            <p>
-              When developing or deploying Go4lage, you need to adjust the .env
-              file. As shown in the setup, there are three .env files prepared:
-              one for native development, one for Docker development, and one for
-              production (also Docker-based).
-            </p>
-
-            <div class="code-block">
-              <pre><code># .env
-DB_URL=postgres://go4lage:go4lage@localhost:5432/go4lage?sslmode=disable
-GOOSE_DBSTRING="user=go4lage password=go4lage dbname=go4lage sslmode=disable"
-GOOSE_DRIVER=postgres 
-BASEURL=http://127.0.0.1
-APIURL=http://localhost
-PORT=8080
-APIPORT=
-USER_TOKEN_VALID_MINS=2400
-SUPERUSER_2FA=false
-SUPERUSER_TOKEN_VALID_MINS=600
-LOGINTHROTTLE_TIME_S=1
-DEBUG=true</code></pre>
-            </div>
-
-            <div id="db-url" class="env-item">
-              <h4>
-                DB_URL=postgres://go4lage:go4lage@db:5432/go4lage?sslmode=disable
-              </h4>
-              <p>
-                This is the information for the Postgres driver: username,
-                password, database, host, port.
-              </p>
-            </div>
-
-            <div id="goose-dbstring" class="env-item">
-              <h4>
-                GOOSE_DBSTRING="host=db user=go4lage password=go4lage
-                dbname=go4lage sslmode=disable"
-              </h4>
-              <p>This is the information for the built-in Goose driver.</p>
-            </div>
-
-            <div class="env-item">
-              <h4>GOOSE_DRIVER=postgres</h4>
-              <p>This specifies the database driver for Goose.</p>
-            </div>
-
-            <div id="baseurl" class="env-item">
-              <h4>BASEURL=http://127.0.0.1</h4>
-              <p>
-                Your base URL. Change this to https://example.com for
-                production.
-              </p>
-            </div>
-
-            <div class="env-item">
-              <h4>APIURL=http://localhost</h4>
-              <p>
-                Your API URL. Change this to your API URL (needed for more
-                complex setups).
-              </p>
-            </div>
-
-            <div class="env-item">
-              <h4>PORT=8080</h4>
-              <p>
-                The port of this app. Make this consistent with the Docker
-                build.
-              </p>
-            </div>
-
-            <div class="env-item">
-              <h4>APIPORT=8080</h4>
-              <p>
-                The API port of this app. This is most likely empty for
-                dockerized builds.
-              </p>
-            </div>
-
-            <div id="user-token" class="env-item">
-              <h4>USER_TOKEN_VALID_MINS=2400</h4>
-              <p>
-                Specifies how long a bearer token for a user is valid. After
-                this time, the user has to log in again.
-              </p>
-            </div>
-
-            <div id="superuser-2fa" class="env-item">
-              <h4>SUPERUSER_2FA=true</h4>
-              <p>
-                If true, then 2FA for superusers is mandatory. If you activate
-                this later, you'll have to create new superusers.
-              </p>
-            </div>
-
-            <div class="env-item">
-              <h4>SUPERUSER_TOKEN_VALID_MINS=600</h4>
-              <p>
-                Similar to USER_TOKEN_VALID_MINS, but for superusers. It could
-                be set to a shorter time for security reasons.
-              </p>
-            </div>
-
-            <div class="env-item">
-              <h4>LOGINTHROTTLE_TIME_S=1</h4>
-              <p>
-                This is the auth throttle time. One IP address has to wait this
-                value in seconds before it can try to log in again after
-                entering wrong credentials.
-              </p>
-            </div>
-
-            <div id="debug" class="env-item">
-              <h4>DEBUG=true</h4>
-              <p>
-                If debug is true, the frontend will receive error details. This
-                is useful for debugging and development but should be turned off
-                for production.
-              </p>
-            </div>
-          </div>
 
           <div id="static-file-server" class="static-file-server">
             <h3>Go4lage as Static File Server</h3>

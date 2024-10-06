@@ -63,6 +63,9 @@ func (app *App) DatabaseLogger(next http.Handler) http.Handler {
 	})
 }
 
+// This makes sure that only logged in users can access the route.
+// If you enter a group or permission only users with one of them will be able to use this route.
+// It adds the user to the context as well.
 func (app *App) AuthMiddleware(group string, permission string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
