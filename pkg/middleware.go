@@ -84,6 +84,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				return
 			}
 
+			// Inactive users are not permitted to user the app. Superusers are always permitted
 			if !user.IsActive.Bool && !user.IsSuperuser.Bool {
 				app.Utils.RespondWithJSON(w, ErrorResponse{
 					Detail: "User inactive.",
@@ -92,6 +93,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				return
 			}
 
+			// Superusers have a a different timeout setting
 			if user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.SuperuserTokenValidMins)*time.Minute).Before(time.Now()) {
 				app.Utils.RespondWithJSON(w, ErrorResponse{
 					Detail: "Login again.",
@@ -100,6 +102,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				return
 			}
 
+			// User token timeout check
 			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
 				app.Utils.RespondWithJSON(w, ErrorResponse{
 					Detail: "Login again.",
@@ -154,9 +157,10 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 				go4users.Del(user.ID.String())
 			}
 
+			// Insert user into the request context for later use
 			ctx := context.WithValue(r.Context(), utils.UserKey{}, user)
-			r = r.WithContext(ctx)
 
+			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})
 	}

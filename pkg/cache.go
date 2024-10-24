@@ -5,81 +5,66 @@ import (
 	"database/sql"
 	"errors"
 	"sync"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/karl1b/go4lage/pkg/sql/db"
-	"github.com/patrickmn/go-cache"
 )
 
-/*
-This is the global cache. This will reduce db calls significantly.
-It is wrapped so that other cache libs can easily be tested.
-*/
-type go4Cache struct {
-	c cache.Cache
+type go4Cache[T any] struct {
+	mu    sync.RWMutex
+	items map[string]T
 }
 
-var go4users go4Cache
-var go4groups go4Cache
-var go4permissions go4Cache
+func NewGo4Cache[T any]() *go4Cache[T] {
+	return &go4Cache[T]{
+		items: make(map[string]T),
+	}
+}
+
+func (c *go4Cache[T]) Set(key string, value T) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.items[key] = value
+}
+
+func (c *go4Cache[T]) Get(key string) (T, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	val, exists := c.items[key]
+	return val, exists
+}
+
+func (c *go4Cache[T]) Del(key string) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if _, exists := c.items[key]; exists {
+		delete(c.items, key)
+		return true
+	}
+	return false
+}
+
+func (c *go4Cache[T]) Flush() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.items = make(map[string]T)
+}
+
+var go4users *go4Cache[interface{}]
+var go4permissions *go4Cache[[]string]
+var go4groups *go4Cache[[]string]
 
 func init() {
-	go4users.c = *cache.New(cache.NoExpiration, cache.NoExpiration)
-	go4groups.c = *cache.New(cache.NoExpiration, cache.NoExpiration)
-	go4permissions.c = *cache.New(cache.NoExpiration, cache.NoExpiration)
+	go4users = NewGo4Cache[interface{}]()
+	go4groups = NewGo4Cache[[]string]()
+	go4permissions = NewGo4Cache[[]string]()
 }
 
-func (c *go4Cache) Set(address string, item interface{}) {
-	c.c.SetDefault(address, item)
-}
-
-func (c *go4Cache) Get(address string) (interface{}, bool) {
-	result, found := c.c.Get(address)
-	return result, found
-}
-func (c *go4Cache) Del(address string) {
-	c.c.Delete(address)
-}
-func (c *go4Cache) Flush() {
-	c.c.Flush()
-}
-
-func nullGroupsAndPermissions() { // This does empty groups and permissions.
+// This does empty groups and permissions
+// Seldomly called it is okay to have this like this
+func nullGroupsAndPermissions() {
 	go4permissions.Flush()
 	go4groups.Flush()
-}
-
-/*
-The throttlecache is there to prevent a login force attack.
-*/
-type Throttlecache struct {
-	mu        sync.Mutex
-	breaktime map[string]int64
-}
-
-var loginthrottler Throttlecache
-
-func init() {
-	loginthrottler = Throttlecache{
-		breaktime: make(map[string]int64),
-	}
-}
-
-func (t *Throttlecache) check(ip string) error {
-	defer t.mu.Unlock()
-	t.mu.Lock()
-	unixTimeNow := time.Now().Unix()
-	if nextAllowedTime, exists := t.breaktime[ip]; exists && unixTimeNow < nextAllowedTime {
-		t.breaktime[ip] = t.breaktime[ip] + int64(Settings.LoginThrottleTimeS) // the next login attempt is allowed in 1 sec.
-		return errors.New("too many requests")
-	}
-	if nextAllowedTime, exists := t.breaktime[ip]; exists && unixTimeNow >= nextAllowedTime {
-		delete(t.breaktime, ip) // If a user was okay its breaktime will be deleted. Very small performance gain.
-		return nil
-	}
-	t.breaktime[ip] = unixTimeNow + int64(Settings.LoginThrottleTimeS)
-	return nil
 }
 
 /*
@@ -145,10 +130,7 @@ func getPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 
 	cachedResult, found := go4permissions.Get(id.String())
 	if found {
-		result, ok := cachedResult.([]string)
-		if ok {
-			return result, nil
-		}
+		return cachedResult, nil
 	}
 	result, err = getFromDB(id, queries)
 	return result, err
@@ -177,10 +159,8 @@ func getGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err er
 
 	cachedResult, found := go4groups.Get(id.String())
 	if found {
-		result, ok := cachedResult.([]string)
-		if ok {
-			return result, nil
-		}
+		return cachedResult, nil
+
 	}
 	result, err = getFromDB(id, queries)
 	return result, err

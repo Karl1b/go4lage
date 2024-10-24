@@ -1,15 +1,12 @@
 module github.com/karl1b/go4lage
 
-go 1.22.2
-
-toolchain go1.23.1
+go 1.23.1
 
 require (
 	github.com/DeanPDX/dotconfig v1.0.0-alpha.2.0.20241002151108-35e06d10a4ac
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/cors v1.2.1
 	github.com/google/uuid v1.6.0
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.19.2
 	github.com/spf13/cobra v1.8.0
 )

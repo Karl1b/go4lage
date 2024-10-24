@@ -1,136 +1,180 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Go4lage - Free and Open Source Web Framework in Go</title>
-    <meta
-      name="description"
-      content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications."
-    />
-    <meta
-      name="keywords"
-      content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/guide.css" />
-    <link rel="canonical" href="https://go4lage.com/guide" />
-  </head>
-  <body>
-    {%comps/header.html%}
-    <main>
 
-      <section class="guide-section">
-        <nav class="mini-navbar">
-          <h3>Quick Links</h3>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go4lage - Free and Open Source Web Framework in Go</title>
+  <meta name="description"
+    content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications." />
+  <meta name="keywords"
+    content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/guide.css" />
+  <link rel="canonical" href="https://go4lage.com/guide" />
+</head>
+
+<body>
+  {%comps/header.html%}
+  <main>
+
+    <section class="guide-section">
+      <nav class="mini-navbar">
+        <h3>Quick Links</h3>
+        <ul>
+
+          <li><a href="#in-memory">Lightning-Fast In-Memory Processing</a></li>
+          <li><a href="#static-file-server">Static File Server</a></li>
+          <li><a href="#groups-permissions">Groups and permissions</a></li>
+          <li><a href="#react-vite">React Vite Integration</a></li>
+          <li><a href="#go4lage-commands">Go4lage commands</a></li>
+          <li><a href="#nginx-config">Nginx config</a></li>
+        </ul>
+      </nav>
+
+      <div class="guide-content">
+        <h2>Guide</h2>
+        <hr>
+        <p>
+          In this guide, we explain general aspects of Go4lage. The main idea
+          is that classic documentation is unnecessary as the code is so
+          simple. Just read the source code and see how this documentation is
+          made as well.
+        </p>
+
+        <div id="in-memory" class="in-memory">
+          <h3>Lightning-Fast In-Memory Processing with Smart Goroutine Communication</h3>
+
+          <p>Go4lage leverages a powerful feature that sets it apart from traditional web backends: smart communication
+            between concurrent processes (goroutines). While most frameworks process requests in isolation, our
+            goroutines work together through a sophisticated shared memory system.</p>
+
+          <h4>How it works:</h4>
+          <p>When requests come in, they're processed concurrently in separate goroutines - a core feature of Go. What
+            makes go4lage special is that these goroutines maintain constant communication with each other. This creates
+            a natural, built-in caching layer that lives in memory, dramatically reducing database load.</p>
+
+          <h4>Benefits:</h4>
           <ul>
-           
-            <li><a href="#static-file-server">Static File Server</a></li>
-            <li><a href="#groups-permissions">Groups and permissions</a></li>
-            <li><a href="#react-vite">React Vite Integration</a></li>
-            <li><a href="#go4lage-commands">Go4lage commands</a></li>
-            <li><a href="#nginx-config">Nginx config</a></li>
+            <li>Even without caching, go4lage outperforms Java, JavaScript, PHP, and Python</li>
+            <li>With our shared memory system, the performance gap widens significantly</li>
+            <li>Database queries are minimized through intelligent caching</li>
+            <li>Zero configuration needed - it works out of the box</li>
           </ul>
-        </nav>
 
-        <div class="guide-content">
-          <h2>Guide</h2>
-          <hr>
+          <h4>Real-World Application:</h4>
+          <p>We've implemented this system for user management and permissions, demonstrating its simplicity and
+            effectiveness. Developers can easily extend this pattern to other parts of their application, gaining
+            immediate performance benefits.</p>
+
+          <h4>Technical Consideration:</h4>
+          <p>This feature is optimized for monolithic applications, as the inter-goroutine communication requires
+            processes to run on the same instance. While horizontal scaling isn't supported at the application layer,
+            you maintain full flexibility to scale your database layer, including compatibility with managed database
+            services.</p>
+
+          <h4>Ideal Use Case:</h4>
+          <p>Choose go4lage when you need exceptional performance in a monolithic architecture. The built-in memory
+            sharing system provides a powerful advantage for applications that prioritize speed and efficient resource
+            usage.</p>
+          <p>Think of it like this: In your frontend or app you want to reduce backend calls. In go4lage you want to
+            reduce db calls.</p>
+        </div>
+
+
+        <div id="static-file-server" class="static-file-server">
+          <h3>Go4lage as Static File Server</h3>
           <p>
-            In this guide, we explain general aspects of Go4lage. The main idea
-            is that classic documentation is unnecessary as the code is so
-            simple. Just read the source code and see how this documentation is
-            made as well.
+            In the directory, there is a 'root' folder. Go4lage will copy the
+            content from this folder into the cache. It will replace
+            components with a Jinja-like syntax and will replace API endpoints
+            accordingly.
           </p>
+          <ul>
+            <li>
+              <code>index.html</code> is the default entry point for the plain
+              URL.
+            </li>
+            <li>
+              The <code>admin/</code> folder is the default folder for the
+              admin dashboard.
+            </li>
+          </ul>
+          <p>
+            The files are also cache-busted - they are renamed at startup, and
+            a random string is added so you can cache aggressively with your
+            main reverse proxy.
+          </p>
+          <p>The main goal of the static file server is to be able to serve the complete project from one package. A
+            landing page and the main app as well.
+            see <a href="#react-vite">React Vite Integration</a></p>
+        </div>
 
-          <div id="static-file-server" class="static-file-server">
-            <h3>Go4lage as Static File Server</h3>
-            <p>
-              In the directory, there is a 'root' folder. Go4lage will copy the
-              content from this folder into the cache. It will replace
-              components with a Jinja-like syntax and will replace API endpoints
-              accordingly.
-            </p>
-            <ul>
-              <li>
-                <code>index.html</code> is the default entry point for the plain
-                URL.
-              </li>
-              <li>
-                The <code>admin/</code> folder is the default folder for the
-                admin dashboard.
-              </li>
-            </ul>
-            <p>
-              The files are also cache-busted - they are renamed at startup, and
-              a random string is added so you can cache aggressively with your
-              main reverse proxy.
-            </p>
-          </div>
-       
 
         <div id="groups-permissions" class="groups-permissions">
           <h3>Groups and Permissions</h2>
-           <p>Go4lage comes with a group and permission system.</p> 
-          <p>In go4lage the groups and permissions are simple strings.</p>
+            <p>Go4lage comes with a group and permission system.</p>
+            <p>In go4lage the groups and permissions are simple strings.</p>
 
-          <p>
-            Users have groups and groups have permissions. A group is also a
-            permission.
-          </p>
-          <p>
-            If you have a simple app then using only groups might be good
-            enough.
-          </p>
+            <p>
+              Users have groups and groups have permissions. A group is also a
+              permission.
+            </p>
+            <p>
+              If you have a simple app then using only groups might be good
+              enough.
+            </p>
 
-          <p>AuthMiddleware comes with two string options. groups and permissions.</p>
+            <p>AuthMiddleware comes with two string options. groups and permissions.</p>
 
-          <pre><code>go
+            <pre><code>go
       r.Use(app.AuthMiddleware("staff", "")) 
     </code></pre>
 
-          <p>
-            In this example every user that has the group "staff" can use the
-            endpoint.
-          </p>
-          <p></p>
+            <p>
+              In this example every user that has the group "staff" can use the
+              endpoint.
+            </p>
+            <p></p>
 
-          <pre><code>go
+            <pre><code>go
       r.Use(app.AuthMiddleware("controller", "can_do_something")) 
     </code></pre>
 
-          <p>
-            In this example every user with the group "controller" can access
-            the endpoint, AND every user with the permission "can_do_something"
-          </p>
+            <p>
+              In this example every user with the group "controller" can access
+              the endpoint, AND every user with the permission "can_do_something"
+            </p>
 
-          <p>
-            Also normal users have to be set to active. Superusers can always
-            access everything.
-          </p>
+            <p>
+              Also normal users have to be set to active. Superusers can always
+              access everything.
+            </p>
 
-          <p>
-            If you need to go more complex you can add the permissions also to
-            groups. For this you can code this in setup.go there is an example
-            provided. see func <code>SetupGroupsAndPermissions()</code> Or you can manage this manually later via the admin
-            dashboard gui.
-          </p>
+            <p>
+              If you need to go more complex you can add the permissions also to
+              groups. For this you can code this in setup.go there is an example
+              provided. see func <code>SetupGroupsAndPermissions()</code> Or you can manage this manually later via the
+              admin
+              dashboard gui.
+            </p>
 
-          <p>
-            If you need to implement permissions on specific db objects you need
-            to implement your own checks
-          </p>
+            <p>
+              If you need to implement permissions on specific db objects you need
+              to implement your own checks
+            </p>
         </div>
 
         <div id="react-vite" class="react-vite">
           <h3>Go4lage serving react vite</h3>
-   
+
           <p>
-            Go4lage can serve a react vite pwa directly. 
+            Go4lage can serve a react vite pwa directly.
             But this it not a must as a pwa can be served from another url as well.
           </p>
-<p>For this to happen, simply adjust the vite config to build in the root folder and disable vite's cache busting and use an app name instead. Go4lage has it's own cache busting.</p>
-<pre><code>#vites.config.ts
+          <p>For this to happen, simply adjust the vite config to build in the root folder and disable vite's cache
+            busting and use an app name instead. Go4lage has it's own cache busting.</p>
+          <pre><code>#vites.config.ts
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -147,10 +191,12 @@ export default defineConfig({
 })
 </code></pre>
 
-<p>In the API class or function you need to have the <code>const apiUrlstring = '{ % Apiurl % }'</code> without space. This will be automatically replaced in production code with the Api url and still work in dev mode.</p>
+          <p>In the API class or function you need to have the <code>const apiUrlstring = '{ % Apiurl % }'</code>
+            without space. This will be automatically replaced in production code with the Api url and still work in dev
+            mode.</p>
 
 
-<pre><code>#api.tsx
+          <pre><code>#api.tsx
 class API {
   apiUrl: string
   constructor() {
@@ -165,21 +211,27 @@ class API {
     }
   }
 </code></pre>
-        </div>     
+        </div>
         <div id="go4lage-commands" class="go4lage-commands">
           <h3>Go4lage build in commands</h3>
 
-          <p>Go4Lage comes with CLI commands that are powered by cobra. That help you to develop or to get things done. They are defined in the <code>main.go</code> file.</p>
+          <p>Go4Lage comes with CLI commands that are powered by cobra. That help you to develop or to get things done.
+            They are defined in the <code>main.go</code> file.</p>
           <h4>startserver</h4>
-          <p><code>./go4lage startserver</code>This starts the server. It is often used straight after build: <code>go build && ./go4lage startserver </code></p>
+          <p><code>./go4lage startserver</code>This starts the server. It is often used straight after build:
+            <code>go build && ./go4lage startserver </code>
+          </p>
           <h4>createsuperuser</h4>
-          <p><code>./go4lage createsuperuser</code>This creates a superuser. Use this at least one time, then you can use the <code>/admin</code> dashboard</p>
+          <p><code>./go4lage createsuperuser</code>This creates a superuser. Use this at least one time, then you can
+            use the <code>/admin</code> dashboard</p>
           <h4>createfakeusers</h4>
           <p><code>./go4lage createfakeusers 100</code>This creates 100 fakeusers for testing.</p>
           <h4>setupgp</h4>
-          <p><code>./go4lage setupgp</code>This creates hard coded groups and permissions. It is only aditive and will not delete anything.</p>
+          <p><code>./go4lage setupgp</code>This creates hard coded groups and permissions. It is only aditive and will
+            not delete anything.</p>
           <h4>rungoose</h4>
-          <p>This is your wrapper on the database. you can very simple reset your data or remigrate with this. Those are the most important, and even faster than switching a sqlLite db.:</p>
+          <p>This is your wrapper on the database. you can very simple reset your data or remigrate with this. Those are
+            the most important, and even faster than switching a sqlLite db.:</p>
           <ul>
             <li><code>./go4lage rungoose up</code></li>
             <li><code>./go4lage rungoose down</code> This runs one downmigration, you have to confirm this with y.</li>
@@ -188,8 +240,10 @@ class API {
 
         <div id="nginx-config" class="nginx-config">
           <h3>Nginx config</h3>
-          <p>Go4lage can run with any reverse proxy or even without one. However I recommend using nginx for SSL and as a balancer if you want to run more than just one instance of Go4lage on a server. </p>
-          <p>We warmly recommend certbot <a href="https://certbot.eff.org/" target="_blank">https://certbot.eff.org/</a> for SSL.</p>
+          <p>Go4lage can run with any reverse proxy or even without one. However I recommend using nginx for SSL and as
+            a balancer if you want to run more than just one instance of Go4lage on a server. </p>
+          <p>We warmly recommend certbot <a href="https://certbot.eff.org/" target="_blank">https://certbot.eff.org/</a>
+            for SSL.</p>
           <p>This is Go4lages Nginx config, you can probably cache for longer...:</p>
           <pre><code>#nginx config
 server {
@@ -224,13 +278,14 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
-}</code></pre> 
-</div>
-</div>
-      </section>     
-    </main>
+}</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
 
 
-    {%comps/footer.html%}
-  </body>
+  {%comps/footer.html%}
+</body>
+
 </html>

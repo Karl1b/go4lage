@@ -86,7 +86,7 @@
   .code-block code {
     font-family: 'Courier New', Courier, monospace;
   } */
-
+.in-memory,
 .static-file-server,
 .groups-permissions,
 .react-vite,

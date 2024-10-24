@@ -101,7 +101,7 @@ func (app *App) login(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-	//todo: fix last login
+
 	if !user.Token.Valid || user.Token.String == "" || user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) || user.IsSuperuser.Bool {
 		newToken, err := GenerateTokenHex(32)
 		if err != nil {
