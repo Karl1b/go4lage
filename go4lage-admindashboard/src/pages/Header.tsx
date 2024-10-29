@@ -15,15 +15,19 @@ export default function Header() {
       <div className="hidden md:flex flex-col ">
         <div className="flex justify-around items-center w-screen">
           <Logo />
-          <div className="cursor-pointer" onClick={()=>{
-            navigate("/")
-          }}>
+          <div
+            className="cursor-pointer"
+            onClick={() => {
+              navigate('/')
+            }}
+          >
             <h1>Admin Dashboard</h1>
           </div>
-          <div className="font-semibold">
-            <ButtonGroup />
-          </div>
+
           <Logout />
+        </div>
+        <div className="flex justify-center font-semibold w-sceen items-center bg-secondheader">
+          <ButtonGroup />
         </div>
       </div>
 

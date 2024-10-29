@@ -1,4 +1,4 @@
-package go4lage
+package utils
 
 import (
 	"crypto/rand"
@@ -12,6 +12,7 @@ import (
 	"regexp"
 	"strings"
 
+	settings "github.com/karl1b/go4lage/pkg/settings"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -58,60 +59,13 @@ type ToastResponse struct {
 	Text   string `json:"text"`
 }
 
-type Go4lageSettings struct {
-	ApiPort                   string `env:"APIPORT"`
-	Port                      string `env:"PORT"`
-	Debug                     bool   `env:"DEBUG"`
-	Baseurl                   string `env:"BASEURL"`
-	Apiurl                    string `env:"APIURL"`
-	GooseDriver               string `env:"GOOSE_DRIVER"`
-	GooseDbString             string `env:"GOOSE_DBSTRING"`
-	LoginThrottleTimeS        int    `env:"LOGINTHROTTLE_TIME_S"`
-	Superuser2FA              bool   `env:"SUPERUSER_2FA"`
-	UserTokenValidMins        int    `env:"USER_TOKEN_VALID_MINS"`
-	SuperuserTokenValidMins   int    `env:"SUPERUSER_TOKEN_VALID_MINS"`
-	UserLoginTrackingTimeMins int    `env:"USER_LOGIN_TRACKING_MINS"`
-	AppName                   string `env:"APP_NAME"`
-	DbURL                     string `env:"DB_URL"`
-}
-
-func (settings *Go4lageSettings) RespondWithJSON(w http.ResponseWriter, payload interface{}) {
-	var dat []byte
-	var err error
-
-	if !settings.Debug {
-		if errorResp, ok := payload.(*ErrorResponse); ok {
-
-			cleanedPayload := ErrorResponse{
-				Detail: errorResp.Detail,
-				Error:  "",
-			}
-			dat, err = json.Marshal(cleanedPayload)
-		} else {
-			dat, err = json.Marshal(payload)
-		}
-	} else {
-		dat, err = json.Marshal(payload)
-	}
-
-	if err != nil {
-		log.Printf("Failed to Marshal JSON %v \n", payload)
-		w.WriteHeader(500)
-		return
-	}
-
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(200) // This is hard coded to assure compatibility to javascript. Do not alter.
-	w.Write(dat)
-}
-
 func SetUp() (*sql.DB, func()) {
 
-	if Settings.DbURL == "" {
+	if settings.Settings.DbURL == "" {
 		log.Fatal("DB_URL is empty")
 	}
 
-	conn, err := sql.Open("postgres", Settings.DbURL)
+	conn, err := sql.Open("postgres", settings.Settings.DbURL)
 	if err != nil {
 
 		log.Fatal("Can not connect to DB", err)
@@ -278,4 +232,33 @@ func replacePlaceholders(content string, re *regexp.Regexp, cache *map[string][]
 	})
 
 	return result, replacementMade
+}
+
+func RespondWithJSON(w http.ResponseWriter, payload interface{}) {
+	var dat []byte
+	statuscode := 200
+	w.Header().Add("Content-Type", "application/json")
+
+	if errorResp, ok := payload.(*ErrorResponse); ok {
+		statuscode = 400
+		if !settings.Settings.Debug {
+			cleanedPayload := ErrorResponse{
+				Detail: errorResp.Detail,
+				Error:  "",
+			}
+			dat, _ = json.Marshal(cleanedPayload)
+
+			w.WriteHeader(statuscode)
+			w.Write(dat)
+			return
+
+		}
+
+	}
+
+	dat, _ = json.Marshal(payload)
+
+	w.WriteHeader(statuscode)
+	w.Write(dat)
+
 }

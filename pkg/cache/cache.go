@@ -1,4 +1,4 @@
-package go4lage
+package cache
 
 import (
 	"context"
@@ -50,21 +50,22 @@ func (c *go4Cache[T]) Flush() {
 	c.items = make(map[string]T)
 }
 
-var go4users *go4Cache[interface{}]
-var go4permissions *go4Cache[[]string]
-var go4groups *go4Cache[[]string]
+var Go4users *go4Cache[interface{}]
+var Go4permissions *go4Cache[[]string]
+var Go4groups *go4Cache[[]string]
 
 func init() {
-	go4users = NewGo4Cache[interface{}]()
-	go4groups = NewGo4Cache[[]string]()
-	go4permissions = NewGo4Cache[[]string]()
+	Go4users = NewGo4Cache[interface{}]()
+	Go4groups = NewGo4Cache[[]string]()
+	Go4permissions = NewGo4Cache[[]string]()
+
 }
 
 // This does empty groups and permissions
 // Seldomly called it is okay to have this like this
-func nullGroupsAndPermissions() {
-	go4permissions.Flush()
-	go4groups.Flush()
+func NullGroupsAndPermissions() {
+	Go4permissions.Flush()
+	Go4groups.Flush()
 }
 
 /*
@@ -72,7 +73,7 @@ Those are the cache functions.
 1) Those functions below are the only functions that update the global cache by reading from db if needed.
 2) Other functions do not update the cache. Instead they delete the entry or null the complete cache.
 */
-func getUserByToken(token string, queries *db.Queries) (result db.User, err error) {
+func GetUserByToken(token string, queries *db.Queries) (result db.User, err error) {
 	if token == "" {
 		return db.User{}, errors.New("token may not be blank")
 	}
@@ -82,7 +83,7 @@ func getUserByToken(token string, queries *db.Queries) (result db.User, err erro
 		if err != nil {
 			return db.User{}, err // Handle error properly
 		}
-		go4users.Set(token, user)
+		Go4users.Set(token, user)
 		return user, nil
 	}
 
@@ -92,7 +93,7 @@ func getUserByToken(token string, queries *db.Queries) (result db.User, err erro
 		}
 	}()
 
-	cached_result, found := go4users.Get(token)
+	cached_result, found := Go4users.Get(token)
 
 	if found {
 		result, ok := cached_result.(db.User)
@@ -107,7 +108,7 @@ func getUserByToken(token string, queries *db.Queries) (result db.User, err erro
 	return result, err
 }
 
-func getPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
+func GetPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
 
 	getFromDB := func(id uuid.UUID, queries *db.Queries) ([]string, error) {
 		perms, err := queries.GetPermissionsByUserId(context.Background(), id)
@@ -118,7 +119,7 @@ func getPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 		for _, perm := range perms {
 			permissions = append(permissions, perm.Name)
 		}
-		go4permissions.Set(id.String(), permissions)
+		Go4permissions.Set(id.String(), permissions)
 		return permissions, nil
 	}
 
@@ -128,7 +129,7 @@ func getPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 		}
 	}()
 
-	cachedResult, found := go4permissions.Get(id.String())
+	cachedResult, found := Go4permissions.Get(id.String())
 	if found {
 		return cachedResult, nil
 	}
@@ -136,7 +137,7 @@ func getPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 	return result, err
 }
 
-func getGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
+func GetGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
 
 	getFromDB := func(id uuid.UUID, queries *db.Queries) ([]string, error) {
 		groups, err := queries.GetGroupsByUserId(context.Background(), id)
@@ -147,7 +148,7 @@ func getGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err er
 		for _, group := range groups {
 			groupNames = append(groupNames, group.Name)
 		}
-		go4groups.Set(id.String(), groupNames)
+		Go4groups.Set(id.String(), groupNames)
 		return groupNames, nil
 	}
 
@@ -157,7 +158,7 @@ func getGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err er
 		}
 	}()
 
-	cachedResult, found := go4groups.Get(id.String())
+	cachedResult, found := Go4groups.Get(id.String())
 	if found {
 		return cachedResult, nil
 

@@ -10,7 +10,8 @@ const config = {
         primary: 'rgba(0, 0, 0, 1)',
         secondary: 'rgba(112, 112, 112, <alpha-value>)',
         tertiary: 'rgba(215, 215, 215, <alpha-value>)',
-        pink:'#aa0069'
+        pink:'#aa0069',
+        secondheader: '#2c3e50',
         
       },
       backgroundColor: {

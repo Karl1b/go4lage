@@ -106,8 +106,6 @@ p {
   margin: 0 10px;
 }
 
-
-
 /* Footer */
 footer {
   background-color: var(--secondary-color);
@@ -135,9 +133,7 @@ footer {
 }
 .prerequisite-summary:hover {
   cursor: pointer;
-
   background-color: #e0e0e078;
- 
 }
 
 

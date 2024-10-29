@@ -1,20 +1,22 @@
-package go4lage
+package utils
 
 import (
 	"log"
 	"net/http"
 	"strings"
+
+	settings "github.com/karl1b/go4lage/pkg/settings"
 )
 
 var rootFiles map[string][]byte
 
 func init() {
 	rootFiles = make(map[string][]byte)
-	FileCacheInit("root", Settings.Baseurl, Settings.Apiurl, Settings.ApiPort, &rootFiles)
+	FileCacheInit("root", settings.Settings.Baseurl, settings.Settings.Apiurl, settings.Settings.ApiPort, &rootFiles)
 
 }
 
-func root(w http.ResponseWriter, r *http.Request) {
+func Root(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		r.URL.Path = "/index.html"
 	}
