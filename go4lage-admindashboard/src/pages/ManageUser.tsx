@@ -95,8 +95,8 @@ export default function ManageUser() {
 
 
     api.editoneuser(userData.token, idValue, updatedUser, setToast)
-    api.editoneuserGroups(userData.token, idValue, groups, setToast)
-    api.editoneuserPermissions(userData.token, idValue, permissions, setToast)
+   // api.editoneuserGroups(userData.token, idValue, groups, setToast)
+   // api.editoneuserPermissions(userData.token, idValue, permissions, setToast)
 
   }
 

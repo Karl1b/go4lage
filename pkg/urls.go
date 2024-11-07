@@ -53,17 +53,18 @@ func StartServer() {
 	r.With(app.DatabaseLogger).Get("/imprint", utils.Root)
 	r.With(app.DatabaseLogger).Get("/geminicv", utils.Root)
 
-	r.Get("/*", utils.Root) // * for statics
+	// * for statics, serves the root folder content
+	r.Get("/*", utils.Root)
 
 	r.Post("/adminapi/login", adminApp.Login)
-
 	r.Get("/adminapi/dashboardinfo", adminApp.Dashboardinfo)
 
 	r.With(app.AuthMiddleware("", "")).Get("/adminapi/logout", adminApp.Logout)
 
 	// Admin dashboard endpoints
 	r.Route("/adminapi", func(r chi.Router) {
-		r.Use(app.AuthMiddleware("staff", "")) // In this example every user that is active and has the group "staff" can use the endpoint. And superusers of course.
+		// In this example every user that is active and has the group "staff" can use the endpoint. And superusers of course.
+		r.Use(app.AuthMiddleware("staff", ""))
 
 		r.Get("/allusers", adminApp.Allusers)
 		r.Get("/oneuser", adminApp.Oneuser)

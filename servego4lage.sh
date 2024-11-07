@@ -12,6 +12,6 @@ sqlc generate
 cd - || exit
 
 go build -o go4lage
-./go4lage rungoose up
-./go4lage setupgp
+./go4lage rungoose up # Runs mmigrations
+./go4lage setupgp # Adds your groups and permissions
 ./go4lage startserver

@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 	"time"
 
@@ -130,6 +131,7 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
+	userid := r.Header.Get("Id")
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -173,7 +175,6 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid := r.Header.Get("Id")
 	useriduuid, err := uuid.Parse(userid)
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -237,6 +238,80 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		updateParams.Username = reqBody.Username
 	}
 
+	allgroups, err := app.Queries.GetGroups(context.Background())
+	if err != nil {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
+			Detail: "Error hashing password",
+			Error:  err.Error(),
+		})
+	}
+	allpermissions, err := app.Queries.GetPermissions(context.Background())
+	if err != nil {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
+			Detail: "Error hashing password",
+			Error:  err.Error(),
+		})
+	}
+
+	newGroups := strings.Split(reqBody.Groups, "|")
+	newPermissions := strings.Split(reqBody.Permissions, "|")
+
+	oldGroups, _ := cache.GetGroupsByUser(useriduuid, app.Queries)
+
+	oldPurePermissions, err := app.Queries.GetPurePermissionsByUserId(context.Background(), useriduuid)
+	if err != nil {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
+			Detail: "Error hashing password",
+			Error:  err.Error(),
+		})
+	}
+	var oldPurePerms []string
+	for _, op := range oldPurePermissions {
+		oldPurePerms = append(oldPurePerms, op.Name)
+	}
+
+	for _, g := range allgroups {
+		oldHasgroup := slices.Contains(oldGroups, g.Name)
+		if slices.Contains(newGroups, g.Name) {
+			if !oldHasgroup {
+				app.Queries.InsertUserGroupsByName(context.Background(), db.InsertUserGroupsByNameParams{
+					UserID: useriduuid,
+					Name:   g.Name,
+				})
+			}
+		} else {
+			if oldHasgroup {
+				app.Queries.DeleteUserGroupsByName(context.Background(), db.DeleteUserGroupsByNameParams{
+					UserID: useriduuid,
+					Name:   g.Name,
+				})
+			}
+		}
+	}
+
+	for _, p := range allpermissions {
+		oldhasperm := slices.Contains(oldPurePerms, p.Name)
+		if slices.Contains(newPermissions, p.Name) {
+			if !oldhasperm {
+				app.Queries.InsertUserPermissionByName(context.Background(), db.InsertUserPermissionByNameParams{
+					UserID: useriduuid,
+					Name:   p.Name,
+				})
+
+			}
+		} else {
+			if oldhasperm {
+				app.Queries.DeleteUserPermissionByName(
+					context.Background(),
+					db.DeleteUserPermissionByNameParams{
+						UserID: useriduuid,
+						Name:   p.Name,
+					},
+				)
+			}
+		}
+	}
+
 	_, err = app.Queries.UpdateUserByID(context.Background(), updateParams)
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -248,6 +323,8 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cache.Go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
+	cache.Go4groups.Del(userid)
+	cache.Go4permissions.Del(userid)
 
 	allUserCache.SetOrCreate(Responseuser{
 		Username:     updateParams.Username,
@@ -259,8 +336,8 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		Is_superuser: updateParams.IsSuperuser.Bool,
 		Is_active:    updateParams.IsActive.Bool,
 		ID:           olduser.ID.String(),
-		Groups:       "",
-		Permissions:  "",
+		Groups:       strings.Join(newGroups, "|"),
+		Permissions:  strings.Join(newPermissions, "|"),
 	}, *app)
 
 	utils.RespondWithJSON(w, utils.ToastResponse{
@@ -305,6 +382,9 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var groupstring string
+	var groups []string
+
 	for _, g := range reqBody {
 		if g.Checked {
 			_, err = app.Queries.InsertUserGroupsByName(context.Background(), db.InsertUserGroupsByNameParams{
@@ -312,7 +392,7 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 				Name:   g.Name,
 			})
 			if err != nil {
-
+				groups = append(groups, g.Name)
 				continue
 			}
 		} else {
@@ -327,6 +407,8 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	groupstring = strings.Join(groups, "|")
+
 	user, err := app.Queries.SelectUserById(context.Background(), useriduuid)
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -335,6 +417,8 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+
+	permissions, _ := cache.GetPermissionsByUser(user.ID, app.Queries)
 
 	allUserCache.SetOrCreate(Responseuser{
 		Username:     user.Username,
@@ -346,8 +430,8 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		Is_superuser: user.IsSuperuser.Bool,
 		Is_active:    user.IsActive.Bool,
 		ID:           user.ID.String(),
-		Groups:       "",
-		Permissions:  "",
+		Groups:       groupstring,
+		Permissions:  strings.Join(permissions, "|"),
 	}, *app)
 
 	utils.RespondWithJSON(w, struct{}{})
@@ -444,6 +528,8 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var permissions []string
+
 	for _, p := range reqBody {
 
 		if p.Checked {
@@ -452,6 +538,7 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 				Name:   p.Name,
 			})
 			if err != nil {
+				permissions = append(permissions, p.Name)
 				continue
 			}
 
@@ -465,6 +552,31 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+
+	user, err := app.Queries.SelectUserById(context.Background(), useriduuid)
+	if err != nil {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
+			Detail: "Error select user by ID",
+			Error:  err.Error(),
+		})
+		return
+	}
+
+	groups, _ := cache.GetGroupsByUser(user.ID, app.Queries)
+
+	allUserCache.SetOrCreate(Responseuser{
+		Username:     user.Username,
+		Email:        user.Email,
+		FirstName:    user.FirstName.String,
+		LastName:     user.LastName.String,
+		Created_at:   user.UserCreatedAt.Unix(),
+		Last_login:   user.LastLogin.Time.Unix(),
+		Is_superuser: user.IsSuperuser.Bool,
+		Is_active:    user.IsActive.Bool,
+		ID:           user.ID.String(),
+		Groups:       strings.Join(groups, "|"),
+		Permissions:  strings.Join(permissions, "|"),
+	}, *app)
 
 	utils.RespondWithJSON(w, struct{}{})
 
@@ -743,12 +855,11 @@ func (app *App) CreateBackup(w http.ResponseWriter, _ *http.Request) {
 		})
 		return
 	}
-	utils.RespondWithJSON(w, utils.ErrorResponse{
-		Detail: "Backup Creation requested",
-		Error:  string(output),
+	utils.RespondWithJSON(w, utils.ToastResponse{
+		Header: "Backup sucessfull",
+		Text:   string(output),
 	})
 }
-
 func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
@@ -1057,7 +1168,9 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	for _, g := range groupArray {
 		var dbGroup db.Group
-
+		if g == "" {
+			continue
+		}
 		dbGroup, err = app.Queries.GetGroupByName(context.Background(), g)
 		if err != nil {
 			dbGroup, err = app.Queries.CreateGroup(context.Background(), db.CreateGroupParams{
@@ -1091,6 +1204,9 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	for _, p := range permissionArray {
 		var dbPermission db.Permission
+		if p == "" {
+			continue
+		}
 
 		dbPermission, err = app.Queries.GetPermissionByName(context.Background(), p)
 		if err != nil {
@@ -1227,28 +1343,24 @@ func (app *App) BulkCreateUsers(w http.ResponseWriter, r *http.Request) {
 		username := record[2]
 		first_name := record[3]
 		last_name := record[4]
-		isActive := record[5] == "true"
-		isSuperuser := record[6] == "false"
+		isActive := strings.ToLower(record[5]) == "true" || record[5] == "1"
+		isSuperuser := strings.ToLower(record[6]) == "true" || record[6] == "1"
 		groups := record[7]
 
 		// Create JSON string from CSV row
 		jsonData := fmt.Sprintf(`{"email":"%s", "password":"%s", "username":"%s","first_name":"%s", "last_name":"%s", "is_active":%t, "is_superuser":%t, "groups":"%s"}`,
 			email, password, username, first_name, last_name, isActive, isSuperuser, groups)
 
-		fmt.Println(jsonData)
 		// Convert JSON string to io.Reader
 		jsonDataReader := strings.NewReader(jsonData)
-		fmt.Println(jsonDataReader)
+
 		// Temporarily replace r.Body to simulate a request body containing JSON
 		originalBody := r.Body
 		r.Body = io.NopCloser(jsonDataReader)
 		defer func() { r.Body = originalBody }()
 
-		// Call your existing createoneuser function to create a user
 		app.Createoneuser(w, r)
 
-		// Here, you might want to add some logic to handle the response from createoneuser,
-		// e.g., checking if the user was created successfully before proceeding to the next record.
 	}
 
 	utils.RespondWithJSON(w, utils.ErrorResponse{

@@ -121,56 +121,7 @@ func CreateSuperuser() {
 
 }
 
-// Usefull for testing.
-func CreateFakeUsersOld(a string) {
-
-	count, err := strconv.Atoi(a)
-	if err != nil {
-		panic(err)
-	}
-
-	conn, cleanup := SetUp()
-	defer cleanup()
-	queries := db.New(conn)
-
-	for i := range count {
-
-		email := "fakemail" + strconv.Itoa(i) + "@fake.com"
-		password := strconv.Itoa(i)
-		newpassword, err := HashPassword(password)
-		if err != nil {
-			panic(err)
-		}
-		tfsecret := sql.NullString{String: "", Valid: true}
-
-		name := "Fakeuser" + strconv.Itoa(i)
-		newToken, err := GenerateTokenHex(32)
-		if err != nil {
-			return
-		}
-		id := uuid.New()
-		_, err = queries.CreateUser(context.Background(), db.CreateUserParams{
-			ID:              id,
-			Token:           sql.NullString{String: newToken, Valid: true},
-			Email:           email,
-			Password:        newpassword,
-			IsSuperuser:     sql.NullBool{Bool: false, Valid: true},
-			Twofactorsecret: tfsecret,
-			Username:        email,
-			IsActive:        sql.NullBool{Bool: true, Valid: true},
-			FirstName:       sql.NullString{String: name, Valid: true},
-			LastName:        sql.NullString{String: name, Valid: true},
-		})
-		if err != nil {
-
-			continue
-
-		}
-
-	}
-
-}
-
+// Creates a lot Fake users for testing
 func CreateFakeUsers(a string) {
 	count, err := strconv.Atoi(a)
 	if err != nil {
@@ -274,7 +225,7 @@ func worker(id int, jobs <-chan int, wg *sync.WaitGroup, queries *db.Queries) {
 
 /*
 This does setup your groups and permissions, so that you do not have to enter the admin dashboard.
-It is purely additive. It will not delete anything.
+It is purely additive. It will not delete anything. Use this to make sure that your permissions are added to the database.
 */
 func SetupGroupsAndPermissions() {
 	conn, cleanup := SetUp()

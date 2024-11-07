@@ -1,7 +1,8 @@
 import { useRef } from 'react';
 
 
-
+// This is only to prevent the autocomplete bug on modern browsers:
+// Chrome and FF will always autofill password field despite autocomplete set to off.
 const MaskedInput = ({password,setPassword}:{password: string, setPassword: (password: string) => void}) => {
  
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,9 +31,9 @@ const MaskedInput = ({password,setPassword}:{password: string, setPassword: (pas
     <div className="relative mb-4">
       <input
         ref={inputRef}
-        type="search"
+        type="text"
         autoCapitalize="off"
-        autoComplete="off"
+        autoComplete="off" 
         autoCorrect="off"
         value={'•'.repeat(password.length)}
         onChange={handleChange}

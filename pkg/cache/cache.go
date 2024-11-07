@@ -61,6 +61,12 @@ func init() {
 
 }
 
+/*
+Those are the cache functions.
+1) Those functions below are the only functions that update the global cache by reading from db if needed.
+2) Other functions do not update the cache. Instead they delete the entry or null the complete cache.
+*/
+
 // This does empty groups and permissions
 // Seldomly called it is okay to have this like this
 func NullGroupsAndPermissions() {
@@ -68,11 +74,6 @@ func NullGroupsAndPermissions() {
 	Go4groups.Flush()
 }
 
-/*
-Those are the cache functions.
-1) Those functions below are the only functions that update the global cache by reading from db if needed.
-2) Other functions do not update the cache. Instead they delete the entry or null the complete cache.
-*/
 func GetUserByToken(token string, queries *db.Queries) (result db.User, err error) {
 	if token == "" {
 		return db.User{}, errors.New("token may not be blank")

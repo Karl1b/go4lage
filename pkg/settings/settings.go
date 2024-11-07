@@ -14,7 +14,6 @@ func init() {
 	if err != nil {
 		fmt.Printf("Error: %v.", err)
 	}
-	//fmt.Println(Settings)
 }
 
 type Go4lageSettings struct {

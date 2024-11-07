@@ -5,6 +5,8 @@ import { Group, Permission, UserDetails } from '../util/types'
 
 import GPcard from '../components/GPcard'
 import Button from '../stylecomponents/Button'
+import { GroupText } from '../components/GroupText'
+import { FaInfoCircle } from 'react-icons/fa'
 
 export default function GroupsPermissions() {
   const { userData, setToast } = useContext(MainContext)
@@ -14,6 +16,8 @@ export default function GroupsPermissions() {
 
   const [newGroupName, setNewGroupName] = useState<string>('')
   const [newPermissionName, setNewPermissionName] = useState<string>('')
+
+  const [showGroupInfo, setShowGroupInfo] = useState(false)
 
   async function getGroups(userData: UserDetails) {
     const res = await api.getGroups(userData.token)
@@ -46,7 +50,18 @@ export default function GroupsPermissions() {
 
   return (
     <>
-      <h1 className="p-2 text-center">Groups</h1>
+   
+      <div className="flex justify-center items-center">
+            <h2 className="mb-4 text-center">Groups</h2>{' '}
+            <FaInfoCircle
+              className="w-7 h-7 text-secondheader cursor-pointer"
+              onClick={() => {
+                setShowGroupInfo(!showGroupInfo)
+              }}
+            />
+          </div>
+
+      {showGroupInfo && <GroupText />}
 
       <div className="flex justify-center mb-5">
         {groups?.map((group: Group) => {
@@ -54,7 +69,7 @@ export default function GroupsPermissions() {
         })}
       </div>
 
-      <h1 className=" m-6 text-center">Permissions</h1>
+      <h2 className=" m-6 text-center">Permissions</h2>
 
       <div className="flex justify-center">
         {permissions?.map((permission: Permission) => {
@@ -67,7 +82,7 @@ export default function GroupsPermissions() {
       <div className="flex justify-center">
         <div className="m-2">
           <div className="flex justify-center">
-            <h1 className=" m-6 text-center">Create new group</h1>
+            <h2 className=" m-6 text-center">Create new group</h2>
           </div>
 
           <div className="flex justify-center">
@@ -95,7 +110,7 @@ export default function GroupsPermissions() {
         <div>
           <div className="m-2">
             <div className="flex justify-center">
-              <h1 className="m-6 text-center">Create new permission</h1>
+              <h2 className="m-6 text-center">Create new permission</h2>
             </div>
 
             <div className="flex justify-center">

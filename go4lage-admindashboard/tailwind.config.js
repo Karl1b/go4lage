@@ -12,15 +12,18 @@ const config = {
         tertiary: 'rgba(215, 215, 215, <alpha-value>)',
         pink:'#aa0069',
         secondheader: '#2c3e50',
+        header:'#3b93d',
         
       },
       backgroundColor: {
         primary: '#073fb9',
-        secondary: '#8d8d8d', // '#6d6d6d',
-        section: '#adadad',
+        secondary: '#8e8e8e', // '#6d6d6d',
+        section: '#f4f4f4',
+        light:'#bdbdbd',
         highlight: 'rgba(240,230 , 190, <alpha-value>)',
         pink:'#aa0069',
-        darkblue:'#28527a'
+        darkblue:'#28527a',
+        header:'#3b93d1',
       },
       backgroundImage: {
         'gradient-custom': 'linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965)',

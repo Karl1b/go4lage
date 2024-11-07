@@ -11,7 +11,7 @@ export default function Header() {
   const navigate = useNavigate()
 
   return (
-    <header className="sticky-top-0 bg-gradient-custom flex justify-center text-slate-100">
+    <header className="sticky-top-0 bg-header flex justify-center text-slate-100">
       <div className="hidden md:flex flex-col ">
         <div className="flex justify-around items-center w-screen">
           <Logo />
@@ -21,7 +21,7 @@ export default function Header() {
               navigate('/')
             }}
           >
-            <h1>Admin Dashboard</h1>
+            <h1 className='header-title'>Admin dashboard</h1>
           </div>
 
           <Logout />

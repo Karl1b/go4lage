@@ -3,7 +3,8 @@ import api from '../util/api'
 import { useNavigate } from 'react-router-dom'
 import { MainContext } from '../App'
 import Button from '../stylecomponents/Button'
-
+import logo from '../assets/go4lage-logo-plain.svg'
+import goopher from '../assets/goopher.svg'
 export default function Login() {
   const { setUserData, setToast } = useContext(MainContext)
   const navigate = useNavigate()
@@ -52,8 +53,15 @@ export default function Login() {
   return (
     <>
       <div className="min-h-screen flex items-center justify-center bg-secondary">
-        <div className="bg-section p-8 rounded-lg shadow-lg w-full max-w-md">
-          <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+        <div className="bg-section p-8 rounded-lg shadow-lg w-full max-w-lg">
+         
+          <div className="m-5 flex items-center ">
+            <img src={logo} width="75px" />
+         
+            <img src={goopher} width="75px" />
+
+          <h1 className="text-2xl font-bold mb-6 text-center">Admin dashboard</h1>
+          </div>
           <form onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">

@@ -64,10 +64,10 @@ export default function AccessLogs() {
       geminicvLogPromise,
     ])
 
-    console.log(indexLogPromise)
+    /*     console.log(indexLogPromise)
     console.log(imprintLogPromise)
     console.log(geminicvLogPromise)
-
+ */
     // Merge logs by matching dates
     const mergedLogs = indexLogsRes?.map((indexLog) => {
       const imprintLog = imprintLogsRes?.find(
@@ -118,17 +118,38 @@ export default function AccessLogs() {
     }
   }, [userData, getLogs])
 
+
+  const chartWidth = Math.max(800, (chartData.labels?.length || 0) * 50)
+
   return (
     <>
       <h2 className="text-xl font-bold">Logs Timeline</h2>
-      <p>
+      <p className='mb-5'>
         This is the daily total count of index hits versus the daily total
         counts of imprint hits and geminicv hits. It gives an approximation of
-        how many people are actually interested in the creator of the project.
+        how many people are actually interested in the imprint and the example project GeminiCV.
       </p>
-      <div className="flex justify-center">
-        <Line data={chartData} />
+      <div className="flex justify-center overflow-x-auto mt-5">
+        <div style={{ width: `${chartWidth}px` }}>
+          <Line 
+            data={chartData}
+            options={{
+              responsive: true,
+              maintainAspectRatio: true,
+              scales: {
+                x: {
+                  ticks: {
+                    maxRotation: 45,
+                    minRotation: 45
+                  }
+                }
+              }
+            }}
+          />
+        </div>
       </div>
+
+ 
     </>
   )
 }
