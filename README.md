@@ -10,15 +10,15 @@
 
 ## Philosophy
 
-    Go4lage is highly optimized for lazy devs and embraces clean strucutre philosophy. 
-    Thus it is simply serving it's own documentation:
+    Go4lage is highly optimized for lazy devs and embraces clean structure philosophy. 
+    Thus it is simply serving its own documentation:
 
-    [https://go4lage.com/](https://go4lage.com)
+    [Go4lage](https://go4lage.com)
 
 ## Setup
 
     The setup takes 5-15 minutes at maximum and can be found here:
 
-    [https://go4lage.com/setup](https://go4lage.com/setup)
+    [Go4lage setup](https://go4lage.com/setup)
 
 
