@@ -1,0 +1,19 @@
+services:
+  db:
+    ports:
+      - "${DB_PORT}:5432" # Open db Port for native binary
+
+# Infuse dev volumes
+volumes:
+  postgres_data:
+    name: ${APP_NAME}_postgres_data_dev
+  data:
+    name: ${APP_NAME}_app_data_dev
+  data_backup:
+    name: ${APP_NAME}_app_backup_dev
+
+# Infuse dev network
+networks:
+  app_network_dev:
+    name: ${APP_NAME}_network_dev
+    driver: bridge    

@@ -1,240 +1,211 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Go4lage - Free and Open Source Web Framework in Go</title>
-    <meta
-      name="description"
-      content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications."
-    />
-    <meta
-      name="keywords"
-      content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/setup.css" />
-    <link rel="canonical" href="https://go4lage.com/setup" />
-  </head>
-  <body>
-    {%comps/header.html%}
 
-    <main class="container">
-      <section id="setup">
-        <h2>Setup</h2>
-        <hr>
-        <p>Go4lage comes as native go app that is recommend for development,
-           and as a docker-compose package, that is supposed to be your production setup. Of course you can also test your production setup locally.</p>
-        <p>Choose your preferred setup method below:</p>
-      </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Go4lage - Free and Open Source Web Framework in Go</title>
+  <meta name="description"
+    content="Go4lage is a free and open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications." />
+  <meta name="keywords"
+    content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/setup.css" />
+  <link rel="canonical" href="https://go4lage.com/setup" />
+</head>
 
-      <section id="native-setup">
-        <h3>All Native for Development</h3>
-        <hr />
-        <h4>Prerequisites</h4>
-        <p>These are the prerequisites for native, heavy development:</p>
-        <div class="prerequisites">
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-git"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-git" class="prerequisite-summary">Git</label>
-            <div class="prerequisite-content">
-              <p>Install Git using the following command:</p>
-              <pre><code>$ apt install git -y</code></pre>
-            </div>
+<body>
+  {%comps/header.html%}
+
+
+  <main class="container">
+    <section id="setup">
+      <h2>Setup</h2>
+      <hr>
+      <p>Go4lage is designed to run with Docker Compose, simplifying both development and production environments.</p>
+      <p>For development, we recommend using a native binary with Docker Compose for database management. This way you
+        do not need to setup a native database on your system.</p>
+      <p>For testing on your local machine, you can run everything through Docker Compose.</p>
+      <p>For production deployment on your server, use the full Docker Compose configuration.</p>
+      <p>Select your preferred setup method below:</p>
+    </section>
+
+
+    <section id="native-setup">
+      <h3>Native Go binary for Development</h3>
+      <hr />
+      <h4>Prerequisites</h4>
+      <p>These are the prerequisites for native, heavy development:</p>
+      <div class="prerequisites">
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-git" class="prerequisite-checkbox" />
+          <label for="prereq-git" class="prerequisite-summary">Git</label>
+          <div class="prerequisite-content">
+            <p>Install Git using the following command:</p>
+            <pre><code>$ apt install git -y</code></pre>
           </div>
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-go"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-go" class="prerequisite-summary">Go</label>
-            <div class="prerequisite-content">
-              <p>Install Go by following the instructions at:</p>
-              <a href="https://go.dev/doc/install" target="_blank"
-                >https://go.dev/doc/install</a
-              >
-            </div>
+        </div>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-go" class="prerequisite-checkbox" />
+          <label for="prereq-go" class="prerequisite-summary">Go</label>
+          <div class="prerequisite-content">
+            <p>Install Go by following the instructions at:</p>
+            <a href="https://go.dev/doc/install" target="_blank">https://go.dev/doc/install</a>
           </div>
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-sqlc"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-sqlc" class="prerequisite-summary">SQLC</label>
-            <div class="prerequisite-content">
-              <p>Install SQLC using the following command:</p>
-              <pre><code>$ go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.16.0</code></pre>
-            </div>
+        </div>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-sqlc" class="prerequisite-checkbox" />
+          <label for="prereq-sqlc" class="prerequisite-summary">SQLC</label>
+          <div class="prerequisite-content">
+            <p>Install SQLC using the following command:</p>
+            <pre><code>$ go install github.com/kyleconroy/sqlc/cmd/sqlc@v1.16.0</code></pre>
           </div>
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-postgresql"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-postgresql" class="prerequisite-summary"
-              >PostgreSQL</label
-            >
-            <div class="prerequisite-content">
-              <p>Install and set up PostgreSQL using the following commands:</p>
-              <pre><code>$ apt install postgresql postgresql-contrib -y
-      $ service postgresql start
-      $ su - postgres
-      $ createuser --interactive --pwprompt go4lage
-      $ createdb go4lage
-      $ psql -c "GRANT ALL PRIVILEGES ON DATABASE go4lage TO go4lage;"
-      $ exit</code></pre>
-            </div>
+        </div>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-docker" class="prerequisite-checkbox" />
+          <label for="prereq-docker" class="prerequisite-summary">Docker</label>
+          <div class="prerequisite-content">
+            <p>Install Docker by following the instructions at:</p>
+            <a href="https://www.docker.com/" target="_blank">https://www.docker.com/</a>
+          </div>
+        </div>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-docker-compose" class="prerequisite-checkbox" />
+          <label for="prereq-docker-compose" class="prerequisite-summary">Docker Compose</label>
+          <div class="prerequisite-content">
+            <p>Install Docker Compose by following the instructions at:</p>
+            <a href="https://docs.docker.com/compose/install/"
+              target="_blank">https://docs.docker.com/compose/install/</a>
           </div>
         </div>
 
-        <div class="setup-instructions">
-          <div class="steps">
-            <h4>Setup Steps</h4>
-            <ol>
-              <li>Clone this repo.</li>
-              <li>
-                Navigate to the SQL package and generate SQL Queries with sqlc.
-              </li>
-              <li>Copy the native environment settings to the .env file.</li>
-              <li>Adjust the .env file to your needs.</li>
-              <li>Set up the PostgreSQL database and user.</li>
-              <li>Build the application.</li>
-              <li>Migrate your database.</li>
-              <li>Create your superuser.</li>
-              <li>Start the server.</li>
-              <li>Visit the documentation at http://localhost:8080/</li>
-              <li>Visit the admin dashboard at http://localhost:8080/admin</li>
-            </ol>
-          </div>
-          <div class="code-snippet">
-            <h4>Quick Setup Script</h4>
-            <pre><code>#!/bin/bash
+      </div>
+
+      <div class="setup-instructions">
+        <div class="steps">
+          <h4>Setup Steps</h4>
+          <ol>
+            <li>Clone this repo.</li>
+            <li>
+              Navigate to the SQL package and generate SQL Queries with sqlc.
+            </li>
+            <li>Copy the native environment settings to the .env file.</li>
+            <li>Adjust the .env file to your needs.</li>
+            <li>Build the application.</li>
+            <li>Make the dev script executable</li>
+            <li>Start the db inside docker with a port open for the native binary</li>
+            <li>Migrate your database.</li>
+            <li>Create your superuser.</li>
+            <li>Start the server.</li>
+            <li>Visit the documentation at http://localhost:8080/</li>
+            <li>Visit the admin dashboard at http://localhost:8080/admin</li>
+          </ol>
+        </div>
+        <div class="code-snippet">
+          <h4>Quick Setup Script</h4>
+          <pre><code>#!/bin/bash
 git clone https://github.com/Karl1b/go4lage.git
 cd go4lage/pkg/sql
 sqlc generate
 cd ../..
 cp nativeenv.env .env
-go build 
+go build
+sudo chmod +x dev.sh
+./dev.sh up -d
 ./go4lage rungoose up
 ./go4lage createsuperuser
 ./go4lage startserver</code></pre>
+        </div>
+      </div>
+
+      <p>
+        Congratulations, you've set up a native high-performance web service
+        in less than 5 minutes 😊.
+      </p>
+      <p>
+        We recommend using the same database for production and development.
+        With go4lage, it's really simple to do. You can use
+        <code>./go4lage rungoose down</code> to roll back one migration at a
+        time(!) and up vice versa for all migrations. There's no need for a
+        development-only SQLite database that you delete and recreate over and
+        over.
+      </p>
+    </section>
+
+    <section id="docker-setup">
+      <h3>Variant with Docker (Compose) for Production</h3>
+      <hr />
+      <h4>Prerequisites</h4>
+      <p>These are the prerequisites for your Docker or production setup:</p>
+      <div class="prerequisites">
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-git-docker" class="prerequisite-checkbox" />
+          <label for="prereq-git-docker" class="prerequisite-summary">Git (optional)</label>
+          <div class="prerequisite-content">
+            <p>Install Git using the following command:</p>
+            <pre><code>$ apt install git -y</code></pre>
+            <p>
+              Note: Git is optional. You need a way to copy the files to your
+              server, whether you use git, ssh copy, or rsync.
+            </p>
           </div>
         </div>
-
-        <p>
-          Congratulations, you've set up a native high-performance web service
-          in less than 5 minutes 😊.
-        </p>
-        <p>
-          We recommend using the same database for production and development.
-          With go4lage, it's really simple to do. You can use
-          <code>./go4lage rungoose down</code> to roll back one migration at a
-          time(!) and up vice versa for all migrations. There's no need for a
-          development-only SQLite database that you delete and recreate over and
-          over.
-        </p>
-      </section>
-
-      <section id="docker-setup">
-        <h3>Variant with Docker (Compose) for Production</h3>
-        <hr />
-        <h4>Prerequisites</h4>
-        <p>These are the prerequisites for your Docker or production setup:</p>
-        <div class="prerequisites">
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-git-docker"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-git-docker" class="prerequisite-summary"
-              >Git (optional)</label
-            >
-            <div class="prerequisite-content">
-              <p>Install Git using the following command:</p>
-              <pre><code>$ apt install git -y</code></pre>
-              <p>
-                Note: Git is optional. You need a way to copy the files to your
-                server, whether you use git, ssh copy, or rsync.
-              </p>
-            </div>
-          </div>
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-docker"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-docker" class="prerequisite-summary"
-              >Docker</label
-            >
-            <div class="prerequisite-content">
-              <p>Install Docker by following the instructions at:</p>
-              <a href="https://www.docker.com/" target="_blank"
-                >https://www.docker.com/</a
-              >
-            </div>
-          </div>
-          <div class="prerequisite">
-            <input
-              type="checkbox"
-              id="prereq-docker-compose"
-              class="prerequisite-checkbox"
-            />
-            <label for="prereq-docker-compose" class="prerequisite-summary"
-              >Docker Compose</label
-            >
-            <div class="prerequisite-content">
-              <p>Install Docker Compose by following the instructions at:</p>
-              <a href="https://docs.docker.com/compose/install/" target="_blank"
-                >https://docs.docker.com/compose/install/</a
-              >
-            </div>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-docker" class="prerequisite-checkbox" />
+          <label for="prereq-docker" class="prerequisite-summary">Docker</label>
+          <div class="prerequisite-content">
+            <p>Install Docker by following the instructions at:</p>
+            <a href="https://www.docker.com/" target="_blank">https://www.docker.com/</a>
           </div>
         </div>
-
-        <div class="setup-instructions">
-          <div class="steps">
-            <h4>Setup Steps</h4>
-            <ol>
-              <li>Clone this repo.</li>
-              <li>Copy the Docker environment settings to the .env file.</li>
-              <li>Adjust the .env file to your needs.</li>
-              <li>Start the Docker Compose network.</li>
-              <li>Hack inside the container and create your superuser.</li>
-              <li>Visit the documentation at http://localhost:8080/</li>
-              <li>Visit the admin dashboard at http://localhost:8080/admin</li>
-            </ol>
+        <div class="prerequisite">
+          <input type="checkbox" id="prereq-docker-compose" class="prerequisite-checkbox" />
+          <label for="prereq-docker-compose" class="prerequisite-summary">Docker Compose</label>
+          <div class="prerequisite-content">
+            <p>Install Docker Compose by following the instructions at:</p>
+            <a href="https://docs.docker.com/compose/install/"
+              target="_blank">https://docs.docker.com/compose/install/</a>
           </div>
-          <div class="code-snippet">
-            <h4>Quick Setup Script</h4>
-            <pre><code>#!/bin/bash
+        </div>
+      </div>
+
+      <div class="setup-instructions">
+        <div class="steps">
+          <h4>Setup Steps</h4>
+          <ol>
+            <li>Clone this repo.</li>
+            <li>Copy the Docker environment settings to the .env file.</li>
+            <li>Adjust the .env file to your needs.</li>
+            <li>Start the Docker Compose network.</li>
+            <li>Hack inside the container and create your superuser.</li>
+            <li>Visit the documentation at http://localhost:8080/</li>
+            <li>Visit the admin dashboard at http://localhost:8080/admin</li>
+          </ol>
+        </div>
+        <div class="code-snippet">
+          <h4>Quick Setup Script</h4>
+          <pre><code>#!/bin/bash
 git clone https://github.com/Karl1b/go4lage.git
 cd go4lage
 cp dockerenv.env .env
 docker-compose up -d
-docker exec -it docu_app /app/go4lage createsuperuser</code></pre>
-          </div>
+docker exec -it docu_app bash
+./go4lage createsuperuser</code></pre>
         </div>
+      </div>
 
-        <p>
-          Congratulations, you've set up a high-performance dockerized web
-          service in less than 2 minutes 😊.
-        </p>
-        <p>
-          We recommend finishing the setup by running a native NGINX instance as
-          the main reverse proxy.
-        </p>
-      </section>
-    </main>
+      <p>
+        Congratulations, you've set up a high-performance dockerized web
+        service in less than 2 minutes 😊.
+      </p>
+      <p>
+        We recommend finishing the setup by running a native NGINX instance as
+        the main reverse proxy.
+      </p>
+    </section>
+  </main>
 
-    {%comps/footer.html%}
-  </body>
+  {%comps/footer.html%}
+</body>
+
 </html>

@@ -1,6 +1,7 @@
 package go4lage
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -102,5 +103,8 @@ func StartServer() {
 		Addr:    ":" + settings.Settings.Port,
 	}
 	log.Printf("runs on: %s", settings.Settings.Port)
-	srv.ListenAndServe()
+	err := srv.ListenAndServe()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
