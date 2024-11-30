@@ -1,4 +1,4 @@
-package go4lage
+package utils
 
 import (
 	"bytes"
@@ -9,15 +9,16 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/google/uuid"
+	settings "github.com/karl1b/go4lage/pkg/settings"
 	"github.com/karl1b/go4lage/pkg/sql/db"
 	_ "github.com/lib/pq"
+	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
 	"github.com/pressly/goose/v3"
-
-	"github.com/karl1b/go4lage/pkg/utils"
-	"github.com/pquerna/otp"
 )
 
 func displayTFASecret(key *otp.Key, data []byte) {
@@ -39,7 +40,7 @@ func CreateSuperuser() {
 	for {
 		fmt.Println("Enter Email:")
 		fmt.Scanln(&email)
-		if utils.IsValidEmail(email) {
+		if IsValidEmail(email) {
 			break
 		}
 		fmt.Println("Enter a valid email")
@@ -54,25 +55,25 @@ func CreateSuperuser() {
 		return
 	}
 
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
-	newToken, err := utils.GenerateTokenHex(32)
+	newToken, err := GenerateTokenHex(32)
 	if err != nil {
 		return
 	}
 
-	newpassword, err := utils.HashPassword(password)
+	newpassword, err := HashPassword(password)
 	if err != nil {
 		panic(err)
 	}
 
 	tfsecret := sql.NullString{String: "", Valid: true}
 
-	if Settings.Superuser2FA {
+	if settings.Settings.Superuser2FA {
 		key, err := totp.Generate(totp.GenerateOpts{
-			Issuer:      Settings.Baseurl,
+			Issuer:      settings.Settings.Baseurl,
 			AccountName: email,
 		})
 		if err != nil {
@@ -120,62 +121,114 @@ func CreateSuperuser() {
 
 }
 
-// Usefull for testing.
+// Creates a lot Fake users for testing
 func CreateFakeUsers(a string) {
-
 	count, err := strconv.Atoi(a)
 	if err != nil {
 		panic(err)
 	}
 
-	conn, cleanup := utils.SetUp()
+	// Number of workers - adjust based on your system capabilities
+	numWorkers := 10
+	if count < numWorkers {
+		numWorkers = count
+	}
+
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
-	for i := range count {
+	// Create a channel to distribute work
+	jobs := make(chan int, count)
+	// Create a WaitGroup to wait for all goroutines to finish
+	var wg sync.WaitGroup
 
-		email := "fakemail" + strconv.Itoa(i) + "@fake.com"
-		password := strconv.Itoa(i)
-		newpassword, err := utils.HashPassword(password)
-		if err != nil {
-			panic(err)
-		}
-		tfsecret := sql.NullString{String: "", Valid: true}
-
-		name := "Fakeuser" + strconv.Itoa(i)
-		newToken, err := utils.GenerateTokenHex(32)
-		if err != nil {
-			return
-		}
-		id := uuid.New()
-		user, err := queries.CreateUser(context.Background(), db.CreateUserParams{
-			ID:              id,
-			Token:           sql.NullString{String: newToken, Valid: true},
-			Email:           email,
-			Password:        newpassword,
-			IsSuperuser:     sql.NullBool{Bool: false, Valid: true},
-			Twofactorsecret: tfsecret,
-			Username:        email,
-			IsActive:        sql.NullBool{Bool: true, Valid: true},
-			FirstName:       sql.NullString{String: name, Valid: true},
-			LastName:        sql.NullString{String: name, Valid: true},
-		})
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		fmt.Println(user)
-
+	// Create worker pool
+	for w := 0; w < numWorkers; w++ {
+		wg.Add(1)
+		go worker(w, jobs, &wg, queries)
 	}
 
+	// Send jobs to workers
+	for i := 0; i < count; i++ {
+		jobs <- i
+	}
+	close(jobs)
+
+	// Wait for all workers to complete
+	wg.Wait()
+}
+
+func createUserWithContext(queries *db.Queries, email, password, name, token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id := uuid.New()
+	_, err := queries.CreateUser(ctx, db.CreateUserParams{
+		ID:          id,
+		Token:       sql.NullString{String: token, Valid: true},
+		Email:       email,
+		Password:    password,
+		IsSuperuser: sql.NullBool{Bool: false, Valid: true},
+		Twofactorsecret: sql.NullString{
+			String: "",
+			Valid:  true,
+		},
+		Username: email,
+		IsActive: sql.NullBool{Bool: true, Valid: true},
+		FirstName: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+		LastName: sql.NullString{
+			String: name,
+			Valid:  true,
+		},
+	})
+	return err
+}
+
+func worker(id int, jobs <-chan int, wg *sync.WaitGroup, queries *db.Queries) {
+	defer wg.Done()
+
+	for i := range jobs {
+		email := "fakemail" + strconv.Itoa(i) + "@fake.com"
+		password := strconv.Itoa(i)
+		newpassword, err := HashPassword(password)
+		if err != nil {
+			log.Printf("Worker %d: Error hashing password: %v", id, err)
+			continue
+		}
+
+		name := "Fakeuser" + strconv.Itoa(i)
+		newToken, err := GenerateTokenHex(32)
+		if err != nil {
+			log.Printf("Worker %d: Error generating token: %v", id, err)
+			continue
+		}
+
+		// Create user with retries
+		maxRetries := 3
+		for retry := 0; retry < maxRetries; retry++ {
+			err = createUserWithContext(queries, email, newpassword, name, newToken)
+			if err == nil {
+				break
+			}
+			if retry == maxRetries-1 {
+				log.Printf("Worker %d: Failed to create user after %d retries: %v", id, maxRetries, err)
+			}
+			// Exponential backoff
+			time.Sleep(time.Duration(retry*retry) * 100 * time.Millisecond)
+		}
+	}
 }
 
 /*
 This does setup your groups and permissions, so that you do not have to enter the admin dashboard.
-It is purely additive. It will not delete anything.
+It is purely additive. It will not delete anything. Use this to make sure that your permissions are added to the database.
 */
 func SetupGroupsAndPermissions() {
-	conn, cleanup := utils.SetUp()
+	conn, cleanup := SetUp()
 	defer cleanup()
 	queries := db.New(conn)
 
@@ -238,7 +291,8 @@ func SetupGroupsAndPermissions() {
 // This runs goose out of go4lage.
 func RunGoose(cmd string) {
 	// Open the DB connection
-	db, err := sql.Open(Settings.GooseDriver, Settings.GooseDbString)
+
+	db, err := sql.Open(settings.Settings.GooseDriver, settings.Settings.GooseDbString)
 	if err != nil {
 		log.Fatal("failed to open DB: ", err)
 	}
@@ -247,7 +301,7 @@ func RunGoose(cmd string) {
 	schemepath := "./pkg/sql/schema"
 
 	// Initialize Goose
-	goose.SetDialect(Settings.GooseDriver)
+	goose.SetDialect(settings.Settings.GooseDriver)
 	// Run the Goose command
 	var confirmation string
 

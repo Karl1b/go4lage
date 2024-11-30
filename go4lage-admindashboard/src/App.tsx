@@ -55,7 +55,7 @@ function App() {
             setToast,
           }}
         >
-          <div className="bg-secondary min-h-screen">
+          <div className="bg-light min-h-screen">
             <Toast />
             {userData.email ? (
               <>

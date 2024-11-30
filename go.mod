@@ -1,8 +1,9 @@
 module github.com/karl1b/go4lage
 
-go 1.22.0
+go 1.23.1
 
 require (
+	github.com/DeanPDX/dotconfig v1.0.0-alpha.2.0.20241002151108-35e06d10a4ac
 	github.com/go-chi/chi v1.5.5
 	github.com/go-chi/cors v1.2.1
 	github.com/google/generative-ai-go v0.16.0

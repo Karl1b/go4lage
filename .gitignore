@@ -24,3 +24,6 @@ go4lage-admindashboard/node_modules
 geminicv-frontend/node_modules
 geminicv-frontend/.vite
 deploy.sh
+docuenv.env
+deployenv.env
+docu.env

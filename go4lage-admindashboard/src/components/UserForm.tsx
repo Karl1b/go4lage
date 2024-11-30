@@ -1,9 +1,12 @@
 import { Group, Permission } from '../util/types'
 import Checkbox from '../components/Checkbox'
 import api from '../util/api'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { MainContext } from '../App'
 import Button from '../stylecomponents/Button'
+import MaskedInput from './MaskedInput'
+import { FaInfoCircle } from 'react-icons/fa'
+import { GroupText } from './GroupText'
 
 interface UserFormProps {
   headText: string
@@ -54,6 +57,9 @@ export default function UserForm({
 }: UserFormProps) {
   const { userData, setToast } = useContext(MainContext)
 
+  const [showGroupInfo, setShowGroupInfo] = useState(false)
+  const [showPermInfo, setShowPermInfo] = useState(false)
+
   function handleGroupChange(index: number, checked: boolean) {
     const newGroups = [...groups]
     newGroups[index].checked = checked
@@ -93,15 +99,7 @@ export default function UserForm({
             <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
               Password
             </label>
-            <div className="relative mb-4">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                placeholder="Password"
-              />
-            </div>
+            <MaskedInput password={password} setPassword={setPassword} />
           </div>
           <div className="col-span-1">
             <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
@@ -163,7 +161,20 @@ export default function UserForm({
           </div>
         </div>
         <div className="relative mb-4">
-          <h2 className="mb-4 text-center">Groups</h2>
+          <div className="flex justify-center items-center">
+            <h2 className="mb-4 text-center">Groups</h2>{' '}
+            <FaInfoCircle
+              className="w-7 h-7 text-secondheader cursor-pointer"
+              onClick={() => {
+                setShowGroupInfo(!showGroupInfo)
+              }}
+            />
+          </div>
+
+          {showGroupInfo && (
+          <GroupText />
+          )}
+
           <div className="flex flex-wrap">
             {groups.map((group, index) => (
               <Checkbox
@@ -176,9 +187,36 @@ export default function UserForm({
           </div>
         </div>
         <div className="relative mb-4">
-          <h2 className="mb-4 text-center">
-            Pure permissions
-          </h2>
+          <div className="flex justify-center items-center">
+            <h2 className="mb-4 text-center">Pure permissions</h2>
+            <FaInfoCircle
+              className="w-7 h-7 text-secondheader cursor-pointer"
+              onClick={() => {
+                setShowPermInfo(!showPermInfo)
+              }}
+            />
+          </div>
+          {showPermInfo && (
+            <div>
+              <p>
+                Pure permissions are individual permissions assigned directly to
+                users, rather than inherited through group membership. While
+                groups are the preferred way to manage permissions, sometimes
+                users need specific access rights without being part of the
+                corresponding group.
+              </p>
+              <p>
+                For example, if most users in the "Marketing" group need access
+                to social media tools, but an IT support person occasionally
+                needs to audit these tools, they can be granted a "pure
+                permission" for social media access without joining the
+                Marketing group. This allows for more flexible and granular
+                access control while keeping your group structure clean and
+                logical.
+              </p>
+            </div>
+          )}
+
           <div className="flex flex-wrap">
             {permissions.map((permission, index) => (
               <Checkbox

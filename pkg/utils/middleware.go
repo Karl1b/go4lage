@@ -1,4 +1,4 @@
-package go4lage
+package utils
 
 import (
 	"context"
@@ -9,8 +9,11 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+
+	cache "github.com/karl1b/go4lage/pkg/cache"
+	settings "github.com/karl1b/go4lage/pkg/settings"
+
 	"github.com/karl1b/go4lage/pkg/sql/db"
-	"github.com/karl1b/go4lage/pkg/utils"
 )
 
 func (app *App) DatabaseLogger(next http.Handler) http.Handler {
@@ -63,6 +66,9 @@ func (app *App) DatabaseLogger(next http.Handler) http.Handler {
 	})
 }
 
+// This makes sure that only logged in users can access the route.
+// If you enter a group or permission only users with one of them will be able to use this route.
+// It adds the user to the context as well.
 func (app *App) AuthMiddleware(group string, permission string) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -72,33 +78,36 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			token := strings.TrimPrefix(authorization, "Token ")
 
 			// Retrieve the user by token
-			user, err := getUserByToken(token, app.Queries)
+			user, err := cache.GetUserByToken(token, app.Queries)
 			if err != nil {
-				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+				RespondWithJSON(w, ErrorResponse{
 					Detail: "Error Getting User By Token",
 					Error:  err.Error(),
 				})
 				return
 			}
 
+			// Inactive users are not permitted to user the app. Superusers are always permitted
 			if !user.IsActive.Bool && !user.IsSuperuser.Bool {
-				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+				RespondWithJSON(w, ErrorResponse{
 					Detail: "User inactive.",
 					Error:  "user is not active",
 				})
 				return
 			}
 
-			if user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.SuperuserTokenValidMins)*time.Minute).Before(time.Now()) {
-				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+			// Superusers have a a different timeout setting
+			if user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(settings.Settings.SuperuserTokenValidMins)*time.Minute).Before(time.Now()) {
+				RespondWithJSON(w, ErrorResponse{
 					Detail: "Login again.",
 					Error:  "token outdated",
 				})
 				return
 			}
 
-			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
-				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+			// User token timeout check
+			if !user.IsSuperuser.Bool && user.TokenCreatedAt.Time.Add(time.Duration(settings.Settings.UserTokenValidMins)*time.Minute).Before(time.Now()) {
+				RespondWithJSON(w, ErrorResponse{
 					Detail: "Login again.",
 					Error:  "token outdated",
 				})
@@ -110,7 +119,7 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			if permission != "" {
 				hasPermission, err = userHasPermission(user, permission, app.Queries)
 				if err != nil {
-					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+					RespondWithJSON(w, ErrorResponse{
 						Detail: "Error getting permissions for user",
 						Error:  err.Error(),
 					})
@@ -123,37 +132,38 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 
 				hasGroup, err = userHasGroup(user, group, app.Queries)
 				if err != nil {
-					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+					RespondWithJSON(w, ErrorResponse{
 						Detail: "Error getting group for user",
 						Error:  err.Error(),
 					})
 					return
 				}
 			}
+			if !(hasPermission || hasGroup) && !(group == "" && permission == "") {
 
-			if !(hasPermission || hasGroup || (group == "" && permission == "")) {
-				app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+				RespondWithJSON(w, ErrorResponse{
 					Detail: "You do not have the permission or are not in the correct group to do this",
 					Error:  "permission check failed",
 				})
 				return
 			}
 
-			if user.LastLogin.Time.Add(time.Duration(Settings.UserLoginTrackingTimeMins) * time.Minute).Before(time.Now()) {
+			if user.LastLogin.Time.Add(time.Duration(settings.Settings.UserLoginTrackingTimeMins) * time.Minute).Before(time.Now()) {
 				_, err = app.Queries.UpdateLastLoginByID(context.Background(), user.ID)
 				if err != nil {
-					app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+					RespondWithJSON(w, ErrorResponse{
 						Detail: "Error updating last login time",
 						Error:  err.Error(),
 					})
 					return
 				}
-				go4users.Del(user.ID.String())
+				cache.Go4users.Del(user.ID.String())
 			}
 
-			ctx := context.WithValue(r.Context(), utils.UserKey{}, user)
-			r = r.WithContext(ctx)
+			// Insert user into the request context for later use
+			ctx := context.WithValue(r.Context(), UserKey{}, user)
 
+			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -163,7 +173,7 @@ func userHasPermission(user db.User, requiredPerm string, queries *db.Queries) (
 	if user.IsSuperuser.Bool {
 		return true, nil
 	}
-	perms, err := getPermissionsByUser(user.ID, queries)
+	perms, err := cache.GetPermissionsByUser(user.ID, queries)
 	if err != nil {
 		return false, err
 	}
@@ -180,7 +190,7 @@ func userHasGroup(user db.User, requiredGroup string, queries *db.Queries) (bool
 		return true, nil
 	}
 
-	groups, err := getGroupsByUser(user.ID, queries)
+	groups, err := cache.GetGroupsByUser(user.ID, queries)
 	if err != nil {
 		return false, err
 	}

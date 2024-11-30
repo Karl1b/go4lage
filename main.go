@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	go4lage "github.com/karl1b/go4lage/pkg"
+	utils "github.com/karl1b/go4lage/pkg/utils"
 )
 
 var rootCmd = &cobra.Command{
@@ -42,7 +43,7 @@ var setup = &cobra.Command{
 	Short: "Setup groups and permissions (optional).",
 	Long:  `Setup groups and permissions (optional).`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go4lage.SetupGroupsAndPermissions()
+		utils.SetupGroupsAndPermissions()
 	},
 }
 
@@ -59,7 +60,7 @@ var createSuperuser = &cobra.Command{
 	Short: "Creates a superuser.",
 	Long:  `Creates a superuser.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go4lage.CreateSuperuser()
+		utils.CreateSuperuser()
 	},
 }
 
@@ -68,7 +69,7 @@ var createFakeUsers = &cobra.Command{
 	Short: "Creates fake users.",
 	Long:  `Creates fake user.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go4lage.CreateFakeUsers(args[0])
+		utils.CreateFakeUsers(args[0])
 	},
 }
 
@@ -78,7 +79,7 @@ var rungoose = &cobra.Command{
 	Long: `rungoose runs goose for database migrations:
 	use it with: "up","up-by-one","down","redo","reset","status","version","fix"`,
 	Run: func(cmd *cobra.Command, args []string) {
-		go4lage.RunGoose(args[0])
+		utils.RunGoose(args[0])
 	},
 }
 

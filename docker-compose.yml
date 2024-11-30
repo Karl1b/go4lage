@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   app:
     env_file: ".env"
@@ -16,6 +14,11 @@ services:
     container_name: "${APP_NAME}_app"
     networks:
       - app_network
+    environment:
+      - DB_HOST=db
+      - DB_USER=go4lage
+      - DB_PASSWORD=go4lage
+      - DB_NAME=go4lage
     restart: unless-stopped
 
   db:
@@ -38,9 +41,13 @@ services:
 
 volumes:
   postgres_data:
+    name: ${APP_NAME}_postgres_data
   data:
+    name: ${APP_NAME}_app_data
   data_backup:
+    name: ${APP_NAME}_app_backup
 
 networks:
   app_network:
+    name: ${APP_NAME}_network
     driver: bridge

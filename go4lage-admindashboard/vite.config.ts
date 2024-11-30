@@ -7,5 +7,12 @@ export default defineConfig({
   build: {
     outDir: '../root/admin',
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: 'assets/[name]-admin.js',
+        chunkFileNames: 'assets/[name]-admin.js',
+        assetFileNames: 'assets/[name]-admin.[ext]',
+      },
+    },
   },
 })

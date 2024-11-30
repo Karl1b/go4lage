@@ -221,6 +221,25 @@ class API {
     })
   }
 
+  public async editoneuserPermissions(
+    token: string | null,
+    idValue: string,
+    permissions: Permission[],
+    setToast: (toast: ToastDetails) => void
+  ) {
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/edituserpermissions`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Id: idValue },
+        body: JSON.stringify(permissions),
+      },
+      token: token,
+      toastHeader: 'Edit User',
+      setToast: setToast,
+    })
+  }
+
   public async editoneuser(
     token: string | null,
     idValue: string,

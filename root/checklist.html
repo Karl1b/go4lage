@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Go4lage - Free and Open Source Web Framework in Go</title>
+    <meta name="description" content="Go4lage is a free, open-source web framework developed by Karl Breuer. Ideal for small to medium-sized projects, it offers simplicity, speed, and cost-efficiency. Perfect for backend applications.">
+    <meta name="keywords" content="Go4lage, Go web framework, open-source, free, web development, Docker Compose, self-hosting, small business, medium business, backend, server-side, Karl Breuer">
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/welcome.css" />
+    <link rel="canonical" href="https://go4lage.com/checklist" />
+</head>
+<body>
+    {%comps/header.html%}
+    <main>
+        <section id="welcome" class="container">
+            <h1 class="main-title" style="margin-top: 0.25em;">Checklist</h1>
+            <hr class="divider" />
+            
+            <div class="intro-text">
+                <p>
+                    Check with the list below if you can use Go4Lage for your project:
+                </p>
+            </div>
+
+            {%comps/checklist.html%}
+
+            <div class="cta-section">
+                <p>Ready to elevate your project with Go4lage? Dive into our documentation and start building today!</p>
+                <a href="/setup" class="cta-button">Get Started</a>
+            </div>
+
+            {%comps/github.html%}
+  
+        </section>
+    </main>
+    {%comps/footer.html%}
+</body>
+</html>
