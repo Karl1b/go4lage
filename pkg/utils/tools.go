@@ -103,6 +103,7 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 	// Replaces the Baseurl
 	for path, file := range *cache {
 		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
+			baseUrl = strings.TrimSpace(baseUrl)
 			replacedContent := strings.ReplaceAll(string(file), "{%Baseurl%}", baseUrl)
 			extensions := []string{".png", ".jpg", ".js ", ".css"}
 			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
@@ -113,7 +114,9 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 	// Replaces the Apiurl
 	for path, file := range *cache {
 		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
-			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl+":"+port)
+			apiUrl = strings.TrimSpace(apiUrl)
+
+			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl)
 			extensions := []string{".png", ".jpg", ".js ", ".css"}
 			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
 			(*cache)[path] = []byte(replacedContent)

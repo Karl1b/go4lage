@@ -45,8 +45,66 @@
   
   <p>The result is a performant application with minimal vendor lock-in, and a codebase of roughly 1,000 lines in the backend (excluding prompts, of course).</p>
   
+  <h2>Escaping vendor lock-in</h2>
+
   <p>The only significant dependency is the Gemini AI API, encapsulated in a custom wrapper that allows interchangeability with other LLM APIs, including free options like Ollama. While this might not align with Google's expectations, a development challenge must be open to outcomes that question the value of a specific business model. This approach is not only easier but also avoids many potential bugs.</p>
   
+<pre><code>func callGemini(instruction, prompt string, temp float32) (string, error) {
+  ctx, cancel := context.WithTimeout(context.Background(), time.Duration(Options.Scantimeouts)*time.Second)
+  defer cancel()
+
+  resultChan := make(chan string)
+  errChan := make(chan error)
+
+  client, err := genai.NewClient(ctx, option.WithAPIKey(Options.Key))
+  if err != nil {
+    return "", fmt.Errorf("failed to create client: %v", err)
+  }
+  defer client.Close()
+
+  model := client.GenerativeModel("gemini-1.5-flash")
+  model.SetTemperature(temp)
+  model.SystemInstruction = &genai.Content{
+    Parts: []genai.Part{genai.Text(instruction)},
+  }
+  go func() {
+    resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+    if err != nil {
+      errChan <- fmt.Errorf("failed to generate content: %v", err)
+      return
+    }
+
+    if len(resp.Candidates) == 0 || len(resp.Candidates[0].Content.Parts) == 0 {
+      errChan <- errors.New("no content generated")
+      return
+    }
+
+    text, ok := resp.Candidates[0].Content.Parts[0].(genai.Text)
+    if !ok {
+      errChan <- errors.New("unexpected content type in response")
+      return
+    }
+
+    resultChan <- string(text)
+
+  }()
+  select {
+  case <-ctx.Done():
+    return "", errors.New("operation timed out")
+  case err := <-errChan:
+    return "", err
+  case result := <-resultChan:
+    return result, nil
+  }
+}</code></pre>
+
+<p>Taking a Promise-like approach that leverages Go's native concurrency features, this wrapper elegantly manages LLM API communication through channels and timeouts - essential patterns for production-grade applications. By treating the LLM API as a simple text-in-text-out service with Promise-style asynchronous handling, we create a clean abstraction that's both powerful and portable. 
+</p>
+<p>
+  The beauty lies in its ability to handle complex async operations with proper error boundaries and timeouts, while maintaining the flexibility to adapt to any AI provider's API with minimal changes.
+
+</p>
+
   <h2>Watch the Video</h2>
   <p>The competition required a video submission on YouTube. As a developer and not a video creator, the result may not be a masterpiece, but it gets the job done. <a href="https://www.youtube.com/watch?v=jHNNeVSqJMI" target="_blank" rel="noopener noreferrer">Watch GeminiCV on YouTube</a>.</p>
   

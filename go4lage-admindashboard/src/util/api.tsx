@@ -69,7 +69,6 @@ class API {
 
     const contentType = response.headers.get('content-type')
     if (contentType && contentType.includes('application/json')) {
-      
       const responseJson = await response.json()
 
       if (responseJson == null) {
@@ -84,7 +83,6 @@ class API {
         return
       }
 
-      
       if (responseJson?.error && setToast) {
         setToast({
           show: true,
@@ -287,7 +285,10 @@ class API {
     return response
   }
 
-  public async getLogs(token: string | null, uri: string): Promise<Log[] | null> {
+  public async getLogs(
+    token: string | null,
+    uri: string
+  ): Promise<Log[] | null> {
     const response = await this.fetchWithToken({
       url: `${this.apiUrl}/getlogs${uri}`,
       options: {
