@@ -9,9 +9,7 @@ require (
 	github.com/google/generative-ai-go v0.16.0
 	github.com/google/uuid v1.6.0
 	github.com/heussd/pdftotext-go v0.0.0-20240305185622-aacf40f2d1e2
-	github.com/joho/godotenv v1.5.1
 	github.com/ledongthuc/pdf v0.0.0-20240201131950-da5b75280b06
-	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pressly/goose/v3 v3.19.2
 	github.com/spf13/cobra v1.8.0
 	google.golang.org/api v0.188.0

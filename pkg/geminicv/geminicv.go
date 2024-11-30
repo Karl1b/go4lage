@@ -13,75 +13,53 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/google/generative-ai-go/genai"
 	"github.com/google/uuid"
-	"github.com/joho/godotenv"
 	db "github.com/karl1b/go4lage/pkg/sql/db"
 
+	"github.com/DeanPDX/dotconfig"
+	"github.com/heussd/pdftotext-go"
 	utils "github.com/karl1b/go4lage/pkg/utils"
 	"github.com/ledongthuc/pdf"
 	_ "github.com/lib/pq"
 	"google.golang.org/api/option"
-
-	"github.com/heussd/pdftotext-go"
 )
 
-type gCVOptions struct {
-	key           string
-	cvrunsperuser int
-	scantimeouts  int
-	savedir       string
-}
+var Options GCVOptions
 
-var options gCVOptions
+type GCVOptions struct {
+	Key           string `env:"GEMINIKEY"`
+	Cvrunsperuser int    `env:"CVRUNS_PER_USER"`
+	Scantimeouts  int    `env:"SCAN_TIMEOUT_SECONDS"`
+	Savedir       string `env:"SAVE_DIR"`
+}
 
 func init() {
 
-	godotenv.Load(".env")
-
-	key := os.Getenv("GEMINIKEY")
-	if key == "" {
-		log.Fatal("GEMINIKEY is empty")
-	}
-
-	cvrunsperuser := os.Getenv("CVRUNS_PER_USER")
-	cvrunsperuserInt, err := strconv.Atoi(cvrunsperuser)
+	var err error
+	Options, err = dotconfig.FromFileName[GCVOptions](".env")
 	if err != nil {
-		log.Fatal("Error parsing CVRUNS_PER_USER")
+		fmt.Printf("Error: %v.", err)
 	}
 
-	scantimeouts := os.Getenv("SCAN_TIMEOUT_SECONDS")
-	scantimeoutsInt, err := strconv.Atoi(scantimeouts)
-	if err != nil {
-		log.Fatal("Error parsing SCAN_TIMEOUT_SECONDS")
-	}
-
-	options = gCVOptions{
-		key:           key,
-		cvrunsperuser: cvrunsperuserInt,
-		scantimeouts:  scantimeoutsInt,
-		savedir:       "./data",
-	}
 }
 
 type GeApp struct {
 	Queries *db.Queries
-	Utils   *utils.Go4lageSettings
 }
 
 func (app *GeApp) Test(w http.ResponseWriter, r *http.Request) {
-	app.Utils.RespondWithJSON(w, struct{}{})
+	utils.RespondWithJSON(w, struct{}{})
 }
 
 func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "user not found",
 		})
@@ -91,7 +69,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	cVrunId := r.Header.Get("Id")
 	cvrunuuid, err := uuid.Parse(cVrunId)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error parsing uuid",
 			Error:  err.Error(),
 		})
@@ -100,7 +78,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 
 	cvrun, err := app.Queries.ReadCVrun(context.Background(), cvrunuuid)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error parsing uuid",
 			Error:  err.Error(),
 		})
@@ -113,7 +91,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error is this User owner of the run?",
 			Error:  err.Error(),
 		})
@@ -122,7 +100,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 
 	scans, err := app.Queries.SelectAllCVRunScans(context.Background(), cvrunuuid)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting all runs",
 			Error:  err.Error(),
 		})
@@ -150,7 +128,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	for _, scan := range scans {
 
 		filename := fmt.Sprintf("%s.txt", scan.ID.String()) // Assuming run.ID is the UUID
-		fullPath := filepath.Join(options.savedir, filename)
+		fullPath := filepath.Join(Options.Savedir, filename)
 		textBytes, err := os.ReadFile(fullPath)
 		if err != nil {
 			fmt.Println(err)
@@ -177,7 +155,7 @@ func (app *GeApp) Run(w http.ResponseWriter, r *http.Request) {
 	response.Lang = cvrun.Lang.String
 	response.Permanent = cvrun.Permanent.Bool
 
-	app.Utils.RespondWithJSON(w, response)
+	utils.RespondWithJSON(w, response)
 }
 
 func (app *GeApp) getAllRuns(userId uuid.UUID) (allRunResponse AllRunResponse, err error) {
@@ -203,7 +181,7 @@ func (app *GeApp) getAllRuns(userId uuid.UUID) (allRunResponse AllRunResponse, e
 		return allRunResponse, err
 	}
 	allRunResponse.CurrentRuns = userRuns
-	allRunResponse.MaxRuns = options.cvrunsperuser
+	allRunResponse.MaxRuns = Options.Cvrunsperuser
 	return allRunResponse, nil
 }
 
@@ -222,7 +200,7 @@ func (app *GeApp) Allruns(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "user not found",
 		})
@@ -231,14 +209,14 @@ func (app *GeApp) Allruns(w http.ResponseWriter, r *http.Request) {
 
 	response, err := app.getAllRuns(user.ID)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error to get all runs",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	app.Utils.RespondWithJSON(w, response)
+	utils.RespondWithJSON(w, response)
 }
 
 // workflow
@@ -247,7 +225,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "user not found",
 		})
@@ -256,15 +234,15 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	userRuns, err := app.Queries.CountUserRuns(context.Background(), user.ID)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Count failed",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	if userRuns >= int64(options.cvrunsperuser) {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+	if userRuns >= int64(Options.Cvrunsperuser) {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "too many runs",
 			Error:  "too many runs",
 		})
@@ -273,7 +251,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	if err := r.ParseMultipartForm(20 << 20); err != nil {
 
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "File too big",
 			Error:  "file too big",
 		})
@@ -286,7 +264,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	file, _, err := r.FormFile("upload")
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Invalid file",
 			Error:  "invalid file",
 		})
@@ -299,7 +277,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	fileBytes, err := io.ReadAll(file)
 	if err != nil {
 
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to read file",
 			Error:  "failed to read file",
 		})
@@ -314,7 +292,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 		text, err = pdfToText3(fileBytes)
 		log.Println("Error pdfToText3: ", err)
 		if err != nil {
-			app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+			utils.RespondWithJSON(w, utils.ErrorResponse{
 				Detail: "Failed to parse pdf",
 				Error:  "failed to parse pdf",
 			})
@@ -324,7 +302,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	}
 	text, err = cleanText(text)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Cleaning Text",
 			Error:  err.Error(),
 		})
@@ -353,7 +331,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 		})
 
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to create run",
 			Error:  err.Error(),
 		})
@@ -367,7 +345,7 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 	})
 	if err != nil {
 
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to link user and run",
 			Error:  err.Error(),
 		})
@@ -378,14 +356,14 @@ func (app *GeApp) UploadCV(w http.ResponseWriter, r *http.Request) {
 
 	response, err := app.getAllRuns(user.ID)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "failed to get all CV runs",
 		})
 		return
 	}
 
-	app.Utils.RespondWithJSON(w, response)
+	utils.RespondWithJSON(w, response)
 
 }
 
@@ -393,7 +371,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	user, ok := r.Context().Value(utils.UserKey{}).(db.User)
 	if !ok {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "User not found in context",
 			Error:  "user not found",
 		})
@@ -402,15 +380,15 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	userRuns, err := app.Queries.CountUserRuns(context.Background(), user.ID)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Count failed",
 			Error:  err.Error(),
 		})
 		return
 	}
 
-	if userRuns >= int64(options.cvrunsperuser) {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+	if userRuns >= int64(Options.Cvrunsperuser) {
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "too many runs",
 			Error:  "too many runs",
 		})
@@ -419,7 +397,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Empty body",
 			Error:  "empty body",
 		})
@@ -437,7 +415,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 	var reqBody RequestBody
 	err = json.Unmarshal(body, &reqBody)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Wrong body",
 			Error:  "wrong body",
 		})
@@ -449,7 +427,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	text, err = cleanText(text)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error Cleaning Text",
 			Error:  err.Error(),
 		})
@@ -471,7 +449,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 		Permanent: sql.NullBool{Bool: permanent, Valid: true},
 	})
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to create run",
 			Error:  err.Error(),
 		})
@@ -484,7 +462,7 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 		CvrunID: run.ID,
 	})
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to link user and run",
 			Error:  err.Error(),
 		})
@@ -496,13 +474,13 @@ func (app *GeApp) UploadText(w http.ResponseWriter, r *http.Request) {
 
 	response, err := app.getAllRuns(user.ID)
 	if err != nil {
-		app.Utils.RespondWithJSON(w, utils.ErrorResponse{
+		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting all runs",
 			Error:  err.Error(),
 		})
 		return
 	}
-	app.Utils.RespondWithJSON(w, response)
+	utils.RespondWithJSON(w, response)
 
 }
 
@@ -608,9 +586,19 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 		HourlyFreelanceRateMin: 0,
 		HourlyFreelanceRateAvg: 0,
 	}
+	resp = strings.TrimSpace(resp)
+
 	err = json.Unmarshal([]byte(resp), &geminiResp)
+
 	if err != nil {
-		fmt.Println(err)
+		resp = strings.TrimPrefix(resp, "```json") // This is a fix because Google changed the API to answer with backticks and json often.
+		resp = strings.TrimSuffix(resp, "```")
+		resp = strings.TrimSpace(resp)
+		err = json.Unmarshal([]byte(resp), &geminiResp)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
 	}
 
 	newUUID, err := uuid.NewUUID()
@@ -634,7 +622,7 @@ func cvRunScan(lang string, text string, temp float32, queries *db.Queries, run 
 	}
 
 	filename := fmt.Sprintf("%s.txt", newUUID.String())
-	fullPath := filepath.Join(options.savedir, filename)
+	fullPath := filepath.Join(Options.Savedir, filename)
 	err = os.WriteFile(fullPath, []byte(text), 0644)
 	if err != nil {
 		fmt.Println(err)
@@ -669,14 +657,13 @@ func createImprovement(lang string, text string, temp float32, queries *db.Queri
 }
 
 func callGemini(instruction, prompt string, temp float32) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(options.scantimeouts)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(Options.Scantimeouts)*time.Second)
 	defer cancel()
 
-	done := make(chan bool)
 	resultChan := make(chan string)
 	errChan := make(chan error)
 
-	client, err := genai.NewClient(ctx, option.WithAPIKey(options.key))
+	client, err := genai.NewClient(ctx, option.WithAPIKey(Options.Key))
 	if err != nil {
 		return "", fmt.Errorf("failed to create client: %v", err)
 	}
@@ -706,9 +693,8 @@ func callGemini(instruction, prompt string, temp float32) (string, error) {
 		}
 
 		resultChan <- string(text)
-		done <- true
-	}()
 
+	}()
 	select {
 	case <-ctx.Done():
 		return "", errors.New("operation timed out")

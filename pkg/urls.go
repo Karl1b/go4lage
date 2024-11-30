@@ -17,7 +17,7 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/karl1b/go4lage/pkg/geminicv"
+	geminicv "github.com/karl1b/go4lage/pkg/geminicv"
 )
 
 func StartServer() {
@@ -100,7 +100,6 @@ func StartServer() {
 
 	gcv := geminicv.GeApp{
 		Queries: queries,
-		Utils:   &Settings,
 	}
 
 	r.Route("/geminicv", func(r chi.Router) {
