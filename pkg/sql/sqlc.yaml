@@ -1,9 +1,12 @@
-version: "1"
-packages:
-  - name: "db"
-    path: "db"
-    queries: "queries"
-    schema: "schema"
-    engine: "postgresql"
-    emit_json_tags: true
-    emit_prepared_queries: false
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "queries/"
+    schema: "schema/"
+    gen:
+      go:
+        package: "db"
+        out: "db"
+        sql_package: "pgx/v5"
+        emit_json_tags: true
+        emit_prepared_queries: false

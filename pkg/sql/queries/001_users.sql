@@ -5,8 +5,8 @@ VALUES
 ($1, CURRENT_TIMESTAMP, $2, CURRENT_TIMESTAMP, $3, CURRENT_TIMESTAMP, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING *;
 
--- name: DeleteUserById :exec
-DELETE FROM users WHERE id = $1;
+-- name: DeleteUserById :one
+DELETE FROM users WHERE id = $1 RETURNING *;
 
 -- name: UpdateUserByID :one
 UPDATE users

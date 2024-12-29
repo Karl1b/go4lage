@@ -2,7 +2,6 @@ package admin
 
 import (
 	"context"
-	"database/sql"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -17,6 +16,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	cache "github.com/karl1b/go4lage/pkg/cache"
 	settings "github.com/karl1b/go4lage/pkg/settings"
 
@@ -116,7 +116,7 @@ func (app *App) Login(w http.ResponseWriter, r *http.Request) {
 
 		updatedUser, err := app.Queries.UpdateTokenByID(context.Background(), db.UpdateTokenByIDParams{
 			ID:    user.ID,
-			Token: sql.NullString{String: newToken, Valid: true},
+			Token: pgtype.Text{String: newToken, Valid: true},
 		})
 		if err != nil {
 
@@ -184,7 +184,10 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	olduser, err := app.Queries.SelectUserById(context.Background(), useriduuid)
+	olduser, err := app.Queries.SelectUserById(context.Background(), pgtype.UUID{
+		Bytes: useriduuid,
+		Valid: true,
+	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error getting olduser from db",
@@ -194,9 +197,14 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updateParams := db.UpdateUserByIDParams{
-		ID:          useriduuid,
-		IsActive:    sql.NullBool{Bool: reqBody.IsActive, Valid: true},
-		IsSuperuser: sql.NullBool{Bool: reqBody.IsSuperuser, Valid: true},
+		ID: pgtype.UUID{
+			Bytes: useriduuid,
+			Valid: true,
+		},
+
+		IsActive: pgtype.Bool{Bool: reqBody.IsActive, Valid: true},
+
+		IsSuperuser: pgtype.Bool{Bool: reqBody.IsSuperuser, Valid: true},
 	}
 
 	if reqBody.Email != "" && utils.IsValidEmail(reqBody.Email) {
@@ -222,12 +230,12 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if reqBody.FirstName != "" {
-		updateParams.FirstName = sql.NullString{String: reqBody.FirstName, Valid: true}
+		updateParams.FirstName = pgtype.Text{String: reqBody.FirstName, Valid: true}
 	} else {
 		updateParams.FirstName = olduser.FirstName
 	}
 	if reqBody.LastName != "" {
-		updateParams.LastName = sql.NullString{String: reqBody.LastName, Valid: true}
+		updateParams.LastName = pgtype.Text{String: reqBody.LastName, Valid: true}
 	} else {
 		updateParams.LastName = olduser.LastName
 	}
@@ -256,9 +264,15 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 	newGroups := strings.Split(reqBody.Groups, "|")
 	newPermissions := strings.Split(reqBody.Permissions, "|")
 
-	oldGroups, _ := cache.GetGroupsByUser(useriduuid, app.Queries)
+	oldGroups, _ := cache.GetGroupsByUser(pgtype.UUID{
+		Bytes: useriduuid,
+		Valid: true,
+	}, app.Queries)
 
-	oldPurePermissions, err := app.Queries.GetPurePermissionsByUserId(context.Background(), useriduuid)
+	oldPurePermissions, err := app.Queries.GetPurePermissionsByUserId(context.Background(), pgtype.UUID{
+		Bytes: useriduuid,
+		Valid: true,
+	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error hashing password",
@@ -275,15 +289,22 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		if slices.Contains(newGroups, g.Name) {
 			if !oldHasgroup {
 				app.Queries.InsertUserGroupsByName(context.Background(), db.InsertUserGroupsByNameParams{
-					UserID: useriduuid,
-					Name:   g.Name,
+
+					UserID: pgtype.UUID{
+						Bytes: useriduuid,
+						Valid: true,
+					},
+					Name: g.Name,
 				})
 			}
 		} else {
 			if oldHasgroup {
 				app.Queries.DeleteUserGroupsByName(context.Background(), db.DeleteUserGroupsByNameParams{
-					UserID: useriduuid,
-					Name:   g.Name,
+					UserID: pgtype.UUID{
+						Bytes: useriduuid,
+						Valid: true,
+					},
+					Name: g.Name,
 				})
 			}
 		}
@@ -294,8 +315,11 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		if slices.Contains(newPermissions, p.Name) {
 			if !oldhasperm {
 				app.Queries.InsertUserPermissionByName(context.Background(), db.InsertUserPermissionByNameParams{
-					UserID: useriduuid,
-					Name:   p.Name,
+					UserID: pgtype.UUID{
+						Bytes: useriduuid,
+						Valid: true,
+					},
+					Name: p.Name,
 				})
 
 			}
@@ -304,8 +328,11 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 				app.Queries.DeleteUserPermissionByName(
 					context.Background(),
 					db.DeleteUserPermissionByNameParams{
-						UserID: useriduuid,
-						Name:   p.Name,
+						UserID: pgtype.UUID{
+							Bytes: useriduuid,
+							Valid: true,
+						},
+						Name: p.Name,
 					},
 				)
 			}
@@ -322,20 +349,20 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cache.Go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
-	cache.Go4groups.Del(userid)
-	cache.Go4permissions.Del(userid)
+	cache.Go4users.Del(olduser.Token.String) // The user is changed and hence needs to be deleted from cache.
+	cache.Go4groups.Del(olduser.ID.Bytes)
+	cache.Go4permissions.Del(olduser.ID.Bytes)
 
 	allUserCache.SetOrCreate(Responseuser{
 		Username:     updateParams.Username,
 		Email:        updateParams.Email,
 		FirstName:    updateParams.FirstName.String,
 		LastName:     updateParams.LastName.String,
-		Created_at:   olduser.UserCreatedAt.Unix(),
+		Created_at:   olduser.UserCreatedAt.Time.Unix(),
 		Last_login:   olduser.LastLogin.Time.Unix(),
 		Is_superuser: updateParams.IsSuperuser.Bool,
 		Is_active:    updateParams.IsActive.Bool,
-		ID:           olduser.ID.String(),
+		ID:           string(olduser.ID.Bytes[:]),
 		Groups:       strings.Join(newGroups, "|"),
 		Permissions:  strings.Join(newPermissions, "|"),
 	}, *app)
@@ -388,8 +415,9 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 	for _, g := range reqBody {
 		if g.Checked {
 			_, err = app.Queries.InsertUserGroupsByName(context.Background(), db.InsertUserGroupsByNameParams{
-				UserID: useriduuid,
-				Name:   g.Name,
+				UserID: pgtype.UUID{Bytes: useriduuid, Valid: true},
+
+				Name: g.Name,
 			})
 			if err != nil {
 				groups = append(groups, g.Name)
@@ -397,7 +425,7 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 			}
 		} else {
 			err = app.Queries.DeleteUserGroupsByName(context.Background(), db.DeleteUserGroupsByNameParams{
-				UserID: useriduuid,
+				UserID: pgtype.UUID{Bytes: useriduuid, Valid: true},
 				Name:   g.Name,
 			})
 			if err != nil {
@@ -409,7 +437,7 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 
 	groupstring = strings.Join(groups, "|")
 
-	user, err := app.Queries.SelectUserById(context.Background(), useriduuid)
+	user, err := app.Queries.SelectUserById(context.Background(), pgtype.UUID{Bytes: useriduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error select user by ID",
@@ -425,11 +453,11 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		Email:        user.Email,
 		FirstName:    user.FirstName.String,
 		LastName:     user.LastName.String,
-		Created_at:   user.UserCreatedAt.Unix(),
+		Created_at:   user.UserCreatedAt.Time.Unix(),
 		Last_login:   user.LastLogin.Time.Unix(),
 		Is_superuser: user.IsSuperuser.Bool,
 		Is_active:    user.IsActive.Bool,
-		ID:           user.ID.String(),
+		ID:           string(user.ID.Bytes[:]),
 		Groups:       groupstring,
 		Permissions:  strings.Join(permissions, "|"),
 	}, *app)
@@ -473,7 +501,7 @@ func (app *App) EditGroupPermissions(w http.ResponseWriter, r *http.Request) {
 
 		if p.Checked {
 			err = app.Queries.InsertGroupPermissionByName(context.Background(), db.InsertGroupPermissionByNameParams{
-				GroupID: groupiduuid,
+				GroupID: pgtype.UUID{Bytes: groupiduuid, Valid: true},
 				Name:    p.Name,
 			})
 			if err != nil {
@@ -482,7 +510,7 @@ func (app *App) EditGroupPermissions(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			err = app.Queries.DeleteGroupPermissionByName(context.Background(), db.DeleteGroupPermissionByNameParams{
-				GroupID: groupiduuid,
+				GroupID: pgtype.UUID{Bytes: groupiduuid, Valid: true},
 				Name:    p.Name,
 			})
 			if err != nil {
@@ -534,7 +562,7 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 		if p.Checked {
 			_, err = app.Queries.InsertUserPermissionByName(context.Background(), db.InsertUserPermissionByNameParams{
-				UserID: useriduuid,
+				UserID: pgtype.UUID{Bytes: useriduuid, Valid: true},
 				Name:   p.Name,
 			})
 			if err != nil {
@@ -544,7 +572,7 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 
 		} else {
 			err = app.Queries.DeleteUserPermissionByName(context.Background(), db.DeleteUserPermissionByNameParams{
-				UserID: useriduuid,
+				UserID: pgtype.UUID{Bytes: useriduuid, Valid: true},
 				Name:   p.Name,
 			})
 			if err != nil {
@@ -553,7 +581,7 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	user, err := app.Queries.SelectUserById(context.Background(), useriduuid)
+	user, err := app.Queries.SelectUserById(context.Background(), pgtype.UUID{Bytes: useriduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error select user by ID",
@@ -569,11 +597,11 @@ func (app *App) EditUserPermissions(w http.ResponseWriter, r *http.Request) {
 		Email:        user.Email,
 		FirstName:    user.FirstName.String,
 		LastName:     user.LastName.String,
-		Created_at:   user.UserCreatedAt.Unix(),
+		Created_at:   user.UserCreatedAt.Time.Unix(),
 		Last_login:   user.LastLogin.Time.Unix(),
 		Is_superuser: user.IsSuperuser.Bool,
 		Is_active:    user.IsActive.Bool,
-		ID:           user.ID.String(),
+		ID:           string(user.ID.Bytes[:]),
 		Groups:       strings.Join(groups, "|"),
 		Permissions:  strings.Join(permissions, "|"),
 	}, *app)
@@ -608,7 +636,7 @@ func (app *App) GetGroupById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groups, err := app.Queries.GetGroupById(context.Background(), groupiduuid)
+	groups, err := app.Queries.GetGroupById(context.Background(), pgtype.UUID{Bytes: groupiduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all groups",
@@ -632,7 +660,7 @@ func (app *App) GetPermissionById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permission, err := app.Queries.GetPermissionById(context.Background(), permissioniduuid)
+	permission, err := app.Queries.GetPermissionById(context.Background(), pgtype.UUID{Bytes: permissioniduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting permission by Id",
@@ -673,7 +701,7 @@ func (app *App) CreatePermission(w http.ResponseWriter, r *http.Request) {
 
 	newPermission, err := app.Queries.CreatePermission(context.Background(), db.CreatePermissionParams{
 		Name: reqBody.Name,
-		ID:   uuid.New(),
+		ID:   pgtype.UUID{Bytes: uuid.New(), Valid: true},
 	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -717,7 +745,7 @@ func (app *App) CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	newGroup, err := app.Queries.CreateGroup(context.Background(), db.CreateGroupParams{
 		Name: reqBody.Name,
-		ID:   uuid.New(),
+		ID:   pgtype.UUID{Bytes: uuid.New(), Valid: true},
 	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -742,7 +770,7 @@ func (app *App) DeletePermission(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	err = app.Queries.DeletePermissionById(context.Background(), permissionuuid)
+	err = app.Queries.DeletePermissionById(context.Background(), pgtype.UUID{Bytes: permissionuuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error getting all permissions",
@@ -765,7 +793,7 @@ func (app *App) DeleteGroup(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	err = app.Queries.DeleteGroupById(context.Background(), groupuuid)
+	err = app.Queries.DeleteGroupById(context.Background(), pgtype.UUID{Bytes: groupuuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "error deleting group",
@@ -820,7 +848,7 @@ func (app *App) GetPermissionsForGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permissionsForGroup, err := app.Queries.GetPermissionsByGroupId(context.Background(), groupiduuid)
+	permissionsForGroup, err := app.Queries.GetPermissionsByGroupId(context.Background(), pgtype.UUID{Bytes: groupiduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
@@ -870,11 +898,9 @@ func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userid := user.ID.String()
-
 	_, err := app.Queries.UpdateTokenByID(context.Background(), db.UpdateTokenByIDParams{
 		ID:    user.ID,
-		Token: sql.NullString{String: "", Valid: false},
+		Token: pgtype.Text{String: "", Valid: false},
 	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -884,7 +910,8 @@ func (app *App) Logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cache.Go4users.Del(userid) // The user is changed and hence needs to be deleted from cache.
+	cache.Go4users.Del(user.Token.String) // The user is changed and hence needs to be deleted from cache.
+
 	utils.RespondWithJSON(w, utils.ErrorResponse{
 		Detail: "User token cleared",
 		Error:  "",
@@ -1002,7 +1029,7 @@ func (app *App) GetUserGroups(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	groupsForUser, err := app.Queries.GetGroupsByUserId(context.Background(), useriduuid)
+	groupsForUser, err := app.Queries.GetGroupsByUserId(context.Background(), pgtype.UUID{Bytes: useriduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get groups from db",
@@ -1056,7 +1083,7 @@ func (app *App) GetUserPermissions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	permissionsForUser, err := app.Queries.GetPermissionsByUserId(context.Background(), useriduuid)
+	permissionsForUser, err := app.Queries.GetPermissionsByUserId(context.Background(), pgtype.UUID{Bytes: useriduuid, Valid: true})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Can not get permissions from db",
@@ -1145,15 +1172,15 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	newuser, err := app.Queries.CreateUser(context.Background(), db.CreateUserParams{
-		ID:          uuid.New(),
+		ID:          pgtype.UUID{Bytes: uuid.New(), Valid: true},
 		Username:    newusername,
-		Token:       sql.NullString{String: newToken, Valid: true},
+		Token:       pgtype.Text{String: newToken, Valid: true},
 		Email:       email,
 		Password:    newpassword,
-		FirstName:   sql.NullString{String: reqBody.FirstName, Valid: true},
-		LastName:    sql.NullString{String: reqBody.LastName, Valid: true},
-		IsActive:    sql.NullBool{Bool: reqBody.IsActive, Valid: true},
-		IsSuperuser: sql.NullBool{Bool: reqBody.IsSuperuser, Valid: true},
+		FirstName:   pgtype.Text{String: reqBody.FirstName, Valid: true},
+		LastName:    pgtype.Text{String: reqBody.LastName, Valid: true},
+		IsActive:    pgtype.Bool{Bool: reqBody.IsActive, Valid: true},
+		IsSuperuser: pgtype.Bool{Bool: reqBody.IsSuperuser, Valid: true},
 	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
@@ -1174,7 +1201,7 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 		dbGroup, err = app.Queries.GetGroupByName(context.Background(), g)
 		if err != nil {
 			dbGroup, err = app.Queries.CreateGroup(context.Background(), db.CreateGroupParams{
-				ID:   uuid.New(),
+				ID:   pgtype.UUID{Bytes: uuid.New(), Valid: true},
 				Name: g,
 			})
 			if err != nil {
@@ -1211,7 +1238,7 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 		dbPermission, err = app.Queries.GetPermissionByName(context.Background(), p)
 		if err != nil {
 			dbPermission, err = app.Queries.CreatePermission(context.Background(), db.CreatePermissionParams{
-				ID:   uuid.New(),
+				ID:   pgtype.UUID{Bytes: uuid.New(), Valid: true},
 				Name: p,
 			})
 			if err != nil {
@@ -1242,11 +1269,11 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 		Email:        newuser.Email,
 		FirstName:    newuser.FirstName.String,
 		LastName:     newuser.LastName.String,
-		Created_at:   newuser.UserCreatedAt.Unix(),
+		Created_at:   newuser.UserCreatedAt.Time.Unix(),
 		Last_login:   newuser.LastLogin.Time.Unix(),
 		Is_superuser: newuser.IsSuperuser.Bool,
 		Is_active:    newuser.IsActive.Bool,
-		ID:           newuser.ID.String(),
+		ID:           string(newuser.ID.Bytes[:]),
 		Groups:       "",
 		Permissions:  "",
 	}, *app)
@@ -1273,7 +1300,10 @@ func (app *App) Deleteoneuser(w http.ResponseWriter, r *http.Request) {
 
 	//TODO: Should superuser be deleteable?
 
-	err = app.Queries.DeleteUserById(context.Background(), useriduuid)
+	dbuser, err := app.Queries.DeleteUserById(context.Background(), pgtype.UUID{
+		Bytes: useriduuid,
+		Valid: true,
+	})
 	if err != nil {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Error deleting this user",
@@ -1283,10 +1313,11 @@ func (app *App) Deleteoneuser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// The user is changed and hence needs to be deleted from cache.
-	cache.Go4users.Del(userid)
+	cache.Go4users.Del(dbuser.Token.String)
+
 	// Set cache correctly
 
-	allUserCache.Del(userid)
+	allUserCache.Del(useriduuid)
 
 	utils.RespondWithJSON(w, struct{}{})
 
@@ -1372,8 +1403,17 @@ func (app *App) BulkCreateUsers(w http.ResponseWriter, r *http.Request) {
 func (app *App) Oneuser(w http.ResponseWriter, r *http.Request) {
 
 	userid := r.Header.Get("Id")
+	id, err := uuid.Parse(userid)
+	if err != nil {
 
-	responseuser, _ := allUserCache.Get(userid)
+		utils.RespondWithJSON(w, utils.ErrorResponse{
+			Detail: "Error parsing uuid",
+			Error:  "err",
+		})
+
+	}
+
+	responseuser, _ := allUserCache.Get(id)
 
 	utils.RespondWithJSON(w, responseuser)
 
@@ -1395,7 +1435,7 @@ func (app *App) GetLogs(w http.ResponseWriter, r *http.Request) {
 		endpoint = "index.html"
 	}
 
-	logCounts, err := app.Queries.CountLogsByUriAndDay(context.Background(), sql.NullString{String: "/" + endpoint, Valid: true})
+	logCounts, err := app.Queries.CountLogsByUriAndDay(context.Background(), pgtype.Text{String: "/" + endpoint, Valid: true})
 	if err != nil {
 		http.Error(w, "Failed to fetch log counts", http.StatusInternalServerError)
 		return

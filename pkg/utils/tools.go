@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"context"
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"log"
@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	pgxpool "github.com/jackc/pgx/v5/pgxpool"
 
 	settings "github.com/karl1b/go4lage/pkg/settings"
 	"golang.org/x/crypto/bcrypt"
@@ -59,22 +61,20 @@ type ToastResponse struct {
 	Text   string `json:"text"`
 }
 
-func SetUp() (*sql.DB, func()) {
+func SetUp() (*pgxpool.Pool, func()) {
 
 	if settings.Settings.DbURL == "" {
 		log.Fatal("DB_URL is empty")
 	}
 
-	conn, err := sql.Open("postgres", settings.Settings.DbURL)
-	if err != nil {
+	conn, err := pgxpool.New(context.Background(), settings.Settings.DbURL)
 
+	if err != nil {
 		log.Fatal("Can not connect to DB", err)
 	}
 	return conn, func() {
-		err := conn.Close()
-		if err != nil {
-			log.Fatal("Can not close DB", err)
-		}
+		conn.Close()
+
 	}
 }
 

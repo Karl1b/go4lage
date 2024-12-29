@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	settings "github.com/karl1b/go4lage/pkg/settings"
 	"github.com/karl1b/go4lage/pkg/sql/db"
 	_ "github.com/lib/pq"
@@ -69,7 +70,7 @@ func CreateSuperuser() {
 		panic(err)
 	}
 
-	tfsecret := sql.NullString{String: "", Valid: true}
+	tfsecret := pgtype.Text{String: "", Valid: true}
 
 	if settings.Settings.Superuser2FA {
 		key, err := totp.Generate(totp.GenerateOpts{
@@ -101,14 +102,21 @@ func CreateSuperuser() {
 	}
 
 	id := uuid.New()
+
 	user, err := queries.CreateUser(context.Background(), db.CreateUserParams{
-		ID:              id,
-		Token:           sql.NullString{String: newToken, Valid: true},
-		Email:           email,
-		FirstName:       sql.NullString{String: "Super", Valid: true},
-		LastName:        sql.NullString{String: "User", Valid: true},
-		Password:        newpassword,
-		IsSuperuser:     sql.NullBool{Bool: true, Valid: true},
+		ID: pgtype.UUID{
+			Bytes: id,
+			Valid: true,
+		},
+		Token:     pgtype.Text{String: newToken, Valid: true},
+		Email:     email,
+		FirstName: pgtype.Text{String: "Super", Valid: true},
+		LastName:  pgtype.Text{String: "User", Valid: true},
+		Password:  newpassword,
+		IsSuperuser: pgtype.Bool{
+			Bool:  true,
+			Valid: true,
+		},
 		Twofactorsecret: tfsecret,
 		Username:        email,
 	})
@@ -165,22 +173,30 @@ func createUserWithContext(queries *db.Queries, email, password, name, token str
 
 	id := uuid.New()
 	_, err := queries.CreateUser(ctx, db.CreateUserParams{
-		ID:          id,
-		Token:       sql.NullString{String: token, Valid: true},
-		Email:       email,
-		Password:    password,
-		IsSuperuser: sql.NullBool{Bool: false, Valid: true},
-		Twofactorsecret: sql.NullString{
+		ID: pgtype.UUID{
+			Bytes: id,
+			Valid: true,
+		},
+		Token:    pgtype.Text{String: token, Valid: true},
+		Email:    email,
+		Password: password,
+
+		IsSuperuser: pgtype.Bool{
+			Bool:  false,
+			Valid: true,
+		},
+		Twofactorsecret: pgtype.Text{
 			String: "",
 			Valid:  true,
 		},
 		Username: email,
-		IsActive: sql.NullBool{Bool: true, Valid: true},
-		FirstName: sql.NullString{
+
+		IsActive: pgtype.Bool{Bool: true, Valid: true},
+		FirstName: pgtype.Text{
 			String: name,
 			Valid:  true,
 		},
-		LastName: sql.NullString{
+		LastName: pgtype.Text{
 			String: name,
 			Valid:  true,
 		},
@@ -255,7 +271,10 @@ func SetupGroupsAndPermissions() {
 			continue
 		}
 		newgroup, err := queries.CreateGroup(context.Background(), db.CreateGroupParams{
-			ID:   uuid.New(),
+			ID: pgtype.UUID{
+				Bytes: uuid.New(),
+				Valid: true,
+			},
 			Name: gp.group,
 		})
 		if err != nil {
@@ -271,7 +290,11 @@ func SetupGroupsAndPermissions() {
 				continue
 			}
 			newperm, err := queries.CreatePermission(context.Background(), db.CreatePermissionParams{
-				ID:   uuid.New(),
+
+				ID: pgtype.UUID{
+					Bytes: uuid.New(),
+					Valid: true,
+				},
 				Name: p,
 			})
 			if err != nil {

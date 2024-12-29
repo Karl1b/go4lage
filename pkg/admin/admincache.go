@@ -6,6 +6,7 @@ import (
 	"sync"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/karl1b/go4lage/pkg/sql/db"
 	utils "github.com/karl1b/go4lage/pkg/utils"
 )
@@ -28,7 +29,7 @@ type Responseuser struct {
 type allUsersCacheT struct {
 	mu    sync.RWMutex
 	itemA []Responseuser
-	itemM map[string]Responseuser
+	itemM map[[16]byte]Responseuser
 }
 
 var allUserCache *allUsersCacheT
@@ -50,12 +51,12 @@ func init() {
 
 func NewAlluserCache() *allUsersCacheT {
 	return &allUsersCacheT{
-		itemM: make(map[string]Responseuser),
+		itemM: make(map[[16]byte]Responseuser),
 		itemA: make([]Responseuser, 0),
 	}
 }
 
-func (aum *allUsersCacheT) Get(key string) (val Responseuser, exists bool) {
+func (aum *allUsersCacheT) Get(key [16]byte) (val Responseuser, exists bool) {
 	aum.mu.RLock()
 	defer aum.mu.RUnlock()
 	val, exists = aum.itemM[key]
@@ -74,14 +75,18 @@ func (aum *allUsersCacheT) SetOrCreate(user Responseuser, app App) {
 	aum.mu.Lock()
 	defer aum.mu.Unlock()
 	uuid, _ := uuid.Parse(user.ID)
-	groups, _ := app.Queries.GetGroupsByUserId(context.Background(), uuid)
+
+	groups, _ := app.Queries.GetGroupsByUserId(context.Background(), pgtype.UUID{
+		Bytes: uuid,
+		Valid: true,
+	})
 	var groupNames []string
 	for _, g := range groups {
 		groupNames = append(groupNames, g.Name)
 	}
 	user.Groups = strings.Join(groupNames, "|")
 
-	userpermissions, _ := app.Queries.GetPurePermissionsByUserId(context.Background(), uuid)
+	userpermissions, _ := app.Queries.GetPurePermissionsByUserId(context.Background(), pgtype.UUID{Bytes: uuid, Valid: true})
 	var permNames []string
 	for _, up := range userpermissions {
 		permNames = append(permNames, up.Name)
@@ -89,7 +94,7 @@ func (aum *allUsersCacheT) SetOrCreate(user Responseuser, app App) {
 	}
 	user.Permissions = strings.Join(permNames, "|")
 
-	aum.itemM[user.ID] = user
+	aum.itemM[uuid] = user
 	found := false
 	for i, existUser := range aum.itemA {
 		if existUser.ID == user.ID {
@@ -103,14 +108,17 @@ func (aum *allUsersCacheT) SetOrCreate(user Responseuser, app App) {
 	}
 }
 
-func (aum *allUsersCacheT) Del(key string) {
+func (aum *allUsersCacheT) Del(key [16]byte) {
 	aum.mu.Lock()
 	defer aum.mu.Unlock()
 
 	delete(aum.itemM, key)
 
+	lkey, _ := uuid.FromBytes(key[:])
+
 	for i, u := range aum.itemA {
-		if u.ID == key {
+
+		if u.ID == lkey.String() {
 			lastIndex := len(aum.itemA) - 1
 			aum.itemA[i] = aum.itemA[lastIndex]
 			aum.itemA = aum.itemA[:lastIndex]
@@ -132,7 +140,7 @@ func (aum *allUsersCacheT) SetAllUsermap(app *App) *utils.ErrorResponse {
 
 	}
 
-	allusermap := make(map[string]Responseuser)
+	allusermap := make(map[[16]byte]Responseuser)
 
 	for _, user := range allUsers {
 
@@ -166,16 +174,18 @@ func (aum *allUsersCacheT) SetAllUsermap(app *App) *utils.ErrorResponse {
 		}
 		permissionstring := strings.Join(permNames, "|")
 
+		stringid, _ := uuid.FromBytes(user.ID.Bytes[:])
+
 		thisUser := Responseuser{
 			Username:     user.Username,
 			Email:        user.Email,
 			FirstName:    user.FirstName.String,
 			LastName:     user.LastName.String,
-			Created_at:   user.UserCreatedAt.UnixMilli(),
+			Created_at:   user.UserCreatedAt.Time.UnixMilli(),
 			Last_login:   user.LastLogin.Time.UnixMilli(),
 			Is_active:    user.IsActive.Bool,
 			Is_superuser: user.IsSuperuser.Bool,
-			ID:           user.ID.String(),
+			ID:           stringid.String(),
 			Groups:       groupstring,
 			Permissions:  permissionstring,
 		}
@@ -185,16 +195,17 @@ func (aum *allUsersCacheT) SetAllUsermap(app *App) *utils.ErrorResponse {
 			Email:        user.Email,
 			FirstName:    user.FirstName.String,
 			LastName:     user.LastName.String,
-			Created_at:   user.UserCreatedAt.UnixMilli(),
+			Created_at:   user.UserCreatedAt.Time.UnixMilli(),
 			Last_login:   user.LastLogin.Time.UnixMilli(),
 			Is_active:    user.IsActive.Bool,
 			Is_superuser: user.IsSuperuser.Bool,
-			ID:           user.ID.String(),
-			Groups:       groupstring,
-			Permissions:  permissionstring,
+			ID:           string(user.ID.Bytes[:]),
+
+			Groups:      groupstring,
+			Permissions: permissionstring,
 		})
 
-		allusermap[user.ID.String()] = thisUser
+		allusermap[user.ID.Bytes] = thisUser
 
 	}
 

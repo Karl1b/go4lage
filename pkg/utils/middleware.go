@@ -2,13 +2,13 @@ package utils
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/go-chi/chi/middleware"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	cache "github.com/karl1b/go4lage/pkg/cache"
 	settings "github.com/karl1b/go4lage/pkg/settings"
@@ -23,35 +23,35 @@ func (app *App) DatabaseLogger(next http.Handler) http.Handler {
 
 		defer func() {
 			params := db.InsertLogEntryParams{
-				ClientIp: sql.NullString{
+				ClientIp: pgtype.Text{
 					String: strings.Split(r.RemoteAddr, ".")[0], // It does only log the first part of the ip due to legal restrictions.
 					Valid:  true,
 				},
-				RequestMethod: sql.NullString{
+				RequestMethod: pgtype.Text{
 					String: r.Method,
 					Valid:  true,
 				},
-				RequestUri: sql.NullString{
+				RequestUri: pgtype.Text{
 					String: r.URL.RequestURI(),
 					Valid:  true,
 				},
-				RequestProtocol: sql.NullString{
+				RequestProtocol: pgtype.Text{
 					String: r.Proto,
 					Valid:  true,
 				},
-				StatusCode: sql.NullInt16{
+				StatusCode: pgtype.Int2{
 					Int16: int16(ww.Status()),
 					Valid: true,
 				},
-				ResponseDuration: sql.NullInt16{
+				ResponseDuration: pgtype.Int2{
 					Int16: int16(time.Since(start).Milliseconds()),
 					Valid: true,
 				},
-				UserAgent: sql.NullString{
+				UserAgent: pgtype.Text{
 					String: r.UserAgent(),
 					Valid:  true,
 				},
-				Referrer: sql.NullString{
+				Referrer: pgtype.Text{
 					String: r.Referer(),
 					Valid:  true,
 				},
@@ -157,7 +157,8 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 					})
 					return
 				}
-				cache.Go4users.Del(user.ID.String())
+				cache.Go4users.Del(user.Token.String)
+
 			}
 
 			// Insert user into the request context for later use

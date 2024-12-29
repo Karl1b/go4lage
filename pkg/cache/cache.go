@@ -2,39 +2,39 @@ package cache
 
 import (
 	"context"
-	"database/sql"
 	"errors"
+	"fmt"
 	"sync"
 
-	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/karl1b/go4lage/pkg/sql/db"
 )
 
-type go4Cache[T any] struct {
+type go4Cache[K comparable, T any] struct {
 	mu    sync.RWMutex
-	items map[string]T
+	items map[K]T
 }
 
-func NewGo4Cache[T any]() *go4Cache[T] {
-	return &go4Cache[T]{
-		items: make(map[string]T),
+func NewGo4Cache[K comparable, T any]() *go4Cache[K, T] {
+	return &go4Cache[K, T]{
+		items: make(map[K]T),
 	}
 }
 
-func (c *go4Cache[T]) Set(key string, value T) {
+func (c *go4Cache[K, T]) Set(key K, value T) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	c.items[key] = value
 }
 
-func (c *go4Cache[T]) Get(key string) (T, bool) {
+func (c *go4Cache[K, T]) Get(key K) (T, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 	val, exists := c.items[key]
 	return val, exists
 }
 
-func (c *go4Cache[T]) Del(key string) bool {
+func (c *go4Cache[K, T]) Del(key K) bool {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if _, exists := c.items[key]; exists {
@@ -44,21 +44,20 @@ func (c *go4Cache[T]) Del(key string) bool {
 	return false
 }
 
-func (c *go4Cache[T]) Flush() {
+func (c *go4Cache[K, T]) Flush() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	c.items = make(map[string]T)
+	c.items = make(map[K]T)
 }
 
-var Go4users *go4Cache[interface{}]
-var Go4permissions *go4Cache[[]string]
-var Go4groups *go4Cache[[]string]
+var Go4users *go4Cache[string, interface{}]
+var Go4permissions *go4Cache[[16]byte, []string]
+var Go4groups *go4Cache[[16]byte, []string]
 
 func init() {
-	Go4users = NewGo4Cache[interface{}]()
-	Go4groups = NewGo4Cache[[]string]()
-	Go4permissions = NewGo4Cache[[]string]()
-
+	Go4users = NewGo4Cache[string, interface{}]()
+	Go4groups = NewGo4Cache[[16]byte, []string]()
+	Go4permissions = NewGo4Cache[[16]byte, []string]()
 }
 
 /*
@@ -75,16 +74,18 @@ func NullGroupsAndPermissions() {
 }
 
 func GetUserByToken(token string, queries *db.Queries) (result db.User, err error) {
+
 	if token == "" {
 		return db.User{}, errors.New("token may not be blank")
 	}
 
 	getFromDB := func(token string, queries *db.Queries) (db.User, error) {
-		user, err := queries.SelectUserByToken(context.Background(), sql.NullString{String: token, Valid: true})
+		user, err := queries.SelectUserByToken(context.Background(), pgtype.Text{String: token, Valid: true})
 		if err != nil {
 			return db.User{}, err // Handle error properly
 		}
 		Go4users.Set(token, user)
+
 		return user, nil
 	}
 
@@ -94,13 +95,16 @@ func GetUserByToken(token string, queries *db.Queries) (result db.User, err erro
 		}
 	}()
 
-	cached_result, found := Go4users.Get(token)
+	cached_result, cacheFound := Go4users.Get(token)
 
-	if found {
+	if cacheFound {
+		fmt.Println("Found before check")
 		result, ok := cached_result.(db.User)
 		if ok {
+
 			return result, err
 		}
+
 		result, err = getFromDB(token, queries)
 		return result, err
 	}
@@ -109,9 +113,9 @@ func GetUserByToken(token string, queries *db.Queries) (result db.User, err erro
 	return result, err
 }
 
-func GetPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
+func GetPermissionsByUser(id pgtype.UUID, queries *db.Queries) (result []string, err error) {
 
-	getFromDB := func(id uuid.UUID, queries *db.Queries) ([]string, error) {
+	getFromDB := func(id pgtype.UUID, queries *db.Queries) ([]string, error) {
 		perms, err := queries.GetPermissionsByUserId(context.Background(), id)
 		if err != nil {
 			return nil, err
@@ -120,7 +124,7 @@ func GetPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 		for _, perm := range perms {
 			permissions = append(permissions, perm.Name)
 		}
-		Go4permissions.Set(id.String(), permissions)
+		Go4permissions.Set(id.Bytes, permissions)
 		return permissions, nil
 	}
 
@@ -130,7 +134,7 @@ func GetPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 		}
 	}()
 
-	cachedResult, found := Go4permissions.Get(id.String())
+	cachedResult, found := Go4permissions.Get(id.Bytes)
 	if found {
 		return cachedResult, nil
 	}
@@ -138,9 +142,9 @@ func GetPermissionsByUser(id uuid.UUID, queries *db.Queries) (result []string, e
 	return result, err
 }
 
-func GetGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err error) {
+func GetGroupsByUser(id pgtype.UUID, queries *db.Queries) (result []string, err error) {
 
-	getFromDB := func(id uuid.UUID, queries *db.Queries) ([]string, error) {
+	getFromDB := func(id pgtype.UUID, queries *db.Queries) ([]string, error) {
 		groups, err := queries.GetGroupsByUserId(context.Background(), id)
 		if err != nil {
 			return nil, err
@@ -149,7 +153,7 @@ func GetGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err er
 		for _, group := range groups {
 			groupNames = append(groupNames, group.Name)
 		}
-		Go4groups.Set(id.String(), groupNames)
+		Go4groups.Set(id.Bytes, groupNames)
 		return groupNames, nil
 	}
 
@@ -159,7 +163,7 @@ func GetGroupsByUser(id uuid.UUID, queries *db.Queries) (result []string, err er
 		}
 	}()
 
-	cachedResult, found := Go4groups.Get(id.String())
+	cachedResult, found := Go4groups.Get(id.Bytes)
 	if found {
 		return cachedResult, nil
 

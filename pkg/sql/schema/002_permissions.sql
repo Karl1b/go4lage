@@ -1,6 +1,6 @@
 -- +goose Up
 CREATE TABLE permissions (
-    id UUID PRIMARY KEY, 
+    id UUID PRIMARY KEY NOT NULL, 
     name VARCHAR(35) UNIQUE NOT NULL
 );
 
@@ -11,7 +11,7 @@ CREATE TABLE users_permissions (
 );
 
 CREATE TABLE groups (
-    id UUID PRIMARY KEY, 
+    id UUID PRIMARY KEY NOT NULL, 
     name VARCHAR(35) UNIQUE NOT NULL
 );
 
