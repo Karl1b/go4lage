@@ -92,66 +92,74 @@ export default function SearchBar({
             placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="p-2 m-2 rounded h-12"
+            className="p-2 m-2 rounded h-12 bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted"
           />
           <input
             type="text"
             placeholder="First Name"
             value={first_name}
             onChange={(e) => setFirst_name(e.target.value)}
-            className="p-2 m-2 rounded h-12"
+            className="p-2 m-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
           <input
             type="text"
             placeholder="Last Name"
             value={last_name}
             onChange={(e) => setLast_name(e.target.value)}
-            className="p-2 m-2 rounded h-12"
+            className="p-2 m-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="p-2 m-2 rounded h-12"
+            className="p-2 m-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
-
-          <div className="grid grid-flow-cols-2 grid-flow-col">
-            <Button kind="primary" onClick={handleSearch} className="">
+  
+          <div className="grid grid-flow-cols-2 grid-flow-col gap-2">
+            <Button 
+              kind="primary" 
+              onClick={handleSearch} 
+              className="bg-interactive-default hover:bg-interactive-hover active:bg-interactive-active text-text-inverse"
+            >
               Search
             </Button>
-            <Button kind="secondary" onClick={handleShowAll} className="">
+            <Button 
+              kind="secondary" 
+              onClick={handleShowAll} 
+              className="bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-border-default"
+            >
               Show All
             </Button>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6">
           <div className="flex flex-col items-start p-2 m-2 rounded h-12">
-            <label className="flex items-center text-nowrap">
+            <label className="flex items-center text-nowrap text-text-primary">
               <input
                 type="checkbox"
                 checked={isActive}
                 onChange={(e) => setIsActive(e.target.checked)}
-                className="mr-2"
+                className="mr-2 accent-interactive-default"
               />
               Is Active
             </label>
-            <label className="flex items-center text-nowrap">
+            <label className="flex items-center text-nowrap text-text-primary">
               <input
                 type="checkbox"
                 checked={isSuperuser}
                 onChange={(e) => setIsSuperuser(e.target.checked)}
-                className="mr-2"
+                className="mr-2 accent-interactive-default"
               />
               Is Superuser
             </label>
           </div>
-
+  
           <div className="p-2 rounded h-12 flex flex-col justify-center">
             <select
               value={selectedGroup}
               onChange={(e) => setSelectedGroup(e.target.value)}
-              className="p-2 rounded w-full"
+              className="p-2 rounded w-full bg-surface-primary text-text-primary border-border-default"
             >
               <option value="">All Groups</option>
               {availableGroups.map((group) => (
@@ -162,25 +170,25 @@ export default function SearchBar({
             </select>
           </div>
           <div className="flex items-center p-2 rounded h-12">
-            <label className="mr-2">Created At</label>
+            <label className="mr-2 text-text-primary">Created At</label>
             <button
               onClick={() => {
                 setCreated_at(created_at === 'asc' ? 'desc' : 'asc')
                 handleSearch()
               }}
-              className="p-2 rounded border"
+              className="p-2 rounded border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary"
             >
               {created_at === 'asc' ? '↓' : '↑'}
             </button>
           </div>
           <div className="flex items-center p-2 rounded h-12">
-            <label className="mr-2">Last Login</label>
+            <label className="mr-2 text-text-primary">Last Login</label>
             <button
               onClick={() => {
                 setLast_login(last_login === 'asc' ? 'desc' : 'asc')
                 handleSearch()
               }}
-              className="p-2 rounded border"
+              className="p-2 rounded border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary"
             >
               {last_login === 'asc' ? '↓' : '↑'}
             </button>

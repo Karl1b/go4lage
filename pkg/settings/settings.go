@@ -31,5 +31,4 @@ type Go4lageSettings struct {
 	UserLoginTrackingTimeMins int    `env:"USER_LOGIN_TRACKING_MINS"`
 	AppName                   string `env:"APP_NAME"`
 	DbURL                     string `env:"DB_URL"`
-	VectorDim                 int    `env:"VECTOR_DIM"`
 }

@@ -4,6 +4,7 @@ type ButtonProps = {
   onClick?: () => void
   className?: string
   type?: 'submit' | 'button' | 'reset' | undefined
+  disabled?: boolean
 }
 
 export default function Button({
@@ -12,31 +13,51 @@ export default function Button({
   onClick,
   className = '',
   type = undefined,
+  disabled = false,
 }: ButtonProps) {
-  const baseClasses =
-    'm-2 p-2 rounded transition ease-in-out duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50'
+  const baseClasses = `
+    m-2 p-2 rounded 
+    transition-all duration-200 ease-in-out 
+    focus:outline-none focus:ring-2 focus:ring-opacity-50
+    disabled:opacity-50 disabled:cursor-not-allowed
+    ${className}
+  `
 
-  let classes = `${baseClasses} ${className}`
-
-  switch (kind) {
-    case 'primary':
-      classes +=
-        ' bg-darkblue text-white hover:bg-slate-800 focus:ring-slate-800'
-      break
-    case 'secondary':
-      classes += ' bg-gray-700 text-white hover:bg-slate-800 focus:ring-gray-600'
-      break
-    case 'danger':
-      classes += ' bg-red-500 text-black hover:bg-slate-800 hover:text-red-500 hover:font-bold focus:ring-red-800'
-      break
-    default:
-      break
+  const variants = {
+    primary: `
+      bg-interactive-default text-text-primary
+      hover:bg-interactive-hover 
+      active:bg-interactive-active
+      focus:ring-interactive
+      disabled:bg-interactive-disabled
+    `,
+    secondary: `
+      bg-surface-secondary text-text-primary
+      hover:bg-surface-tertiary
+      active:bg-surface-inverse active:text-text-inverse
+      focus:ring-interactive
+      disabled:bg-surface-tertiary disabled:text-text-muted
+    `,
+    danger: `
+      bg-error text-text-inverse
+      hover:bg-surface-inverse hover:text-error
+      active:bg-error active:text-text-inverse
+      focus:ring-error
+      disabled:bg-error disabled:opacity-50
+    `,
   }
 
+  const variantClasses = kind ? variants[kind] : ''
+  const classes = `${baseClasses} ${variantClasses}`
+
   return (
-    <button onClick={onClick} className={classes} type={type}>
+    <button
+      onClick={onClick}
+      className={classes}
+      type={type}
+      disabled={disabled}
+    >
       {children}
     </button>
   )
 }
-

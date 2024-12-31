@@ -48,7 +48,7 @@ export default function ShowUsers() {
   }, [userData])
 
   return (
-    <div className="flex flex-col justify-center items-center">
+    <div className="flex flex-col justify-center items-center mt-6">
       <SearchBar
         setShowData={setShowData}
         availableGroups={availableGroups}

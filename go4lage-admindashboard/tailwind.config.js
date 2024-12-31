@@ -4,29 +4,57 @@ const config = {
   theme: {
     extend: {
       colors: {
-        brand: 'rgba(154, 154, 255, <alpha-value>)',
-        'gradient-start': 'rgba(255, 196, 4, <alpha-value>)',
-        'gradient-end': 'rgba(255, 119, 0, <alpha-value>)',
-        primary: 'rgba(0, 0, 0, 1)',
-        secondary: 'rgba(112, 112, 112, <alpha-value>)',
-        tertiary: 'rgba(215, 215, 215, <alpha-value>)',
-        pink:'#aa0069',
-        secondheader: '#2c3e50',
-        header:'#3b93d',
+        // Brand colors
+        brand: 'var(--color-brand)',
+        'brand-secondary': 'var(--color-brand-secondary)',
         
+        // Text colors
+        text: {
+          primary: 'var(--color-text-primary)',
+          secondary: 'var(--color-text-secondary)',
+          muted: 'var(--color-text-muted)',
+          inverse: 'var(--color-text-inverse)',
+        },
+        
+        // Surface/Background colors
+        surface: {
+          primary: 'var(--color-surface-primary)',    // Main background
+          secondary: 'var(--color-surface-secondary)', // Secondary background
+          tertiary: 'var(--color-surface-tertiary)',  // Third level background
+          inverse: 'var(--color-surface-inverse)',    // Inverse background
+        },
+        
+        // Accent colors for emphasis
+        accent: {
+          primary: 'var(--color-accent-primary)',
+          secondary: 'var(--color-accent-secondary)',
+        },
+        
+        // Semantic colors
+        success: 'var(--color-success)',
+        warning: 'var(--color-warning)',
+        error: 'var(--color-error)',
+        info: 'var(--color-info)',
+        
+        // Border colors
+        border: {
+          default: 'var(--color-border)',
+          muted: 'var(--color-border-muted)',
+        },
+        
+        // Interactive element colors
+        interactive: {
+          default: 'var(--color-interactive)',
+          hover: 'var(--color-interactive-hover)',
+          active: 'var(--color-interactive-active)',
+          disabled: 'var(--color-interactive-disabled)',
+        },
       },
-      backgroundColor: {
-        primary: '#073fb9',
-        secondary: '#8e8e8e', // '#6d6d6d',
-        section: '#f4f4f4',
-        light:'#bdbdbd',
-        highlight: 'rgba(240,230 , 190, <alpha-value>)',
-        pink:'#aa0069',
-        darkblue:'#28527a',
-        header:'#3b93d1',
-      },
+      
+      // Gradients
       backgroundImage: {
-        'gradient-custom': 'linear-gradient(-30deg, #4fcbe0, #329dab, #28527a, #1b4965)',
+        'gradient-brand': 'var(--gradient-brand)',
+        'gradient-surface': 'var(--gradient-surface)',
       },
     },
   },

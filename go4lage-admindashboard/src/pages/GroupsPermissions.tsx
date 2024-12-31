@@ -49,28 +49,27 @@ export default function GroupsPermissions() {
   }, [userData])
 
   return (
-    <>
-   
-      <div className="flex justify-center items-center">
-            <h2 className="mb-4 text-center">Groups</h2>{' '}
-            <FaInfoCircle
-              className="w-7 h-7 text-secondheader cursor-pointer"
-              onClick={() => {
-                setShowGroupInfo(!showGroupInfo)
-              }}
-            />
-          </div>
-
+    <div className="mt-6">
+      <div className="flex justify-center items-center m-2">
+        <h2 className="m-4 text-center text-text-primary">Groups</h2>{' '}
+        <FaInfoCircle
+          className="w-7 h-7 text-accent-primary cursor-pointer"
+          onClick={() => {
+            setShowGroupInfo(!showGroupInfo)
+          }}
+        />
+      </div>
+  
       {showGroupInfo && <GroupText />}
-
+  
       <div className="flex justify-center mb-5">
         {groups?.map((group: Group) => {
           return <GPcard key={group.id} item={group} isGroup={true} />
         })}
       </div>
-
-      <h2 className=" m-6 text-center">Permissions</h2>
-
+  
+      <h2 className="m-6 text-center text-text-primary">Permissions</h2>
+  
       <div className="flex justify-center">
         {permissions?.map((permission: Permission) => {
           return (
@@ -78,29 +77,29 @@ export default function GroupsPermissions() {
           )
         })}
       </div>
-
+  
       <div className="flex justify-center">
         <div className="m-2">
           <div className="flex justify-center">
-            <h2 className=" m-6 text-center">Create new group</h2>
+            <h2 className="m-6 text-center text-text-primary">Create new group</h2>
           </div>
-
+  
           <div className="flex justify-center">
             <div className="">
               <input
                 type="text"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 p-2 m-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className="block w-full rounded-md border border-border-default p-2 m-2 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                 placeholder="New group name"
               />
             </div>
-
+  
             <div className="">
               <Button
                 kind="primary"
                 onClick={handleNewGroup}
-                className="w-full p-2 m-2 bg-brand text-gray-900 font-semibold rounded-md hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-opacity-50 transition"
+                className="w-full p-2 m-2 bg-interactive-default text-text-inverse font-semibold rounded-md hover:bg-interactive-hover focus:outline-none focus:ring-2 focus:ring-interactive-default focus:ring-opacity-50 transition"
               >
                 Submit
               </Button>
@@ -110,25 +109,25 @@ export default function GroupsPermissions() {
         <div>
           <div className="m-2">
             <div className="flex justify-center">
-              <h2 className="m-6 text-center">Create new permission</h2>
+              <h2 className="m-6 text-center text-text-primary">Create new permission</h2>
             </div>
-
+  
             <div className="flex justify-center">
               <div className="">
                 <input
                   type="text"
                   value={newPermissionName}
                   onChange={(e) => setNewPermissionName(e.target.value)}
-                  className="block w-full rounded-md border border-gray-300 p-2 m-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                  className="block w-full rounded-md border border-border-default p-2 m-2 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                   placeholder="New permission name"
                 />
               </div>
-
+  
               <div className="">
                 <Button
                   kind="primary"
                   onClick={handleNewPermission}
-                  className="w-full p-2 m-2 bg-brand text-gray-900 font-semibold rounded-md hover:bg-brand-dark focus:outline-none focus:ring-2 focus:ring-brand focus:ring-opacity-50 transition"
+                  className="w-full p-2 m-2 bg-interactive-default text-text-inverse font-semibold rounded-md hover:bg-interactive-hover focus:outline-none focus:ring-2 focus:ring-interactive-default focus:ring-opacity-50 transition"
                 >
                   Submit
                 </Button>
@@ -137,6 +136,6 @@ export default function GroupsPermissions() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

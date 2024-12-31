@@ -1,6 +1,6 @@
 export function GroupText() {
   return (
-    <>
+    <div className="text-text-primary">
       <p>
         Groups are collections of users that share common access needs in your
         application. The simplest way to manage access is to use groups as
@@ -12,6 +12,6 @@ export function GroupText() {
         Behind the scenes, both groups and permissions are implemented as simple
         strings, making them lightweight and flexible.
       </p>
-    </>
+    </div>
   )
 }

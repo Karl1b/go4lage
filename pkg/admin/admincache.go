@@ -199,7 +199,7 @@ func (aum *allUsersCacheT) SetAllUsermap(app *App) *utils.ErrorResponse {
 			Last_login:   user.LastLogin.Time.UnixMilli(),
 			Is_active:    user.IsActive.Bool,
 			Is_superuser: user.IsSuperuser.Bool,
-			ID:           string(user.ID.Bytes[:]),
+			ID:           stringid.String(),
 
 			Groups:      groupstring,
 			Permissions: permissionstring,

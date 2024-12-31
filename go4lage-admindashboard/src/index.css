@@ -3,78 +3,12 @@
 @tailwind utilities;
 
 :root {
-  overflow-x: hidden;
-  --primary-color: #2c5dcd;
-  --color-secondheader: #2c3e50;
-  --background-color: #f4f4f4;
-  --text-color: #333;
-  --color-header: #3b93d1;
-  --color-background: #6d6d6d;
-
-  --color-point-wrapper-bg: linear-gradient(-30deg, #4fcbe0, #329dab);
-  --color-item-bg: #ffffff;
-  --color-item-shadow: rgba(0, 0, 0, 0.1);
-  --color-footer-bg: linear-gradient(
-    -30deg,
-    #4fcbe0,
-    #329dab,
-    #28527a,
-    #1b4965
-  );
-  --color-sidebar-bg: #ddd;
-  --color-sidebar-shadow: rgba(0, 0, 0, 0.4);
-  --color-section-bg: #e0e0e0;
-  --color-pre-bg: #aeaeae;
-  --color-pre-text: #292929;
-  --color-table-border: #585858;
-  --color-th-text: rgb(48, 48, 48);
-  --color-link-text: #333;
-  --color-link-hover-text: #ffffff;
-  --color-link-hover-shadow: #000;
-  --color-h1-h4-text: white;
-  --color-toast-bg: #333;
-  --color-toast-border: #292929;
-  --color-toast-text: #ffffff;
-  --color-menu-link-text: whitesmoke;
-  --color-menu-link-hover-bg: #4a82fa;
+  transition: all 0.2s ease-in-out;
+  background-color: black;
 }
 
 body,
 html {
   overflow-x: hidden;
-  background-color: rgb(0, 30, 255);
-}
-
-h1,
-h2,
-h3,
-h4,
-.abouttext {
-  color: var(--primary-color);
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.header-title {
-  color: var(--text-color);
-}
-
-h1 {
-  font-size: 48px;
-  margin: 10px;
-}
-
-h2 {
-  font-size: 36px;
-  margin: 10px;
-}
-
-h3 {
-  font-size: 30px;
-  margin: 10px;
-}
-
-h4 {
-  font-size: 26px;
-  margin: 10px;
+  background-color: black;
 }

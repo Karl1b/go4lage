@@ -6,10 +6,10 @@ export default function Logs() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <h1 className="">Logs</h1>
+      <div className="flex justify-center mt-10">
+        <h1 className="m-0 p-0 text-text-primary">Logs</h1>
       </div>
-      <div className="flex justify-center">
+      <div className="flex justify-center mt-6">
         <Button
           kind="primary"
           onClick={() => {

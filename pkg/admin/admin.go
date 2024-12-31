@@ -362,7 +362,7 @@ func (app *App) Editoneuser(w http.ResponseWriter, r *http.Request) {
 		Last_login:   olduser.LastLogin.Time.Unix(),
 		Is_superuser: updateParams.IsSuperuser.Bool,
 		Is_active:    updateParams.IsActive.Bool,
-		ID:           string(olduser.ID.Bytes[:]),
+		ID:           useriduuid.String(),
 		Groups:       strings.Join(newGroups, "|"),
 		Permissions:  strings.Join(newPermissions, "|"),
 	}, *app)
@@ -457,7 +457,7 @@ func (app *App) EditUserGroups(w http.ResponseWriter, r *http.Request) {
 		Last_login:   user.LastLogin.Time.Unix(),
 		Is_superuser: user.IsSuperuser.Bool,
 		Is_active:    user.IsActive.Bool,
-		ID:           string(user.ID.Bytes[:]),
+		ID:           useriduuid.String(),
 		Groups:       groupstring,
 		Permissions:  strings.Join(permissions, "|"),
 	}, *app)
@@ -1264,6 +1264,8 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	}
 
+	v, _ := uuid.FromBytes(newuser.ID.Bytes[:])
+
 	allUserCache.SetOrCreate(Responseuser{
 		Username:     newuser.Username,
 		Email:        newuser.Email,
@@ -1273,7 +1275,7 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 		Last_login:   newuser.LastLogin.Time.Unix(),
 		Is_superuser: newuser.IsSuperuser.Bool,
 		Is_active:    newuser.IsActive.Bool,
-		ID:           string(newuser.ID.Bytes[:]),
+		ID:           v.String(),
 		Groups:       "",
 		Permissions:  "",
 	}, *app)

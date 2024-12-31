@@ -7,7 +7,7 @@ export default function Logo() {
   return (
     <>
       <div
-        className="m-0 cursor-pointer"
+        className="m-0 cursor-pointer -mb-2"
         onClick={() => {
           navigate('/')
         }}

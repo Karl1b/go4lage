@@ -18,6 +18,7 @@ import ManagePermission from './pages/ManagePermission'
 import Toast from './components/Toast'
 import Accesslogs from './pages/Accesslogs'
 import Errorlogs from './pages/Errorlogs'
+import { ThemeProvider } from './themecomps/ThemeProvider'
 
 interface IMainContext {
   toast: ToastDetails
@@ -46,6 +47,8 @@ function App() {
 
   return (
     <>
+    <ThemeProvider>
+
       <BrowserRouter>
         <MainContext.Provider
           value={{
@@ -54,14 +57,14 @@ function App() {
             toast,
             setToast,
           }}
-        >
-          <div className="bg-light min-h-screen">
+          >
+          <div className="bg-surface-secondary min-h-screen">
             <Toast />
             {userData.email ? (
               <>
                 <Header />
                 <div className="flex justify-center">
-                  <div className="md:w-11/12 lg:w-9/12 w-full bg-section min-h-screen shadow-2xl">
+                  <div className="md:w-11/12 lg:w-9/12 w-full bg-gradient-surface min-h-screen shadow-2xl">
                     <Routes>
                       <Route path="/" element={<Index />} />
                       <Route path="/createuser" element={<CreateUser />} />
@@ -75,15 +78,15 @@ function App() {
                       <Route
                         path="/managegroup/:id"
                         element={<ManageGroup />}
-                      />
+                        />
                       <Route
                         path="/managepermission/:id"
                         element={<ManagePermission />}
-                      />
+                        />
                       <Route
                         path="/groupspermissions"
                         element={<GroupsPermissions />}
-                      />
+                        />
                     </Routes>
                   </div>
                 </div>
@@ -96,6 +99,7 @@ function App() {
           </div>
         </MainContext.Provider>
       </BrowserRouter>
+            </ThemeProvider>
     </>
   )
 }

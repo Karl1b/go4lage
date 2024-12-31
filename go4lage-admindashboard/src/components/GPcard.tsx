@@ -22,8 +22,8 @@ export default function GPcard({ item, isGroup }: GPProps) {
       className="flex justify-center cursor-pointer"
       onClick={handleNavigation}
     >
-      <div className="bg-gray-300 p-4 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full">
-        <p className="text-2xl font-bold text-center">{item.name}</p>
+      <div className="bg-surface-primary m-2 p-1 rounded-lg border-2 border-border-default shadow-lg hover:bg-surface-primary/90 transition-colors w-full">
+        <p className="text-2xl font-bold text-center text-text-primary">{item.name}</p>
       </div>
     </div>
   )

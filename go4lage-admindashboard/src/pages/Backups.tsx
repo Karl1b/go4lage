@@ -26,9 +26,9 @@ export default function Backups() {
   }, [userData])
 
   return (
-    <>
-      <h1 className="p-2 text-center">Backups</h1>
-      <div className="flex justify-center">
+    <div className='mt-10'>
+      <h1 className="m-0 p-0 text-center text-text-primary">Backups</h1>
+      <div className="flex justify-center mt-6">
         <Button
         kind='primary'
           onClick={createBackup}
@@ -45,6 +45,6 @@ export default function Backups() {
           )
         })}
       </div>
-    </>
+    </div>
   )
 }

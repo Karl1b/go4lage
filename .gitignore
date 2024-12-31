@@ -25,4 +25,5 @@ geminicv/
 deploy.sh
 docuenv.env
 deployenv.env
+prodenv.env
 docu.env

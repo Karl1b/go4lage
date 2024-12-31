@@ -14,7 +14,7 @@ export default function Checkbox({ label, checked, onChange }:CheckboxProps){
         onChange={(e) => onChange(e.target.checked)}
         className="form-checkbox h-5 w-5 accent-brand"
       />
-      <span className="text-gray-900">{label}</span>
+      <span className="text-text-primary">{label}</span>
     </label>
   );
 }

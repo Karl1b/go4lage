@@ -17,9 +17,20 @@ export default function Toast() {
   return (
     <>
       {toast.show && (
-        <div className={`fixed top-20 right-10 border-4 border-black p-4 rounded-lg  shadow-lg text-white ${toast.success ? 'bg-green-700' : 'bg-red-600'} transition-opacity duration-300 ease-in-out`}>
-          <div className="font-bold font-lg">{toast.header}</div>
-          <div>{toast.text}</div>
+        <div
+          className={`
+            fixed top-20 right-20 
+            border-2 border-border-default 
+            p-6 rounded-lg shadow-lg 
+            ${toast.success ? 'bg-success' : 'bg-error'} 
+            transition-opacity duration-300 ease-in-out
+            animate-[pulse_0.5s_ease-in-out]
+          `}
+        >
+          <div className="font-bold text-lg text-text-primary">
+            {toast.header}
+          </div>
+          <div className="mt-1 text-text-primary">{toast.text}</div>
         </div>
       )}
     </>

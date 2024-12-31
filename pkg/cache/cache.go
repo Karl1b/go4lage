@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 
 	"github.com/jackc/pgx/v5/pgtype"
@@ -98,7 +97,7 @@ func GetUserByToken(token string, queries *db.Queries) (result db.User, err erro
 	cached_result, cacheFound := Go4users.Get(token)
 
 	if cacheFound {
-		fmt.Println("Found before check")
+
 		result, ok := cached_result.(db.User)
 		if ok {
 

@@ -77,12 +77,12 @@ export default function UserForm({
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="bg-transparent p-2 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-2xl">
-        <h1 className=" mb-6 text-center">{headText}</h1>
+    <div className="flex justify-center bg-transparent mt-6">
+      <div className="bg-surface-primary p-2 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-2xl">
+        <h1 className="mb-6 text-center text-text-primary">{headText}</h1>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
               Email
             </label>
             <div className="relative mb-4">
@@ -90,19 +90,19 @@ export default function UserForm({
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                 placeholder="Email"
               />
             </div>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
               Password
             </label>
             <MaskedInput password={password} setPassword={setPassword} />
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
               Username
             </label>
             <div className="relative mb-4">
@@ -110,13 +110,13 @@ export default function UserForm({
                 type="text"
                 value={username}
                 onChange={(e) => setUserName(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                 placeholder="Username"
               />
             </div>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
               First name
             </label>
             <div className="relative mb-4">
@@ -124,13 +124,13 @@ export default function UserForm({
                 type="text"
                 value={first_name}
                 onChange={(e) => setFirst_name(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                 placeholder="First name"
               />
             </div>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900 mb-2">
+            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
               Last name
             </label>
             <div className="relative mb-4">
@@ -138,7 +138,7 @@ export default function UserForm({
                 type="text"
                 value={last_name}
                 onChange={(e) => setLast_name(e.target.value)}
-                className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
                 placeholder="Last name"
               />
             </div>
@@ -162,19 +162,17 @@ export default function UserForm({
         </div>
         <div className="relative mb-4">
           <div className="flex justify-center items-center">
-            <h2 className="mb-4 text-center">Groups</h2>{' '}
+            <h2 className="m-4 text-center text-text-primary">Groups</h2>
             <FaInfoCircle
-              className="w-7 h-7 text-secondheader cursor-pointer"
+              className="w-7 h-7 text-accent-primary cursor-pointer"
               onClick={() => {
                 setShowGroupInfo(!showGroupInfo)
               }}
             />
           </div>
-
-          {showGroupInfo && (
-          <GroupText />
-          )}
-
+  
+          {showGroupInfo && <GroupText />}
+  
           <div className="flex flex-wrap">
             {groups.map((group, index) => (
               <Checkbox
@@ -188,16 +186,16 @@ export default function UserForm({
         </div>
         <div className="relative mb-4">
           <div className="flex justify-center items-center">
-            <h2 className="mb-4 text-center">Pure permissions</h2>
+            <h2 className="m-4 text-center text-text-primary">Pure permissions</h2>
             <FaInfoCircle
-              className="w-7 h-7 text-secondheader cursor-pointer"
+              className="w-7 h-7 text-accent-primary cursor-pointer"
               onClick={() => {
                 setShowPermInfo(!showPermInfo)
               }}
             />
           </div>
           {showPermInfo && (
-            <div>
+            <div className="text-text-primary">
               <p>
                 Pure permissions are individual permissions assigned directly to
                 users, rather than inherited through group membership. While
@@ -216,7 +214,7 @@ export default function UserForm({
               </p>
             </div>
           )}
-
+  
           <div className="flex flex-wrap">
             {permissions.map((permission, index) => (
               <Checkbox

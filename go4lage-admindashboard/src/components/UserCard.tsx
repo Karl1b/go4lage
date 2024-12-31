@@ -13,41 +13,40 @@ export default function UserCard({ user }: IUserCardProps) {
   const formattedLastLogin = format(new Date(user.last_login), 'dd.MM.yyyy HH:mm')
 
   return (
-    <div className="flex justify-center cursor-pointer">
+    <div className="flex justify-center cursor-pointer text-text-primary">
       <div
-        className="bg-gray-300 p-1 rounded-lg border shadow-lg hover:bg-gray-100 transition-colors w-full"
+        className="bg-surface-secondary p-1 rounded-lg border border-border-default shadow-lg hover:bg-surface-tertiary transition-colors w-full"
         onClick={() => navigate(`/manageuser/${user.id}`)}
       >
-        <p className="text-2xl font-bold text-center">{user.first_name} {user.last_name}</p>
-        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6  2xl:grid-cols-8 gap-1">
+        <p className="text-2xl font-bold text-center text-text-primary">{user.first_name} {user.last_name}</p>
+        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-8 gap-1">
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Username</label>
-            <p className="text-gray-700">{user.username}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Username</label>
+            <p className="text-text-secondary">{user.username}</p>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Email</label>
-            <p className="text-gray-700">{user.email}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Email</label>
+            <p className="text-text-secondary">{user.email}</p>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Active</label>
-            <p className="text-gray-700">{user.is_active ? 'Yes' : 'No'}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Active</label>
+            <p className="text-text-secondary">{user.is_active ? 'Yes' : 'No'}</p>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Superuser</label>
-            <p className="text-gray-700">{user.is_superuser ? 'Yes' : 'No'}</p>
-          </div>
-    
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Created At</label>
-            <p className="text-gray-700 text-nowrap">{formattedCreatedAt}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Superuser</label>
+            <p className="text-text-secondary">{user.is_superuser ? 'Yes' : 'No'}</p>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Last Login</label>
-            <p className="text-gray-700 text-nowrap">{formattedLastLogin}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Created At</label>
+            <p className="text-text-secondary text-nowrap">{formattedCreatedAt}</p>
           </div>
           <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-gray-900">Groups</label>
-            <p className="text-gray-700">{user.groups?.replace('|', ', ')}</p>
+            <label className="block text-sm font-medium leading-6 text-text-primary">Last Login</label>
+            <p className="text-text-secondary text-nowrap">{formattedLastLogin}</p>
+          </div>
+          <div className="col-span-1">
+            <label className="block text-sm font-medium leading-6 text-text-primary">Groups</label>
+            <p className="text-text-secondary">{user.groups?.replace('|', ', ')}</p>
           </div>
         </div>
       </div>

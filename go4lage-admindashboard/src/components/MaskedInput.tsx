@@ -37,7 +37,7 @@ const MaskedInput = ({password,setPassword}:{password: string, setPassword: (pas
         autoCorrect="off"
         value={'•'.repeat(password.length)}
         onChange={handleChange}
-        className="block w-full rounded-md border border-gray-300 py-2 px-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+        className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
         placeholder="Password"
       />
     </div>

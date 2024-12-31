@@ -34,6 +34,8 @@ export default function ManageUser() {
     getPermissions()
 
     async function getUserInfo() {
+      console.log(idValue)
+
       if (idValue === '') return
 
       const user = await api.oneuser(userData.token, idValue)
