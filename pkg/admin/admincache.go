@@ -2,6 +2,7 @@ package admin
 
 import (
 	"context"
+	"log"
 	"strings"
 	"sync"
 
@@ -174,7 +175,10 @@ func (aum *allUsersCacheT) SetAllUsermap(app *App) *utils.ErrorResponse {
 		}
 		permissionstring := strings.Join(permNames, "|")
 
-		stringid, _ := uuid.FromBytes(user.ID.Bytes[:])
+		stringid, err := uuid.FromBytes(user.ID.Bytes[:])
+		if err != nil {
+			log.Printf("Error parsing stringid, err:%v\n", err)
+		}
 
 		thisUser := Responseuser{
 			Username:     user.Username,

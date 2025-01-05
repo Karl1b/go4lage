@@ -1264,7 +1264,11 @@ func (app *App) Createoneuser(w http.ResponseWriter, r *http.Request) {
 
 	}
 
-	v, _ := uuid.FromBytes(newuser.ID.Bytes[:])
+	v, err := uuid.FromBytes(newuser.ID.Bytes[:])
+
+	if err != nil {
+		log.Printf("error v from bytes, err:%v\n", err)
+	}
 
 	allUserCache.SetOrCreate(Responseuser{
 		Username:     newuser.Username,
