@@ -13,6 +13,7 @@
     </label>
   </div>
 </header>
+
 <nav class="header-bar">
   <div class="nav-links">
     <a href="/features">Features</a>
@@ -23,3 +24,36 @@
     <a href="/geminicv">Gemini CV</a>
   </div>
 </nav>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const header = document.querySelector('.header');
+    const scrollThreshold = 50; // Pixels to scroll before changing header
+    
+    let isScrolled = false;
+    const headerBar = document.querySelector('.header-bar');
+    const logo = document.querySelector('.logo-header');
+    const navLinks = document.querySelector('.nav-links');
+    let navLogo = null;
+    
+    window.addEventListener('scroll', function() {
+      if (window.scrollY > scrollThreshold && !isScrolled) {
+        isScrolled = true;
+        // Move logo to the navigation bar when scrolled
+        navLogo = logo.cloneNode(true);
+        navLogo.classList.add('nav-logo');
+        navLinks.prepend(navLogo);
+        logo.style.opacity = "0";
+        header.classList.add('scrolled');
+      } else if (window.scrollY <= scrollThreshold && isScrolled) {
+        isScrolled = false;
+        header.classList.remove('scrolled');
+        // Move logo back to header when at the top
+        if (navLogo) {
+          navLogo.remove();
+          navLogo = null;
+          logo.style.opacity = "1";
+        }
+      }
+    });
+  });
+</script>
