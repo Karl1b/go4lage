@@ -78,7 +78,7 @@ func SetUp() (*pgxpool.Pool, func()) {
 	}
 }
 
-func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, cache *map[string][]byte) error {
+func FileCacheInit(baseDir string, baseUrl string, apiUrl string, cache *map[string][]byte) error {
 
 	err := filepath.Walk(baseDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -105,7 +105,7 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 		if strings.HasSuffix(path, ".html") || strings.HasSuffix(path, ".js") {
 			baseUrl = strings.TrimSpace(baseUrl)
 			replacedContent := strings.ReplaceAll(string(file), "{%Baseurl%}", baseUrl)
-			extensions := []string{".png", ".jpg", ".js ", ".css"}
+			extensions := []string{".png", ".jpg", ".js", ".css"}
 			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
 			(*cache)[path] = []byte(replacedContent)
 		}
@@ -117,7 +117,7 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 			apiUrl = strings.TrimSpace(apiUrl)
 
 			replacedContent := strings.ReplaceAll(string(file), "{%Apiurl%}", apiUrl)
-			extensions := []string{".png", ".jpg", ".js ", ".css"}
+			extensions := []string{".png", ".jpg", ".js", ".css"}
 			replacedContent = ApplyCacheBuster(replacedContent, extensions) // With this cache buster in place you can cache agressively.
 			(*cache)[path] = []byte(replacedContent)
 		}
@@ -161,8 +161,28 @@ func FileCacheInit(baseDir string, baseUrl string, apiUrl string, port string, c
 // Replaces file paths in the content with paths that include a cache buster string.
 func ApplyCacheBuster(content string, extensions []string) string {
 	for _, ext := range extensions {
-		buster := addCacheBuster() + ext
-		content = strings.ReplaceAll(content, ext, buster)
+		// This regex will match file references like src="file.js", href="file.css", etc.
+		// It looks for extensions that are followed by a quote character
+		re := regexp.MustCompile(`(["'])([^"']+` + regexp.QuoteMeta(ext) + `)(["'])`)
+
+		buster := "--" + addCacheBuster()
+
+		content = re.ReplaceAllStringFunc(content, func(match string) string {
+			// Extract the quote, path, and closing quote
+			parts := re.FindStringSubmatch(match)
+			if len(parts) >= 4 {
+				openQuote := parts[1]
+				path := parts[2]
+				closeQuote := parts[3]
+
+				// Insert the cache buster before the extension
+				extPos := strings.LastIndex(path, ext)
+				if extPos != -1 {
+					return openQuote + path[:extPos] + buster + ext + closeQuote
+				}
+			}
+			return match
+		})
 	}
 	return content
 }

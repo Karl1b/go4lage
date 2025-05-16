@@ -17,7 +17,6 @@ func init() {
 }
 
 type Go4lageSettings struct {
-	ApiPort                   string `env:"APIPORT"`
 	Port                      string `env:"PORT"`
 	Debug                     bool   `env:"DEBUG"`
 	Baseurl                   string `env:"BASEURL"`

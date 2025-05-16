@@ -12,7 +12,7 @@ var rootFiles map[string][]byte
 
 func init() {
 	rootFiles = make(map[string][]byte)
-	FileCacheInit("root", settings.Settings.Baseurl, settings.Settings.Apiurl, settings.Settings.ApiPort, &rootFiles)
+	FileCacheInit("root", settings.Settings.Baseurl, settings.Settings.Apiurl, &rootFiles)
 
 }
 
