@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react'
 import { MainContext } from '../App'
 import api from '../util/api'
 import { Group, Permission, UserDetails } from '../util/types'
-
 import GPcard from '../components/GPcard'
 import Button from '../stylecomponents/Button'
 import { GroupText } from '../components/GroupText'
@@ -32,6 +31,7 @@ export default function GroupsPermissions() {
   function handleNewGroup() {
     api.createGroup(userData.token, newGroupName, setToast).then(() => {
       getGroups(userData)
+      setNewGroupName('')
     })
   }
 
@@ -40,6 +40,7 @@ export default function GroupsPermissions() {
       .createPermission(userData.token, newPermissionName, setToast)
       .then(() => {
         getPermissions(userData)
+        setNewPermissionName('')
       })
   }
 
@@ -49,90 +50,86 @@ export default function GroupsPermissions() {
   }, [userData])
 
   return (
-    <div className="mt-6">
-      <div className="flex justify-center items-center m-2">
-        <h2 className="m-4 text-center text-text-primary">Groups</h2>{' '}
-        <FaInfoCircle
-          className="w-7 h-7 text-accent-primary cursor-pointer"
-          onClick={() => {
-            setShowGroupInfo(!showGroupInfo)
-          }}
-        />
-      </div>
-  
-      {showGroupInfo && <GroupText />}
-  
-      <div className="flex justify-center mb-5">
-        {groups?.map((group: Group) => {
-          return <GPcard key={group.id} item={group} isGroup={true} />
-        })}
-      </div>
-  
-      <h2 className="m-6 text-center text-text-primary">Permissions</h2>
-  
-      <div className="flex justify-center">
-        {permissions?.map((permission: Permission) => {
-          return (
-            <GPcard key={permission.id} item={permission} isGroup={false} />
-          )
-        })}
-      </div>
-  
-      <div className="flex justify-center">
-        <div className="m-2">
-          <div className="flex justify-center">
-            <h2 className="m-6 text-center text-text-primary">Create new group</h2>
+    <div className="space-y-8">
+      {/* Groups Section */}
+      <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-text-primary">Groups</h2>
+          <FaInfoCircle
+            className="w-5 h-5 text-accent-primary cursor-pointer hover:text-accent-secondary"
+            onClick={() => setShowGroupInfo(!showGroupInfo)}
+          />
+        </div>
+
+        {showGroupInfo && (
+          <div className="mb-6 p-4 bg-info/10 rounded-lg">
+            <GroupText />
           </div>
-  
-          <div className="flex justify-center">
-            <div className="">
-              <input
-                type="text"
-                value={newGroupName}
-                onChange={(e) => setNewGroupName(e.target.value)}
-                className="block w-full rounded-md border border-border-default p-2 m-2 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                placeholder="New group name"
-              />
-            </div>
-  
-            <div className="">
-              <Button
-                kind="primary"
-                onClick={handleNewGroup}
-                className="w-full p-2 m-2 bg-interactive-default text-text-inverse font-semibold rounded-md hover:bg-interactive-hover focus:outline-none focus:ring-2 focus:ring-interactive-default focus:ring-opacity-50 transition"
-              >
-                Submit
-              </Button>
-            </div>
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {groups?.map((group: Group) => (
+            <GPcard key={group.id} item={group} isGroup={true} />
+          ))}
+        </div>
+      </div>
+
+      {/* Permissions Section */}
+      <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+        <h2 className="text-xl font-semibold text-text-primary mb-6">Permissions</h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {permissions?.map((permission: Permission) => (
+            <GPcard key={permission.id} item={permission} isGroup={false} />
+          ))}
+        </div>
+      </div>
+
+      {/* Create New Section */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Create Group */}
+        <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Create new group</h3>
+          
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="New group name"
+            />
+            
+            <Button
+              kind="primary"
+              onClick={handleNewGroup}
+              className="w-full"
+            >
+              Create Group
+            </Button>
           </div>
         </div>
-        <div>
-          <div className="m-2">
-            <div className="flex justify-center">
-              <h2 className="m-6 text-center text-text-primary">Create new permission</h2>
-            </div>
-  
-            <div className="flex justify-center">
-              <div className="">
-                <input
-                  type="text"
-                  value={newPermissionName}
-                  onChange={(e) => setNewPermissionName(e.target.value)}
-                  className="block w-full rounded-md border border-border-default p-2 m-2 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                  placeholder="New permission name"
-                />
-              </div>
-  
-              <div className="">
-                <Button
-                  kind="primary"
-                  onClick={handleNewPermission}
-                  className="w-full p-2 m-2 bg-interactive-default text-text-inverse font-semibold rounded-md hover:bg-interactive-hover focus:outline-none focus:ring-2 focus:ring-interactive-default focus:ring-opacity-50 transition"
-                >
-                  Submit
-                </Button>
-              </div>
-            </div>
+
+        {/* Create Permission */}
+        <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4">Create new permission</h3>
+          
+          <div className="space-y-4">
+            <input
+              type="text"
+              value={newPermissionName}
+              onChange={(e) => setNewPermissionName(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="New permission name"
+            />
+            
+            <Button
+              kind="primary"
+              onClick={handleNewPermission}
+              className="w-full"
+            >
+              Create Permission
+            </Button>
           </div>
         </div>
       </div>

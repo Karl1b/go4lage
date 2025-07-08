@@ -22,7 +22,7 @@ export default function ShowUsers() {
           return
         }
         setAllUserData(response)
-        setShowData(response) // Initialize showData with all users
+        setShowData(response)
       } catch (err) {
         if (err instanceof Error) {
           console.error('Error fetching users:', err)
@@ -37,7 +37,6 @@ export default function ShowUsers() {
     async function getGroups() {
       try {
         const res = await api.getGroups(userData.token)
-
         setAvailableGroups(res || [])
       } catch (e) {
         console.error('Error fetching groups:', e)
@@ -48,13 +47,26 @@ export default function ShowUsers() {
   }, [userData])
 
   return (
-    <div className="flex flex-col justify-center items-center mt-6">
-      <SearchBar
-        setShowData={setShowData}
-        availableGroups={availableGroups}
-        allUsers={allUserData}
-      />
-      <UserCardContainer showData={showData} />
+    <div className="space-y-6">
+      <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+        <h1 className="text-2xl font-semibold text-text-primary mb-6">Users</h1>
+        
+        <div className="mb-6">
+          <SearchBar
+            setShowData={setShowData}
+            availableGroups={availableGroups}
+            allUsers={allUserData}
+          />
+        </div>
+
+        {showData.length > 0 ? (
+          <UserCardContainer showData={showData} />
+        ) : (
+          <div className="text-center py-12 text-text-secondary">
+            No users found
+          </div>
+        )}
+      </div>
     </div>
   )
 }

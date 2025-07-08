@@ -1,33 +1,15 @@
 import { useNavigate } from 'react-router-dom'
-import Button from '../stylecomponents/Button'
+import logo from '../assets/go4lage-logo-plain.svg'
 
-export default function Logs() {
+export default function Logo() {
   const navigate = useNavigate()
 
   return (
-    <>
-      <div className="flex justify-center mt-10">
-        <h1 className="m-0 p-0 text-text-primary">Logs</h1>
-      </div>
-      <div className="flex justify-center mt-6">
-        <Button
-          kind="primary"
-          onClick={() => {
-            navigate('/accesslogs')
-          }}
-        >
-          Access logs
-        </Button>
-
-        <Button
-          kind="primary"
-          onClick={() => {
-            navigate('/errorlogs')
-          }}
-        >
-          Error logs
-        </Button>
-      </div>
-    </>
+    <div
+      className="cursor-pointer flex items-center justify-center w-12 h-12"
+      onClick={() => navigate('/')}
+    >
+      <img src={logo} alt="Logo" className="w-10 h-10" />
+    </div>
   )
 }

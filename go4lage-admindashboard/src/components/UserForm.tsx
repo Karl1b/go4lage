@@ -77,103 +77,103 @@ export default function UserForm({
   }
 
   return (
-    <div className="flex justify-center bg-transparent mt-6">
-      <div className="bg-surface-primary p-2 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-2xl">
-        <h1 className="mb-6 text-center text-text-primary">{headText}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
+    <div className="bg-surface-primary rounded-lg border border-border-default p-6">
+      <h1 className="text-2xl font-semibold text-text-primary mb-6">{headText}</h1>
+      
+      <div className="space-y-6">
+        {/* Basic Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Email
             </label>
-            <div className="relative mb-4">
-              <input
-                type="text"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                placeholder="Email"
-              />
-            </div>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="user@example.com"
+            />
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Password
             </label>
             <MaskedInput password={password} setPassword={setPassword} />
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Username
             </label>
-            <div className="relative mb-4">
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUserName(e.target.value)}
-                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                placeholder="Username"
-              />
-            </div>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="username"
+            />
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               First name
             </label>
-            <div className="relative mb-4">
-              <input
-                type="text"
-                value={first_name}
-                onChange={(e) => setFirst_name(e.target.value)}
-                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                placeholder="First name"
-              />
-            </div>
+            <input
+              type="text"
+              value={first_name}
+              onChange={(e) => setFirst_name(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="John"
+            />
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary mb-2">
+          
+          <div>
+            <label className="block text-sm font-medium text-text-secondary mb-2">
               Last name
             </label>
-            <div className="relative mb-4">
-              <input
-                type="text"
-                value={last_name}
-                onChange={(e) => setLast_name(e.target.value)}
-                className="block w-full rounded-md border border-border-default py-2 px-4 text-text-primary bg-surface-primary focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent"
-                placeholder="Last name"
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex justify-center mb-4">
-          <div className="flex mr-4 items-center">
-            <Checkbox
-              label={'Is Active'}
-              checked={isActive}
-              onChange={() => setIsActive(!isActive)}
-            />
-          </div>
-          <div className="flex ml-4 items-center">
-            <Checkbox
-              label={'Is superuser'}
-              checked={isSuperuser}
-              onChange={() => setIsSuperuser(!isSuperuser)}
+            <input
+              type="text"
+              value={last_name}
+              onChange={(e) => setLast_name(e.target.value)}
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              placeholder="Doe"
             />
           </div>
         </div>
-        <div className="relative mb-4">
-          <div className="flex justify-center items-center">
-            <h2 className="m-4 text-center text-text-primary">Groups</h2>
+
+        {/* Status Options */}
+        <div className="flex gap-6 p-4 bg-surface-secondary rounded-lg">
+          <Checkbox
+            label="Is Active"
+            checked={isActive}
+            onChange={() => setIsActive(!isActive)}
+          />
+          <Checkbox
+            label="Is Superuser"
+            checked={isSuperuser}
+            onChange={() => setIsSuperuser(!isSuperuser)}
+          />
+        </div>
+
+        {/* Groups Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-medium text-text-primary">Groups</h2>
             <FaInfoCircle
-              className="w-7 h-7 text-accent-primary cursor-pointer"
-              onClick={() => {
-                setShowGroupInfo(!showGroupInfo)
-              }}
+              className="w-5 h-5 text-accent-primary cursor-pointer hover:text-accent-secondary"
+              onClick={() => setShowGroupInfo(!showGroupInfo)}
             />
           </div>
-  
-          {showGroupInfo && <GroupText />}
-  
-          <div className="flex flex-wrap">
+
+          {showGroupInfo && (
+            <div className="flex mb-4 p-4 bg-info/10 rounded-lg max-w-md lg:max-w-lg">
+              <GroupText />
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-surface-secondary rounded-lg max-h-48 overflow-y-auto">
             {groups.map((group, index) => (
               <Checkbox
                 key={group.id}
@@ -184,19 +184,20 @@ export default function UserForm({
             ))}
           </div>
         </div>
-        <div className="relative mb-4">
-          <div className="flex justify-center items-center">
-            <h2 className="m-4 text-center text-text-primary">Pure permissions</h2>
+
+        {/* Permissions Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <h2 className="text-lg font-medium text-text-primary">Pure permissions</h2>
             <FaInfoCircle
-              className="w-7 h-7 text-accent-primary cursor-pointer"
-              onClick={() => {
-                setShowPermInfo(!showPermInfo)
-              }}
+              className="w-5 h-5 text-accent-primary cursor-pointer hover:text-accent-secondary"
+              onClick={() => setShowPermInfo(!showPermInfo)}
             />
           </div>
+          
           {showPermInfo && (
-            <div className="text-text-primary">
-              <p>
+            <div className="mb-4 p-4 bg-info/10 rounded-lg text-text-primary">
+              <p className="mb-2">
                 Pure permissions are individual permissions assigned directly to
                 users, rather than inherited through group membership. While
                 groups are the preferred way to manage permissions, sometimes
@@ -214,8 +215,8 @@ export default function UserForm({
               </p>
             </div>
           )}
-  
-          <div className="flex flex-wrap">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4 bg-surface-secondary rounded-lg max-h-48 overflow-y-auto">
             {permissions.map((permission, index) => (
               <Checkbox
                 key={permission.id}
@@ -226,11 +227,13 @@ export default function UserForm({
             ))}
           </div>
         </div>
-        <div className="flex justify-center space-x-4">
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 pt-4">
           <Button onClick={handleSubmit} kind="primary">
-            Submit
+            {headText === 'Create user' ? 'Create User' : 'Save Changes'}
           </Button>
-          {headText != 'Create user' && (
+          {headText !== 'Create user' && (
             <Button onClick={deleteUser} kind="danger">
               Delete User
             </Button>

@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ToastDetails, UserDetails } from './util/types'
 
 import Header from './pages/Header'
+import SideBar from './components/SideBar'
 import Login from './pages/Login'
 import Index from './pages/Index'
 import CreateUser from './pages/CreateUser'
@@ -44,73 +45,92 @@ function App() {
     header: '',
     text: '',
   })
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState<boolean>(true)
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false)
 
   return (
     <>
-    <ThemeProvider>
-
-      <BrowserRouter>
-        <MainContext.Provider
-          value={{
-            userData,
-            setUserData,
-            toast,
-            setToast,
-          }}
+      <ThemeProvider>
+        <BrowserRouter>
+          <MainContext.Provider
+            value={{
+              userData,
+              setUserData,
+              toast,
+              setToast,
+            }}
           >
-          <div className="bg-surface-secondary min-h-screen">
-            <Toast />
-            {userData.email ? (
-              <>
-                <Header />
-                <div className="flex justify-center">
-                  <div className="md:w-11/12 lg:w-9/12 w-full bg-gradient-surface min-h-screen shadow-2xl">
-                    <Routes>
-                      <Route path="/" element={<Index />} />
-                      <Route path="/createuser" element={<CreateUser />} />
-                      <Route path="/bulkcreate" element={<BulkCreate />} />
-                      <Route path="/showusers" element={<ShowUsers />} />
-                      <Route path="/backups" element={<Backups />} />
-                      <Route path="/logs" element={<Logs />} />
-                      <Route path="/accesslogs" element={<Accesslogs />} />
-                      <Route path="/errorlogs" element={<Errorlogs/>} />
-                      <Route path="/manageuser/:id" element={<ManageUser />} />
-                      <Route
-                        path="/managegroup/:id"
-                        element={<ManageGroup />}
-                        />
-                      <Route
-                        path="/managepermission/:id"
-                        element={<ManagePermission />}
-                        />
-                      <Route
-                        path="/groupspermissions"
-                        element={<GroupsPermissions />}
-                        />
-                    </Routes>
+            <div className="bg-surface-secondary min-h-screen">
+              <Toast />
+              {userData.email ? (
+                <div className="flex h-screen overflow-hidden">
+                  {/* Sidebar */}
+                  <SideBar
+                    isExpanded={isSidebarExpanded}
+                    setIsExpanded={setIsSidebarExpanded}
+                    isMobileOpen={isMobileOpen}
+                    setIsMobileOpen={setIsMobileOpen}
+                  />
+
+                  {/* Main Content Area */}
+                  <div className="flex-1 flex flex-col">
+                    {/* Header */}
+                    <Header
+                      isSidebarExpanded={isSidebarExpanded}
+                      setIsMobileOpen={setIsMobileOpen}
+                    />
+
+                    {/* Page Content */}
+                    <main className="flex overflow-y-auto bg-surface-secondary pt-16 justify-center">
+                      <div className={isSidebarExpanded ? 'flex lg:pl-12' : 'flex md:pl-20 lg:pl-12'}>
+                        <Routes>
+                          <Route path="/" element={<Index />} />
+                          <Route path="/createuser" element={<CreateUser />} />
+                          <Route path="/bulkcreate" element={<BulkCreate />} />
+                          <Route path="/showusers" element={<ShowUsers />} />
+                          <Route path="/backups" element={<Backups />} />
+                          <Route path="/logs" element={<Logs />} />
+                          <Route path="/accesslogs" element={<Accesslogs />} />
+                          <Route path="/errorlogs" element={<Errorlogs />} />
+                          <Route
+                            path="/manageuser/:id"
+                            element={<ManageUser />}
+                          />
+                          <Route
+                            path="/managegroup/:id"
+                            element={<ManageGroup />}
+                          />
+                          <Route
+                            path="/managepermission/:id"
+                            element={<ManagePermission />}
+                          />
+                          <Route
+                            path="/groupspermissions"
+                            element={<GroupsPermissions />}
+                          />
+                        </Routes>
+                      </div>
+                    </main>
                   </div>
                 </div>
-              </>
-            ) : (
-              <>
+              ) : (
                 <Login />
-              </>
-            )}
-          </div>
-        </MainContext.Provider>
-      </BrowserRouter>
-            </ThemeProvider>
+              )}
+            </div>
+          </MainContext.Provider>
+        </BrowserRouter>
+      </ThemeProvider>
     </>
   )
 }
 
 export default App
 
-function getUserDataFromSession() {
+function getUserDataFromSession(): UserDetails {
   const storedUserData = sessionStorage.getItem('userData')
   if (storedUserData) {
     return JSON.parse(storedUserData)
   } else {
-    return { username: null, email: null }
+    return { email: null, token: null }
   }
 }

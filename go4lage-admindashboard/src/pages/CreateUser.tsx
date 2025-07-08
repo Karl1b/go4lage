@@ -54,12 +54,12 @@ export default function CreateUser() {
       permissions: permissionNames,
     }
 
-    api.createoneuser(userData.token, newUser,setToast)
+    api.createoneuser(userData.token, newUser, setToast)
   }
 
   return (
     <UserForm
-      userId=''
+      userId=""
       headText="Create user"
       email={email}
       setEmail={setEmail}

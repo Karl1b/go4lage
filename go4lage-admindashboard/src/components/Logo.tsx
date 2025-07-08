@@ -5,15 +5,16 @@ export default function Logo() {
   const navigate = useNavigate()
 
   return (
-    <>
-      <div
-        className="m-0 cursor-pointer -mb-2"
-        onClick={() => {
-          navigate('/')
-        }}
-      >
-        <img src={logo} width="100px" />
-      </div>
-    </>
+    <div
+      className="cursor-pointer flex items-center justify-center transition-transform hover:scale-105 active:scale-95 h-10 overflow-hidden"
+      onClick={() => navigate('/')}
+    >
+      <img 
+        src={logo} 
+        alt="Go4lage Logo"
+        className="h-full w-auto max-w-20 object-contain"
+        style={{ maxHeight: '40px' }}
+      />
+    </div>
   )
 }

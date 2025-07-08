@@ -1,61 +1,39 @@
-type ButtonProps = {
-  kind?: 'primary' | 'secondary' | 'danger'
-  children: React.ReactNode
-  onClick?: () => void
-  className?: string
-  type?: 'submit' | 'button' | 'reset' | undefined
-  disabled?: boolean
+import { ButtonHTMLAttributes, ReactNode } from 'react'
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  kind?: 'primary' | 'secondary' | 'danger' | 'ghost'
+  size?: 'sm' | 'md' | 'lg'
+  children: ReactNode
 }
 
-export default function Button({
-  kind,
-  children,
-  onClick,
+export default function Button({ 
+  kind = 'primary', 
+  size = 'md',
+  children, 
   className = '',
-  type = undefined,
   disabled = false,
+  ...props 
 }: ButtonProps) {
-  const baseClasses = `
-    m-2 p-2 rounded 
-    transition-all duration-200 ease-in-out 
-    focus:outline-none focus:ring-2 focus:ring-opacity-50
-    disabled:opacity-50 disabled:cursor-not-allowed
-    ${className}
-  `
-
-  const variants = {
-    primary: `
-      bg-interactive-default text-text-primary
-      hover:bg-interactive-hover 
-      active:bg-interactive-active
-      focus:ring-interactive
-      disabled:bg-interactive-disabled
-    `,
-    secondary: `
-      bg-surface-secondary text-text-primary
-      hover:bg-surface-tertiary
-      active:bg-surface-inverse active:text-text-inverse
-      focus:ring-interactive
-      disabled:bg-surface-tertiary disabled:text-text-muted
-    `,
-    danger: `
-      bg-error text-text-inverse
-      hover:bg-surface-inverse hover:text-error
-      active:bg-error active:text-text-inverse
-      focus:ring-error
-      disabled:bg-error disabled:opacity-50
-    `,
+  const baseStyles = 'inline-flex items-center justify-center rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
+  
+  const sizeStyles = {
+    sm: 'px-2 py-1.5 text-sm font-normal',
+    md: 'px-3 py-2.5 text-base font-medium',
+    lg: 'px-4 py-3 text-lg font-semibold'
   }
-
-  const variantClasses = kind ? variants[kind] : ''
-  const classes = `${baseClasses} ${variantClasses}`
-
+  
+  const kindStyles = {
+    primary: 'bg-brand hover:bg-brand-secondary text-text-primary focus:ring-brand',
+    secondary: 'bg-surface-secondary hover:bg-surface-tertiary text-text-primary border border-border-default focus:ring-brand',
+    danger: 'bg-error hover:bg-error/90 text-text-primary focus:ring-error',
+    ghost: 'bg-transparent hover:bg-surface-secondary text-text-primary focus:ring-brand'
+  }
+  
   return (
     <button
-      onClick={onClick}
-      className={classes}
-      type={type}
+      className={`${baseStyles} ${sizeStyles[size]} ${kindStyles[kind]} ${className}`}
       disabled={disabled}
+      {...props}
     >
       {children}
     </button>

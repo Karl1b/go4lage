@@ -1,7 +1,7 @@
 export const themes = {
   light: {
     // Brand
-    '--color-brand': '#2c5dcd', // Using your primary color
+    '--color-brand': '#3c8dcf', // Using your primary color
     '--color-brand-secondary': '#3b93d1', // Using your header color
 
     // Text
@@ -17,7 +17,7 @@ export const themes = {
     '--color-surface-inverse': '#2c3e50', // Using secondary color
 
     // Accents
-    '--color-accent-primary': '#2c5dcd', // Match brand
+    '--color-accent-primary': '#3c8dcf', // Match brand
     '--color-accent-secondary': '#3b93d1', // Match brand secondary
 
     // Semantic (keeping these as they're well chosen)
