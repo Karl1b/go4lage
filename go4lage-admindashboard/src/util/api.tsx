@@ -9,6 +9,8 @@ import {
   Backup,
   Log,
   LogDetail,
+  FeedBackT,
+  FeedbackMsgT,
 } from './types'
 
 interface FetchWithTokenProps {
@@ -612,6 +614,61 @@ class API {
     })
 
     console.log('Users created successfully:', response)
+  }
+
+  public async newfeedback(
+    token: string | null,
+    feedBack: FeedBackT,
+    setToast: (toast: ToastDetails) => void
+  ) {
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/newfeedback`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedBack),
+      },
+      token: token,
+      toastHeader: 'Feedback send',
+      setToast: setToast,
+    })
+  }
+
+  public async getMsg(token: string, isAdmin:boolean): Promise<FeedBackT[]> {
+
+    const url = isAdmin ? 'allfeedback' : 'getuserspecificfeedback'
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/${url}`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+    return response
+  }
+
+  public async updateFeedBack(
+    token: string | null,
+    feedBack: FeedbackMsgT,
+    isAdmin: boolean,
+    setToast: (toast: ToastDetails) => void
+  ):Promise<FeedBackT> {
+    const url = isAdmin ? 'updatefeedbackstaff' : 'updatefeedbackuser'
+
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/${url}`,
+      options: {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(feedBack),
+      },
+      token: token,
+      toastHeader: 'Feedback send',
+      setToast: setToast,
+    })
+    return response
   }
 }
 

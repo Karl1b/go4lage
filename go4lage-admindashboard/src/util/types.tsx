@@ -83,3 +83,20 @@ export interface LogDetail {
   user_agent: string
   referrer: string
 }
+
+export interface FeedBackT {
+  id: string
+  behaviour_is: string
+  behaviour_should: string
+  full_url: string
+  chat: string | null
+  is_solved: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface FeedbackMsgT {
+  message: string
+  id: string
+  is_solved: boolean | null
+}

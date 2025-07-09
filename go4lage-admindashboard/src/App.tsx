@@ -20,6 +20,7 @@ import Toast from './components/Toast'
 import Accesslogs from './pages/Accesslogs'
 import Errorlogs from './pages/Errorlogs'
 import { ThemeProvider } from './themecomps/ThemeProvider'
+import MyMessages from './pages/MyMessages'
 
 interface IMainContext {
   toast: ToastDetails
@@ -82,7 +83,7 @@ function App() {
 
                     {/* Page Content */}
                     <main className="flex overflow-y-auto bg-surface-secondary pt-16 justify-center">
-                      <div className={isSidebarExpanded ? 'flex lg:pl-12' : 'flex md:pl-20 lg:pl-12'}>
+                      <div className={isSidebarExpanded ? 'flex lg:pl-[288px]' : 'flex md:pl-20 lg:pl-14'}>
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/createuser" element={<CreateUser />} />
@@ -108,6 +109,8 @@ function App() {
                             path="/groupspermissions"
                             element={<GroupsPermissions />}
                           />
+                           <Route path="/mymessages" element={<MyMessages isAdmin={false} />} />
+                           <Route path="/adminmessages" element={<MyMessages isAdmin={true} />} />
                         </Routes>
                       </div>
                     </main>

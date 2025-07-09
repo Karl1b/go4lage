@@ -5,16 +5,16 @@ export default function ButtonGroup() {
   const navigate = useNavigate()
 
   return (
-    <div className='flex flex-col space-y-2'>
+    <div className="flex flex-col space-y-2">
       <Button
-        kind="primary" 
+        kind="primary"
         onClick={() => navigate('/createuser')}
         className="w-full"
       >
         Create user
       </Button>
       <Button
-        kind="primary" 
+        kind="primary"
         onClick={() => navigate('/bulkcreate')}
         className="w-full"
       >
@@ -34,19 +34,13 @@ export default function ButtonGroup() {
       >
         Groups & Permissions
       </Button>
+
       <Button
         kind="primary"
-        onClick={() => navigate('/backups')}
+        onClick={() => navigate('/adminmessages')}
         className="w-full"
       >
-        Backups
-      </Button>
-      <Button
-        kind="primary"
-        onClick={() => navigate('/logs')}
-        className="w-full"
-      >
-        Logs
+        User Feedback
       </Button>
     </div>
   )
