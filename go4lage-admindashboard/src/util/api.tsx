@@ -646,7 +646,7 @@ class API {
       toastHeader: null,
       setToast: null,
     })
-    return response
+    return response || []
   }
 
   public async updateFeedBack(
