@@ -1,10 +1,67 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@theme {
+  /* Light theme (default) */
+  --color-brand: #3c8dcf;
+  --color-brand-secondary: #3b93d1;
+  --color-text-primary: #333;
+  --color-text-secondary: #2c3e50;
+  --color-text-muted: #667788;
+  --color-text-inverse: #ffffff;
+  --color-surface-primary: #e4e4e4;
+  --color-surface-secondary: #d8d8d8;
+  --color-surface-tertiary: #dddddd;
+  --color-surface-inverse: #2c3e50;
+  --color-accent-primary: #3c8dcf;
+  --color-accent-secondary: #3b93d1;
+  --color-success: #16a34a;
+  --color-warning: #ca8a04;
+  --color-error: #dc2626;
+  --color-info: #3b93d1;
+  --color-border: #dddddd;
+  --color-border-muted: #e8e8e8;
+  --color-interactive: #4f7fff;
+  --color-interactive-hover: #2449a3;
+  --color-interactive-active: #1c3879;
+  --color-interactive-disabled: #a3b3c6;
+  --gradient-brand: linear-gradient(to right, #3c8dcf, #3b93d1);
+  --gradient-surface: linear-gradient(to bottom, #e4e4e4, #d8d8d8);
+}
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    /* Dark theme */
+    --color-brand: #2c5dcd;
+    --color-brand-secondary: #3b93d1;
+    --color-text-primary: #f4f4f4;
+    --color-text-secondary: #d1d8e0;
+    --color-text-muted: #9ba9b9;
+    --color-text-inverse: #2c3e50;
+    --color-surface-primary: #1a1f2c;
+    --color-surface-secondary: #141922;
+    --color-surface-tertiary: #252d3b;
+    --color-surface-inverse: #f4f4f4;
+    --color-accent-primary: #4077e4;
+    --color-accent-secondary: #5ca3e0;
+    --color-success: #15803d;
+    --color-warning: #a16207;
+    --color-error: #b91c1c;
+    --color-info: #0369a1;
+    --color-border: #2d3443;
+    --color-border-muted: #1f242f;
+    --color-interactive: #2c5dcd;
+    --color-interactive-hover: #5485ed;
+    --color-interactive-active: #6693f5;
+    --color-interactive-disabled: #4a5568;
+    --gradient-brand: linear-gradient(to right, #2c5dcd, #3b93d1);
+    --gradient-surface: linear-gradient(to bottom, #1a1f2c, #141922);
+  }
+}
 
 :root {
   transition: all 0.2s ease-in-out;
   background-color: black;
+
 }
 
 body,
@@ -12,3 +69,21 @@ html {
   overflow-x: hidden;
   background-color: black;
 }
+
+
+
+
+
+:root {
+  transition: all 0.2s ease-in-out;
+  background-color: black;
+
+}
+
+body,
+html {
+  overflow-x: hidden;
+  background-color: black;
+}
+
+

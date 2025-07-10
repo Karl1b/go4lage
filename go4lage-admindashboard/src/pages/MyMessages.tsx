@@ -14,6 +14,7 @@ import Button from '../stylecomponents/Button'
 import api from '../util/api'
 import { MainContext } from '../App'
 import { FeedBackT } from '../util/types'
+import { useTranslation } from 'react-i18next'
 
 // Chat message structure for parsing chat JSON
 interface ChatMessage {
@@ -36,6 +37,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
   const [isSolvedChecked, setIsSolvedChecked] = useState(false)
 
   const { userData, setToast } = useContext(MainContext)
+  const { t } = useTranslation()
 
   useEffect(() => {
     async function getMsgs() {
@@ -126,7 +128,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
   }
 
   const getStatusText = (isSolved: boolean) => {
-    return isSolved ? 'Solved' : 'Open'
+    return isSolved ? t('solved') : t('open')
   }
 
   const formatTimestamp = (timestamp: string) => {
@@ -138,14 +140,14 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
       )
 
       if (diffInHours < 1) {
-        return 'Just now'
+        return t('justNow')
       } else if (diffInHours < 24) {
-        return `${diffInHours} hours ago`
+        return t('hoursAgo', { hours: diffInHours })
       } else if (diffInHours < 48) {
-        return '1 day ago'
+        return t('oneDayAgo')
       } else {
         const diffInDays = Math.floor(diffInHours / 24)
-        return `${diffInDays} days ago`
+        return t('daysAgo', { days: diffInDays })
       }
     } catch (error) {
       return timestamp
@@ -167,7 +169,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
   }
 
   const getPreviewFromFeedback = (feedback: FeedBackT) => {
-    return `Current: ${feedback.behaviour_is.substring(0, 100)}${
+    return `${t('current')}: ${feedback.behaviour_is.substring(0, 100)}${
       feedback.behaviour_is.length > 100 ? '...' : ''
     }`
   }
@@ -185,7 +187,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
 
   const getLastChatMessage = (chatJson: string | null): string => {
     const messages = parseChatMessages(chatJson)
-    if (messages.length === 0) return 'No messages yet'
+    if (messages.length === 0) return t('noMessagesYet')
 
     const lastMessage = messages[messages.length - 1]
     return `${lastMessage.from}: ${lastMessage.message.substring(0, 50)}${
@@ -200,15 +202,18 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-text-primary mb-2">
-              My Feedback
+              {t('myFeedback')}
             </h1>
             <p className="text-text-secondary">
-              View and manage your feedback submissions
+              {t('viewAndManageFeedback')}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-text-secondary">
-              {filteredMessages.length} of {messages.length} feedback items
+              {t('feedbackItemsCount', { 
+                filtered: filteredMessages.length, 
+                total: messages.length 
+              })}
             </span>
           </div>
         </div>
@@ -226,7 +231,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-default bg-surface-secondary text-text-primary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-                placeholder="Search feedback..."
+                placeholder={t('searchFeedbackPlaceholder')}
               />
             </div>
             <div className="flex gap-2">
@@ -235,13 +240,13 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                 onChange={(e) => setFilterStatus(e.target.value as any)}
                 className="px-3 py-2 rounded-lg border border-border-default bg-surface-secondary text-text-primary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
               >
-                <option value="all">All Feedback</option>
-                <option value="unsolved">Open</option>
-                <option value="solved">Solved</option>
+                <option value="all">{t('allFeedback')}</option>
+                <option value="unsolved">{t('open')}</option>
+                <option value="solved">{t('solved')}</option>
               </select>
               <Button kind="secondary" className="flex items-center gap-2">
                 <Filter className="w-4 h-4" />
-                Filter
+                {t('filter')}
               </Button>
             </div>
           </div>
@@ -287,7 +292,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
           ) : (
             <div className="p-8 text-center">
               <MessageSquareShare className="w-12 h-12 text-text-muted mx-auto mb-3" />
-              <p className="text-text-secondary">No feedback found</p>
+              <p className="text-text-secondary">{t('noFeedbackFound')}</p>
             </div>
           )}
         </div>
@@ -307,11 +312,10 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   </div>
                   <div>
                     <h2 className="text-xl font-semibold text-text-primary">
-                      Feedback Details
+                      {t('feedbackDetails')}
                     </h2>
                     <p className="text-sm text-text-secondary">
-                      {getStatusText(selectedMessage.is_solved)} • Created{' '}
-                      {formatTimestamp(selectedMessage.created_at)}
+                      {getStatusText(selectedMessage.is_solved)} • {t('created')} {formatTimestamp(selectedMessage.created_at)}
                     </p>
                   </div>
                 </div>
@@ -322,7 +326,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                     onClick={closeModal}
                   >
                     <X className="w-4 h-4" />
-                    Close
+                    {t('close')}
                   </Button>
                 </div>
               </div>
@@ -336,7 +340,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   <div>
                     <h3 className="text-sm font-medium text-text-primary mb-3 flex items-center gap-2">
                       <div className="w-1 h-4 bg-accent-primary rounded"></div>
-                      Current Behavior
+                      {t('currentBehavior')}
                     </h3>
                     <div className="bg-surface-secondary p-4 rounded-lg">
                       <p className="text-sm text-text-secondary leading-relaxed">
@@ -348,7 +352,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   <div>
                     <h3 className="text-sm font-medium text-text-primary mb-3 flex items-center gap-2">
                       <div className="w-1 h-4 bg-success rounded"></div>
-                      Expected Behavior
+                      {t('expectedBehavior')}
                     </h3>
                     <div className="bg-surface-secondary p-4 rounded-lg">
                       <p className="text-sm text-text-secondary leading-relaxed">
@@ -360,7 +364,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   <div>
                     <h3 className="text-sm font-medium text-text-primary mb-3 flex items-center gap-2">
                       <div className="w-1 h-4 bg-warning rounded"></div>
-                      URL
+                      {t('url')}
                     </h3>
                     <div className="bg-surface-secondary p-4 rounded-lg">
                       <p className="text-sm text-text-secondary break-all font-mono">
@@ -377,7 +381,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                 <div className="p-4 border-b border-border-default">
                   <h3 className="text-sm font-medium text-text-primary flex items-center gap-2">
                     <Reply className="w-4 h-4" />
-                    Chat History
+                    {t('chatHistory')}
                   </h3>
                 </div>
 
@@ -426,7 +430,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                                 <div className="flex items-center gap-1">
                                   <User className="w-3 h-3" />
                                   <span className={`font-medium`}>
-                                    {isCurrentUser ? 'You' : fromEmail}
+                                    {isCurrentUser ? t('you') : fromEmail}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1 ml-2">
@@ -444,9 +448,9 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <MessageSquareShare className="w-12 h-12 text-text-muted mb-3" />
-                      <p className="text-text-secondary">No messages yet</p>
+                      <p className="text-text-secondary">{t('noMessagesYet')}</p>
                       <p className="text-text-muted text-sm">
-                        Start the conversation below
+                        {t('startConversationBelow')}
                       </p>
                     </div>
                   )}
@@ -464,7 +468,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                           onChange={(e) => setIsSolvedChecked(e.target.checked)}
                           className="w-4 h-4 text-brand bg-surface-secondary border-border-default rounded focus:ring-brand focus:ring-2"
                         />
-                        <span>Mark as solved</span>
+                        <span>{t('markAsSolved')}</span>
                       </label>
                     </div>
                   )}
@@ -474,7 +478,7 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                       value={chatText}
                       onChange={(e) => setChatText(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Type your message..."
+                      placeholder={t('typeYourMessage')}
                       className="flex-1 px-3 py-2 rounded-lg border border-border-default bg-surface-secondary text-text-primary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none"
                       rows={2}
                       disabled={isSending}
@@ -486,11 +490,11 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                       className="flex items-center gap-2 px-4 py-2 self-end"
                     >
                       <Send className="w-4 h-4" />
-                      {isSending ? 'Sending...' : 'Send'}
+                      {isSending ? t('sending') : t('send')}
                     </Button>
                   </div>
                   <p className="text-xs text-text-muted mt-2">
-                    Press Enter to send, Shift+Enter for new line
+                    {t('enterToSendShiftEnterNewLine')}
                   </p>
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef, useEffect } from 'react'
+import { useState, useContext, useRef, useEffect } from 'react'
 import {
   Menu,
   User,
@@ -16,6 +16,8 @@ import Logout from '../components/Logout'
 import Logo from '../components/Logo'
 import Button from '../stylecomponents/Button'
 import api from '../util/api'
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '../components/LanguageSwitcher'
 
 interface HeaderProps {
   isSidebarExpanded: boolean
@@ -36,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({
 
   const dropdownRef = useRef<HTMLDivElement>(null)
   const messageModalRef = useRef<HTMLDivElement>(null)
-
+  const { t } = useTranslation()
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -97,7 +99,7 @@ const Header: React.FC<HeaderProps> = ({
             id: '',
             is_solved: false,
             created_at: '',
-            updated_at: ''
+            updated_at: '',
           },
           setToast
         )
@@ -127,7 +129,7 @@ const Header: React.FC<HeaderProps> = ({
     <header
       className={`
         fixed top-0 right-0 h-16 z-30
-        bg-surface-primary border-b border-border-default
+        bg-surface-primary border-b border-default
         transition-all duration-300 ease-in-out
         ${isSidebarExpanded ? 'md:left-0' : 'md:left-0'}
         left-0
@@ -153,7 +155,7 @@ const Header: React.FC<HeaderProps> = ({
         {/* Center Section - Logo on desktop */}
         <div className="hidden md:flex flex-1 justify-center items-center">
           <Logo />
-          <h2 className="text-text-primary ml-2 text-lg">Admin-Dashboard</h2>
+          <h2 className="text-text-primary ml-2 text-lg">{t('welcome')}</h2>
         </div>
 
         {/* Right Section - User Actions */}
@@ -190,10 +192,10 @@ const Header: React.FC<HeaderProps> = ({
                         <MessageCircle className="w-4 h-4 text-accent-primary" />
                         <div>
                           <p className="text-sm font-medium text-text-primary">
-                            Compose New Message
+                            {t('composeNewMessage')}
                           </p>
                           <p className="text-xs text-text-secondary">
-                            Send feedback to the team
+                            {t('sendFeedBackToTheTeam')}
                           </p>
                         </div>
                       </button>
@@ -205,10 +207,10 @@ const Header: React.FC<HeaderProps> = ({
                         <Inbox className="w-4 h-4 text-accent-primary" />
                         <div>
                           <p className="text-sm font-medium text-text-primary">
-                            Go to My Messages
+                            {t('GoToMyMessages')}
                           </p>
                           <p className="text-xs text-text-secondary">
-                            View all conversations
+                            {t('ViewAllConversations')}
                           </p>
                         </div>
                       </button>
@@ -222,7 +224,7 @@ const Header: React.FC<HeaderProps> = ({
                         <div className="flex items-center gap-2">
                           <MessageCircle className="w-5 h-5 text-accent-primary" />
                           <p className="text-sm font-medium text-text-primary">
-                            Compose Feedback
+                            {t('ComposeFeedBack')}
                           </p>
                         </div>
                         <button
@@ -237,25 +239,25 @@ const Header: React.FC<HeaderProps> = ({
                     <div className="p-4 space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-text-secondary mb-2">
-                          Behaviour as it is
+                          {t('BehaviourAsItIs')}
                         </label>
                         <textarea
                           value={behaviourAs}
                           onChange={(e) => setBehaviourAs(e.target.value)}
                           className="w-full h-20 rounded-lg border border-border-default px-3 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none text-sm"
-                          placeholder="Describe the current behavior..."
+                          placeholder={`${t('DescribeBehaviour')}`}
                         />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-text-secondary mb-2">
-                          Behaviour as it should be
+                          {t('BehaviourAsItShouldBe')}
                         </label>
                         <textarea
                           value={behaviourShould}
                           onChange={(e) => setBehaviourShould(e.target.value)}
                           className="w-full h-20 rounded-lg border border-border-default px-3 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none text-sm"
-                          placeholder="Describe the expected behavior..."
+                          placeholder={`${t('DescribeExpectetBehaviour')}`}
                         />
                       </div>
 
@@ -266,14 +268,14 @@ const Header: React.FC<HeaderProps> = ({
                           className="flex-1 flex items-center justify-center gap-2"
                         >
                           <Send className="w-4 h-4" />
-                          Send Message
+                          {t('SendMessage')}
                         </Button>
                         <Button
                           onClick={handleBackToMenu}
                           kind="secondary"
                           className="px-4"
                         >
-                          Cancel
+                          {t('Cancel')}
                         </Button>
                       </div>
                     </div>
@@ -307,7 +309,7 @@ const Header: React.FC<HeaderProps> = ({
               <div className="absolute right-0 mt-2 w-56 rounded-xl bg-surface-primary border border-border-default shadow-xl shadow-black/10">
                 <div className="px-4 py-3 border-b border-border-muted">
                   <p className="text-sm font-medium text-text-primary">
-                    Signed in as
+                    {t('signedInAs')}
                   </p>
                   <p className="text-sm text-text-secondary truncate">
                     {userData.email}
@@ -318,6 +320,10 @@ const Header: React.FC<HeaderProps> = ({
                   <div className="px-3 py-2 hover:bg-surface-secondary rounded-lg transition-colors cursor-pointer">
                     <ThemeToggle />
                   </div>
+                  <div className="px-3 py-2 hover:bg-surface-secondary rounded-lg transition-colors cursor-pointer">
+                    <LanguageSwitcher className="text-text-primary flex p-2 grow" />
+                  </div>
+
                   <div className="px-3 py-2 hover:bg-surface-secondary rounded-lg transition-colors">
                     <Logout />
                   </div>

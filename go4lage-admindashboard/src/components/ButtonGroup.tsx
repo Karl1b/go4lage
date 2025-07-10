@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import Button from '../stylecomponents/Button'
+import { useTranslation } from 'react-i18next'
 
 export default function ButtonGroup() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <div className="flex flex-col space-y-2">
@@ -11,28 +13,28 @@ export default function ButtonGroup() {
         onClick={() => navigate('/createuser')}
         className="w-full"
       >
-        Create user
+        {t('CreateUser')}
       </Button>
       <Button
         kind="primary"
         onClick={() => navigate('/bulkcreate')}
         className="w-full"
       >
-        Bulk create
+        {t('BulkCreate')}
       </Button>
       <Button
         kind="primary"
         onClick={() => navigate('/showusers')}
         className="w-full"
       >
-        Show users
+        {t('ShowUsers')}
       </Button>
       <Button
         kind="primary"
         onClick={() => navigate('/groupspermissions')}
         className="w-full"
       >
-        Groups & Permissions
+        {t('GroupsPermissions')}
       </Button>
 
       <Button
@@ -40,7 +42,7 @@ export default function ButtonGroup() {
         onClick={() => navigate('/adminmessages')}
         className="w-full"
       >
-        User Feedback
+        {t('UserFeedback')}
       </Button>
     </div>
   )
