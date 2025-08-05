@@ -58,7 +58,9 @@ export default function Login() {
               <img src={logo} className="w-20 h-20" alt="Logo" />
               <img src={goopher} className="w-20 h-20" alt="Goopher" />
             </div>
-            <ThemeToggle />
+            <div className="flex">
+              <ThemeToggle />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">
             Admin Dashboard
