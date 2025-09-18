@@ -23,7 +23,7 @@ services:
 
   db:
     env_file: ".env"
-    image: postgres:13
+    image: postgres:17
     environment:
       POSTGRES_USER: go4lage
       POSTGRES_PASSWORD: go4lage
