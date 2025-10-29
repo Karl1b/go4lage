@@ -15,38 +15,68 @@ export default function UserCard({ user }: IUserCardProps) {
   return (
     <div className="flex justify-center cursor-pointer text-text-primary">
       <div
-        className="bg-surface-secondary p-1 rounded-lg border border-border-default shadow-lg hover:bg-surface-tertiary transition-colors w-full"
+        className="bg-surface-secondary p-4 rounded-lg border border-border-default shadow-lg hover:bg-surface-tertiary transition-colors w-full"
         onClick={() => navigate(`/manageuser/${user.id}`)}
       >
-        <p className="text-2xl font-bold text-center text-text-primary">{user.first_name} {user.last_name}</p>
-        <div className="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-8 gap-1">
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Username</label>
-            <p className="text-text-secondary">{user.username}</p>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xl font-bold text-text-primary">
+            {user.first_name} {user.last_name}
+          </p>
+          {user.organization && (
+            <span className="px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full">
+              {user.organization.organization_name}
+            </span>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8 gap-3">
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Username</label>
+            <p className="text-sm text-text-primary">{user.username}</p>
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Email</label>
-            <p className="text-text-secondary">{user.email}</p>
+          
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Email</label>
+            <p className="text-sm text-text-primary truncate" title={user.email}>
+              {user.email}
+            </p>
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Active</label>
-            <p className="text-text-secondary">{user.is_active ? 'Yes' : 'No'}</p>
+          
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Status</label>
+            <div className="flex gap-2">
+              {user.is_active ? (
+                <span className="inline-block px-2 py-0.5 text-xs bg-green-100 text-green-800 rounded">
+                  Active
+                </span>
+              ) : (
+                <span className="inline-block px-2 py-0.5 text-xs bg-gray-100 text-gray-800 rounded">
+                  Inactive
+                </span>
+              )}
+              {user.is_superuser && (
+                <span className="inline-block px-2 py-0.5 text-xs bg-purple-100 text-purple-800 rounded">
+                  Super
+                </span>
+              )}
+            </div>
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Superuser</label>
-            <p className="text-text-secondary">{user.is_superuser ? 'Yes' : 'No'}</p>
+          
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Created</label>
+            <p className="text-sm text-text-primary text-nowrap">{formattedCreatedAt}</p>
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Created At</label>
-            <p className="text-text-secondary text-nowrap">{formattedCreatedAt}</p>
+          
+          <div>
+            <label className="block text-xs font-medium text-text-secondary mb-1">Last Login</label>
+            <p className="text-sm text-text-primary text-nowrap">{formattedLastLogin}</p>
           </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Last Login</label>
-            <p className="text-text-secondary text-nowrap">{formattedLastLogin}</p>
-          </div>
-          <div className="col-span-1">
-            <label className="block text-sm font-medium leading-6 text-text-primary">Groups</label>
-            <p className="text-text-secondary">{user.groups?.replace('|', ', ')}</p>
+          
+          <div className="col-span-2 xl:col-span-1">
+            <label className="block text-xs font-medium text-text-secondary mb-1">Groups</label>
+            <p className="text-sm text-text-primary truncate" title={user.groups?.replace(/\|/g, ', ')}>
+              {user.groups?.replace(/\|/g, ', ') || 'None'}
+            </p>
           </div>
         </div>
       </div>

@@ -35,13 +35,21 @@ export default function Login() {
       setUserData({
         email: response.email,
         token: response.token,
+        is_superuser: response.is_superuser,
+        is_organizationadmin: response.is_organizationadmin,
+        organization_id: response.organization_id,
+        organization_name: response.organization_name,
       })
-
+      
       sessionStorage.setItem(
         'userData',
         JSON.stringify({
           email: response.email,
           token: response.token,
+          is_superuser: response.is_superuser,
+          is_organizationadmin: response.is_organizationadmin,
+          organization_id: response.organization_id,
+          organization_name: response.organization_name,
         })
       )
       navigate('/')
@@ -49,7 +57,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-surface-secondary bg-gradient-surface">
+    <div className="min-h-screen flex items-center justify-center bg-surface-secondary">
       <div className="bg-surface-primary rounded-xl shadow-xl w-full max-w-lg transition-all duration-300 hover:shadow-2xl">
         {/* Header Section */}
         <div className="p-8 border-b border-border-default">

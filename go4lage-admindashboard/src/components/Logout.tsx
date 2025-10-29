@@ -16,7 +16,7 @@ export default function Logout() {
     } catch (e) {
       console.log(e)
     } finally {
-      const emptyUser: UserDetails = { email: null, token: null }
+      const emptyUser: UserDetails = { email: null, token: null, is_organizationadmin: false, is_superuser: false }
       setUserData(emptyUser)
     }
   }

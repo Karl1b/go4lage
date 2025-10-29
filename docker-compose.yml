@@ -23,13 +23,13 @@ services:
 
   db:
     env_file: ".env"
-    image: postgres:13
+    image: postgres:18
     environment:
       POSTGRES_USER: go4lage
       POSTGRES_PASSWORD: go4lage
       POSTGRES_DB: go4lage
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     container_name: "${APP_NAME}_db"
     networks:
       - app_network

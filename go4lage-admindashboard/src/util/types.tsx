@@ -1,6 +1,10 @@
 export interface UserDetails {
   email: string | null
   token: string | null
+  is_superuser :boolean,
+  is_organizationadmin: boolean,
+  organization_name? : string | null,
+  organization_id? : string | null,  
 }
 
 export interface DataSeries {
@@ -10,6 +14,14 @@ export interface DataSeries {
 
 export interface DashboardInfo {
   tfa: boolean
+}
+
+export interface OrganizationResponse {
+  id: string
+  created_at: number
+  organization_name: string
+  email: string
+  active_until: number
 }
 
 export interface User {
@@ -24,6 +36,7 @@ export interface User {
   last_login: number
   groups: string
   permissions: string
+  organization?: OrganizationResponse
 }
 
 export interface NewUser {
@@ -36,6 +49,7 @@ export interface NewUser {
   username: string
   is_active: boolean
   is_superuser: boolean
+  organization_id: string | null
 }
 
 export interface Group {
@@ -99,4 +113,11 @@ export interface FeedbackMsgT {
   message: string
   id: string
   is_solved: boolean | null
+}
+
+export interface OrganizationT {
+  id?: string | null
+  organization_name: string
+  email: string
+  active_until: string
 }

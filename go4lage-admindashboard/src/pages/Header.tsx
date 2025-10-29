@@ -133,6 +133,7 @@ const Header: React.FC<HeaderProps> = ({
         transition-all duration-300 ease-in-out
         ${isSidebarExpanded ? 'md:left-0' : 'md:left-0'}
         left-0
+        text-primary
       `}
     >
       <div className="flex items-center h-full px-4 md:px-6">

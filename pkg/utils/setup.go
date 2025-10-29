@@ -9,13 +9,14 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	settings "github.com/karl1b/go4lage/pkg/settings"
 	"github.com/karl1b/go4lage/pkg/sql/db"
+
 	_ "github.com/lib/pq"
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -129,116 +130,6 @@ func CreateSuperuser() {
 
 }
 
-// Creates a lot Fake users for testing
-func CreateFakeUsers(a string) {
-	count, err := strconv.Atoi(a)
-	if err != nil {
-		panic(err)
-	}
-
-	// Number of workers - adjust based on your system capabilities
-	numWorkers := 10
-	if count < numWorkers {
-		numWorkers = count
-	}
-
-	conn, cleanup := SetUp()
-	defer cleanup()
-	queries := db.New(conn)
-
-	// Create a channel to distribute work
-	jobs := make(chan int, count)
-	// Create a WaitGroup to wait for all goroutines to finish
-	var wg sync.WaitGroup
-
-	// Create worker pool
-	for w := 0; w < numWorkers; w++ {
-		wg.Add(1)
-		go worker(w, jobs, &wg, queries)
-	}
-
-	// Send jobs to workers
-	for i := 0; i < count; i++ {
-		jobs <- i
-	}
-	close(jobs)
-
-	// Wait for all workers to complete
-	wg.Wait()
-}
-
-func createUserWithContext(queries *db.Queries, email, password, name, token string) error {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	id := uuid.New()
-	_, err := queries.CreateUser(ctx, db.CreateUserParams{
-		ID: pgtype.UUID{
-			Bytes: id,
-			Valid: true,
-		},
-		Token:    pgtype.Text{String: token, Valid: true},
-		Email:    email,
-		Password: password,
-
-		IsSuperuser: pgtype.Bool{
-			Bool:  false,
-			Valid: true,
-		},
-		Twofactorsecret: pgtype.Text{
-			String: "",
-			Valid:  true,
-		},
-		Username: email,
-
-		IsActive: pgtype.Bool{Bool: true, Valid: true},
-		FirstName: pgtype.Text{
-			String: name,
-			Valid:  true,
-		},
-		LastName: pgtype.Text{
-			String: name,
-			Valid:  true,
-		},
-	})
-	return err
-}
-
-func worker(id int, jobs <-chan int, wg *sync.WaitGroup, queries *db.Queries) {
-	defer wg.Done()
-
-	for i := range jobs {
-		email := "fakemail" + strconv.Itoa(i) + "@fake.com"
-		password := strconv.Itoa(i)
-		newpassword, err := HashPassword(password)
-		if err != nil {
-			log.Printf("Worker %d: Error hashing password: %v", id, err)
-			continue
-		}
-
-		name := "Fakeuser" + strconv.Itoa(i)
-		newToken, err := GenerateTokenHex(32)
-		if err != nil {
-			log.Printf("Worker %d: Error generating token: %v", id, err)
-			continue
-		}
-
-		// Create user with retries
-		maxRetries := 3
-		for retry := 0; retry < maxRetries; retry++ {
-			err = createUserWithContext(queries, email, newpassword, name, newToken)
-			if err == nil {
-				break
-			}
-			if retry == maxRetries-1 {
-				log.Printf("Worker %d: Failed to create user after %d retries: %v", id, maxRetries, err)
-			}
-			// Exponential backoff
-			time.Sleep(time.Duration(retry*retry) * 100 * time.Millisecond)
-		}
-	}
-}
-
 /*
 This does setup your groups and permissions, so that you do not have to enter the admin dashboard.
 It is purely additive. It will not delete anything. Use this to make sure that your permissions are added to the database.
@@ -254,14 +145,12 @@ func SetupGroupsAndPermissions() {
 	}
 
 	/* Enter your groups with permissions here */
+	// Hint: Superusers are extra.
 	groups := []groupPerm{
+
 		{
-			group:       "staff", // "staff is the default group for users to be able to use the admin dashboard"
-			permissions: []string{},
-		},
-		{
-			group:       "controller", // In this case the group controller is created.
-			permissions: []string{"can_control", "can_read_smth"},
+			group:       OrganizationAdminGroup, // "organizationadmin" is the default group for users to be able to use the admin dashboard for their organization"
+			permissions: []string{HandleOrganizationPermission},
 		},
 	}
 
@@ -309,6 +198,175 @@ func SetupGroupsAndPermissions() {
 			})
 		}
 	}
+}
+
+func CreateFakeUsers(a string) {
+	count, err := strconv.Atoi(a)
+	if err != nil {
+		log.Fatalf("Invalid count parameter: %v", err)
+	}
+
+	// Display warning and get user confirmation
+	fmt.Printf("\n⚠️  WARNING ⚠️\n")
+	fmt.Printf("This script will create 3 organizations and  %d test user(s) per organization.\n", count)
+	fmt.Printf("All users will have the password: 'test'\n")
+	fmt.Printf("\nDo you wish to continue? (y/n): ")
+
+	var response string
+	fmt.Scanln(&response)
+	response = strings.ToLower(strings.TrimSpace(response))
+
+	if response != "y" && response != "z" {
+		fmt.Println("Operation cancelled by user.")
+		return
+	}
+
+	fmt.Printf("\n🚀 Starting test data creation...\n")
+
+	// 1. Setup the environment and database connection
+	SetupGroupsAndPermissions()
+
+	conn, cleanup := SetUp()
+	defer cleanup()
+	queries := db.New(conn)
+
+	// 2. Define enhanced test data
+	const testPassword = "test"
+
+	companies := []struct {
+		name   string
+		domain string
+	}{
+		{"Karl Breuer", "karlbreuer.com"},
+		{"Weyland Yutani", "weyland-yutani.com"},
+		{"Umbrella Corp", "umbrella.co"},
+	}
+
+	userTemplates := []struct {
+		firstName string
+		lastName  string
+	}{
+		{"Karl", "Breuer"},
+		{"Alice", "Johnson"},
+		{"Bob", "Smith"},
+		{"Charlie", "Brown"},
+		{"Diana", "Prince"},
+		{"Eve", "Martinez"},
+		{"Frank", "Chen"},
+		{"Grace", "O'Connor"},
+		{"Henry", "Patel"},
+		{"Iris", "Müller"},
+		{"Jack", "Anderson"},
+	}
+
+	// 3. Hash the password once to be used for all users
+	hashedPassword, err := HashPassword(testPassword)
+	if err != nil {
+		log.Fatalf("❌ Error hashing test password: %v", err)
+	}
+
+	// 4. Get the admin group once
+	adminGroup, err := queries.GetGroupByName(context.Background(), OrganizationAdminGroup)
+	if err != nil {
+		log.Fatalf("❌ Error getting admin group '%s': %v", OrganizationAdminGroup, err)
+	}
+
+	// 5. Loop through each company to create organizations and users
+	totalOrgs := 0
+	totalUsers := 0
+
+	for _, company := range companies {
+		log.Printf("📦 Creating organization: %s (%s)", company.name, company.domain)
+
+		// Create a new UUID for the organization
+		orgUUID := uuid.New()
+
+		// Create the organization
+		org, err := queries.OrganizationCreate(context.Background(), db.OrganizationCreateParams{
+			ID:               pgtype.UUID{Bytes: orgUUID, Valid: true},
+			OrganizationName: company.name,
+			Email:            fmt.Sprintf("contact@%s", company.domain),
+			ActiveUntil: pgtype.Timestamptz{
+				Time:  time.Now().Add(365 * 24 * 10 * time.Hour), // Active for 10 years
+				Valid: true,
+			},
+		})
+		if err != nil {
+			log.Printf("❌ Error creating organization '%s': %v", company.name, err)
+			continue
+		}
+		log.Printf("✅ Successfully created organization '%s'", org.OrganizationName)
+		totalOrgs++
+
+		// Create users for this organization
+		for i := range count {
+			// Use template data, cycling through if we need more users than templates
+			template := userTemplates[i%len(userTemplates)]
+
+			userUUID := uuid.New()
+			userEmail := fmt.Sprintf("%s.%s%v@%s",
+				strings.ToLower(template.firstName),
+				strings.ToLower(template.lastName),
+				i,
+				company.domain)
+			userName := userEmail
+
+			log.Printf("  👤 Creating user: %s (%s %s)", userEmail, template.firstName, template.lastName)
+
+			// Create the user
+			user, err := queries.CreateUser(context.Background(), db.CreateUserParams{
+				ID:       pgtype.UUID{Bytes: userUUID, Valid: true},
+				Email:    userEmail,
+				Password: hashedPassword,
+				Username: userName,
+				FirstName: pgtype.Text{
+					String: template.firstName,
+					Valid:  true,
+				},
+				LastName: pgtype.Text{
+					String: template.lastName,
+					Valid:  true,
+				},
+				IsActive:        pgtype.Bool{Bool: true, Valid: true},
+				IsSuperuser:     pgtype.Bool{Bool: false, Valid: true},
+				Twofactorsecret: pgtype.Text{String: "", Valid: false},
+			})
+			if err != nil {
+				log.Printf("  ❌ Error creating user '%s': %v", userEmail, err)
+				continue
+			}
+
+			// Link the user to the organization
+			_, err = queries.OrganizationLinkUser(context.Background(), db.OrganizationLinkUserParams{
+				UsersID:         pgtype.UUID{Bytes: user.ID.Bytes, Valid: true},
+				OrganizationsID: pgtype.UUID{Bytes: org.ID.Bytes, Valid: true},
+			})
+			if err != nil {
+				log.Printf("  ❌ Error linking user '%s' to organization '%s': %v", userEmail, company.name, err)
+				continue
+			}
+
+			// If this is the first user (i == 0), link them to the admin group
+			if i == 0 {
+				log.Printf("  🔑 Linking user '%s' to admin group '%s'", userEmail, adminGroup.Name)
+				_, err = queries.InsertUserGroups(context.Background(), db.InsertUserGroupsParams{
+					UserID:  pgtype.UUID{Bytes: user.ID.Bytes, Valid: true},
+					GroupID: adminGroup.ID,
+				})
+				if err != nil {
+					log.Printf("  ❌ Error linking user '%s' to admin group: %v", userEmail, err)
+					continue
+				}
+			}
+
+			totalUsers++
+		}
+		log.Printf("✅ Successfully created %d user(s) for organization '%s'\n", count, company.name)
+	}
+
+	log.Printf("🎉 Test data creation complete!")
+	log.Printf("📊 Summary: Created %d organizations and %d users", totalOrgs, totalUsers)
+
 }
 
 // This runs goose out of go4lage.

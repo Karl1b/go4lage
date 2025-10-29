@@ -204,15 +204,13 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
             <h1 className="text-2xl font-semibold text-text-primary mb-2">
               {t('myFeedback')}
             </h1>
-            <p className="text-text-secondary">
-              {t('viewAndManageFeedback')}
-            </p>
+            <p className="text-text-secondary">{t('viewAndManageFeedback')}</p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-sm text-text-secondary">
-              {t('feedbackItemsCount', { 
-                filtered: filteredMessages.length, 
-                total: messages.length 
+              {t('feedbackItemsCount', {
+                filtered: filteredMessages.length,
+                total: messages.length,
               })}
             </span>
           </div>
@@ -315,7 +313,9 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                       {t('feedbackDetails')}
                     </h2>
                     <p className="text-sm text-text-secondary">
-                      {getStatusText(selectedMessage.is_solved)} • {t('created')} {formatTimestamp(selectedMessage.created_at)}
+                      {getStatusText(selectedMessage.is_solved)} •{' '}
+                      {t('created')}{' '}
+                      {formatTimestamp(selectedMessage.created_at)}
                     </p>
                   </div>
                 </div>
@@ -448,7 +448,9 @@ export default function MyMessages({ isAdmin }: { isAdmin: boolean }) {
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full text-center">
                       <MessageSquareShare className="w-12 h-12 text-text-muted mb-3" />
-                      <p className="text-text-secondary">{t('noMessagesYet')}</p>
+                      <p className="text-text-secondary">
+                        {t('noMessagesYet')}
+                      </p>
                       <p className="text-text-muted text-sm">
                         {t('startConversationBelow')}
                       </p>

@@ -33,7 +33,9 @@ func (app *App) AllFeedBack(w http.ResponseWriter, _ *http.Request) {
 
 func (app *App) NewFeedBack(w http.ResponseWriter, r *http.Request) {
 
-	requestUser, ok := r.Context().Value(utils.UserKey{}).(db.User)
+	infos, ok := r.Context().Value(utils.InfoContextKey).(utils.InfoKey)
+	requestUser := infos.User
+
 	if !ok {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to get user from context",
@@ -91,7 +93,8 @@ func (app *App) NewFeedBack(w http.ResponseWriter, r *http.Request) {
 
 // GetUserSpecificFeedBack retrieves all feedback entries created by the requesting user
 func (app *App) GetUserSpecificFeedBack(w http.ResponseWriter, r *http.Request) {
-	requestUser, ok := r.Context().Value(utils.UserKey{}).(db.User)
+	infos, ok := r.Context().Value(utils.InfoContextKey).(utils.InfoKey)
+	requestUser := infos.User
 	if !ok {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to get user from context",
@@ -114,7 +117,9 @@ func (app *App) GetUserSpecificFeedBack(w http.ResponseWriter, r *http.Request) 
 
 // UpdateFeedBackUser allows regular users to update their own feedback
 func (app *App) UpdateFeedBackUser(w http.ResponseWriter, r *http.Request) {
-	requestUser, ok := r.Context().Value(utils.UserKey{}).(db.User)
+
+	infos, ok := r.Context().Value(utils.InfoContextKey).(utils.InfoKey)
+	requestUser := infos.User
 	if !ok {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to get user from context",
@@ -239,7 +244,9 @@ func (app *App) UpdateFeedBackUser(w http.ResponseWriter, r *http.Request) {
 
 // UpdateFeedBackStaff allows staff members to update any feedback and close it
 func (app *App) UpdateFeedBackStaff(w http.ResponseWriter, r *http.Request) {
-	requestUser, ok := r.Context().Value(utils.UserKey{}).(db.User)
+	infos, ok := r.Context().Value(utils.InfoContextKey).(utils.InfoKey)
+	requestUser := infos.User
+
 	if !ok {
 		utils.RespondWithJSON(w, utils.ErrorResponse{
 			Detail: "Failed to get user from context",

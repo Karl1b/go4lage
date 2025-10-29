@@ -11,6 +11,7 @@ import {
   LogDetail,
   FeedBackT,
   FeedbackMsgT,
+  OrganizationT,
 } from './types'
 
 interface FetchWithTokenProps {
@@ -634,8 +635,7 @@ class API {
     })
   }
 
-  public async getMsg(token: string, isAdmin:boolean): Promise<FeedBackT[]> {
-
+  public async getMsg(token: string, isAdmin: boolean): Promise<FeedBackT[]> {
     const url = isAdmin ? 'allfeedback' : 'getuserspecificfeedback'
     const response = await this.fetchWithToken({
       url: `${this.apiUrl}/${url}`,
@@ -654,7 +654,7 @@ class API {
     feedBack: FeedbackMsgT,
     isAdmin: boolean,
     setToast: (toast: ToastDetails) => void
-  ):Promise<FeedBackT> {
+  ): Promise<FeedBackT> {
     const url = isAdmin ? 'updatefeedbackstaff' : 'updatefeedbackuser'
 
     const response = await this.fetchWithToken({
@@ -668,6 +668,92 @@ class API {
       toastHeader: 'Feedback send',
       setToast: setToast,
     })
+    return response
+  }
+
+  public async createOrganization(
+    token: string | null,
+    organization: OrganizationT,
+    setToast: (toast: ToastDetails) => void
+  ) {
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/createorganization`,
+      options: {
+        method: 'POST',
+        body: JSON.stringify(organization),
+      },
+      token: token,
+      toastHeader: 'Create Organization',
+      setToast: setToast,
+    })
+  }
+
+  public async editOneOrganization(
+    token: string | null,
+    idValue: string,
+    organization: OrganizationT,
+    setToast: (toast: ToastDetails) => void
+  ) {
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/editoneorganization`,
+      options: {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Id: idValue },
+        body: JSON.stringify(organization),
+      },
+      token: token,
+      toastHeader: 'Edit Organization',
+      setToast: setToast,
+    })
+  }
+  public async deleteOrganization(
+    token: string | null,
+    iD: string,
+    setToast: (toast: ToastDetails) => void
+  ) {
+    await this.fetchWithToken({
+      url: `${this.apiUrl}/deleteorganization`,
+      options: {
+        method: 'DELETE',
+        headers: { Id: iD },
+      },
+      token: token,
+      toastHeader: 'Delete Organization',
+      setToast: setToast,
+    })
+  }
+
+  public async allOrganizations(
+    token: string | null
+  ): Promise<OrganizationT[]> {
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/allorganizations`,
+      options: {
+        method: 'GET',
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
+    return response
+  }
+
+  public async oneOrganization(
+    token: string | null,
+    idValue: string
+  ): Promise<OrganizationT | null> {
+    const response = await this.fetchWithToken({
+      url: `${this.apiUrl}/oneorganization`,
+      options: {
+        method: 'GET',
+        headers: { Id: idValue },
+      },
+      token: token,
+      toastHeader: null,
+      setToast: null,
+    })
+
     return response
   }
 }

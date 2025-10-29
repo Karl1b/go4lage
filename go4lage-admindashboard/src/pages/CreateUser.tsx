@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react'
 import api from '../util/api'
 import { MainContext } from '../App'
-import { Group, NewUser, Permission } from '../util/types'
+import { Group, NewUser, Permission, OrganizationT } from '../util/types'
 import UserForm from '../components/UserForm'
 
 export default function CreateUser() {
@@ -16,7 +16,9 @@ export default function CreateUser() {
   const [isSuperuser, setIsSuperuser] = useState(false)
   const [groups, setGroups] = useState<Group[]>([])
   const [permissions, setPermissions] = useState<Permission[]>([])
-
+  const [organizationId, setOrganizationId] = useState<string | null>(null)
+  const [organizations, setOrganizations] = useState<OrganizationT[]>([])
+ 
   useEffect(() => {
     async function getGroups() {
       const res = await api.getGroups(userData.token)
@@ -29,9 +31,26 @@ export default function CreateUser() {
       setPermissions(res || [])
     }
     getPermissions()
+
+    async function getOrganizations() {
+      const res = await api.allOrganizations(userData.token)
+      setOrganizations(res || [])
+    }
+    getOrganizations()
   }, [userData.token])
 
   function handleSubmit() {
+    // Validate organization requirement
+    if (!isSuperuser  && !organizationId) {
+      setToast({
+        header: 'Validation Error',
+        text: 'Users who are not superusers must belong to an organization',
+        success: false,
+        show:true,
+      })
+      return
+    }
+
     const groupNames = groups
       .filter((group) => group.checked)
       .map((group) => group.name)
@@ -52,6 +71,7 @@ export default function CreateUser() {
       is_superuser: isSuperuser,
       groups: groupNames,
       permissions: permissionNames,
+      organization_id: organizationId,
     }
 
     api.createoneuser(userData.token, newUser, setToast)
@@ -75,10 +95,14 @@ export default function CreateUser() {
       setIsActive={setIsActive}
       isSuperuser={isSuperuser}
       setIsSuperuser={setIsSuperuser}
+
       groups={groups}
       setGroups={setGroups}
       permissions={permissions}
       setPermissions={setPermissions}
+      organizationId={organizationId}
+      setOrganizationId={setOrganizationId}
+      organizations={organizations}
       handleSubmit={handleSubmit}
     />
   )

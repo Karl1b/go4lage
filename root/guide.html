@@ -128,11 +128,11 @@
             <p>AuthMiddleware comes with two string options. groups and permissions.</p>
 
             <pre><code>go
-      r.Use(app.AuthMiddleware("staff", "")) 
+      r.Use(app.AuthMiddleware(utils.StaffGroup, "")) 
     </code></pre>
 
             <p>
-              In this example every user that has the group "staff" can use the
+              In this example every user that has the group utils.StaffGroup can use the
               endpoint.
             </p>
             <p></p>

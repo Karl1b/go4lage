@@ -34,7 +34,6 @@ func StartServer() {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
-	//r.Use(app.DatabaseLogger) // Logger with db write. Uncommend to log everything.
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(60 * time.Second))
 
@@ -47,13 +46,6 @@ func StartServer() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	/* 	Example for the database logger: Tracking hits on index and on imprint.
-	"Conversion rate."
-	*/
-	r.With(app.DatabaseLogger).Get("/", utils.Root)
-	r.With(app.DatabaseLogger).Get("/imprint", utils.Root)
-	r.With(app.DatabaseLogger).Get("/geminicv", utils.Root)
-
 	// * for statics, serves the root folder content
 	r.Get("/*", utils.Root)
 
@@ -63,47 +55,62 @@ func StartServer() {
 	r.Route("/adminapi", func(r chi.Router) {
 		// Routes with basic auth middleware
 		r.Group(func(r chi.Router) {
-			r.Use(app.AuthMiddleware("", ""))
+			r.Use(app.AuthMiddleware("", "")) // "", "" means everyone who is logged in can use it.
+
+			/* Logout */
 			r.Get("/logout", adminApp.Logout)
+
+			/* Feedback */
 			r.Post("/updatefeedbackuser", adminApp.UpdateFeedBackUser)
 			r.Get("/getuserspecificfeedback", adminApp.GetUserSpecificFeedBack)
 			r.Post("/newfeedback", adminApp.NewFeedBack)
 		})
 
-		// Routes with staff auth middleware
+		// Routes for organization admins
 		r.Group(func(r chi.Router) {
-			r.Use(app.AuthMiddleware("staff", ""))
-			r.Get("/allusers", adminApp.Allusers)
-			r.Get("/oneuser", adminApp.Oneuser)
+			r.Use(app.AuthMiddleware(utils.OrganizationAdminGroup, ""))
+
+			/* Users */
+			r.Get("/allusers", adminApp.AllUsers)
+			r.Get("/oneuser", adminApp.OneUser)
 			r.Delete("/deleteuser", adminApp.Deleteoneuser)
 			r.Put("/oneuser", adminApp.Editoneuser)
 			r.Post("/oneuser", adminApp.Createoneuser)
-			r.Post("/bulkcreateusers", adminApp.BulkCreateUsers)
-			r.Get("/downloadcsvtemplate", adminApp.DownloadCSVTemplate)
+
+			/* User Groups and Permissions */
 			r.Get("/getusergroups", adminApp.GetUserGroups)
 			r.Get("/getuserpermissions", adminApp.GetUserPermissions)
 			r.Post("/editusergroups", adminApp.EditUserGroups)
 			r.Post("/edituserpermissions", adminApp.EditUserPermissions)
+
+			/* Permissions R */
 			r.Get("/getgroups", adminApp.GetGroups)
 			r.Get("/getgroup", adminApp.GetGroupById)
 			r.Get("/getpermissions", adminApp.GetPermissions)
 			r.Get("/getpermission", adminApp.GetPermissionById)
 			r.Get("/getpermissionsforgroup", adminApp.GetPermissionsForGroup)
-			r.Post("/editgrouppermissions", adminApp.EditGroupPermissions)
-			r.Delete("/deletepermission", adminApp.DeletePermission)
-			r.Delete("/deletegroup", adminApp.DeleteGroup)
-			r.Put("/creategroup", adminApp.CreateGroup)
-			r.Put("/createpermission", adminApp.CreatePermission)
-			r.Get("/createbackup", adminApp.CreateBackup)
-			r.Get("/getbackups", adminApp.GetBackups)
-			r.Get("/downloadbackup", adminApp.DownloadBackup)
-			r.Delete("/deletebackup", adminApp.DeleteBackup)
-			r.Get("/getlogs/{endpoint}", adminApp.GetLogs)
-			r.Get("/geterrorlogs", adminApp.GetErrorLogs)
+
+			/* ORGANIZATIONS */
+			r.Get("/allorganizations", adminApp.AllOrganizations)
+			r.Get("/oneorganization", adminApp.OneOrganization)
+		})
+
+		// Routes for only superusers
+		r.Group(func(r chi.Router) {
+			r.Use(app.AuthMiddleware("onlysuperuser", ""))
+
+			/* Organizations */
+			r.Post("/createorganization", adminApp.CreateOrganization)
+			r.Delete("/deleteorganization", adminApp.DeleteOrganization)
+			r.Put("/editoneorganization", adminApp.EditOrganization)
+
+			/* Feedback */
 			r.Get("/allfeedback", adminApp.AllFeedBack)
 			r.Get("/newfeedback", adminApp.NewFeedBack)
 			r.Post("/updatefeedbackstaff", adminApp.UpdateFeedBackStaff)
+
 		})
+
 	})
 
 	//r.Get("/accesslogs", app.getAccessLogs) */

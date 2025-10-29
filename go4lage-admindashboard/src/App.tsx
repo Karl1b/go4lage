@@ -8,19 +8,16 @@ import SideBar from './components/SideBar'
 import Login from './pages/Login'
 import Index from './pages/Index'
 import CreateUser from './pages/CreateUser'
-import BulkCreate from './pages/BulkCreate'
 import ShowUsers from './pages/ShowUsers'
-import Backups from './pages/Backups'
-import Logs from './pages/Logs'
+
 import ManageUser from './pages/ManageUser'
-import GroupsPermissions from './pages/GroupsPermissions'
-import ManageGroup from './pages/ManageGroup'
-import ManagePermission from './pages/ManagePermission'
 import Toast from './components/Toast'
-import Accesslogs from './pages/Accesslogs'
-import Errorlogs from './pages/Errorlogs'
+
 import { ThemeProvider } from './themecomps/ThemeProvider'
 import MyMessages from './pages/MyMessages'
+import ManageOrganization from './pages/ManageOrganization'
+import CreateOrganization from './pages/CreateOrganization'
+import ShowOrganizations from './pages/ShowOrganizations'
 
 interface IMainContext {
   toast: ToastDetails
@@ -30,7 +27,11 @@ interface IMainContext {
 }
 
 export const MainContext = createContext<IMainContext>({
-  userData: { email: null, token: null },
+  userData: {
+    email: null, token: null,
+    is_superuser: false,
+    is_organizationadmin: false,
+  },
   toast: { show: false, success: true, text: '', header: '' },
   setUserData: () => {},
   setToast: () => {},
@@ -82,35 +83,43 @@ function App() {
                     />
 
                     {/* Page Content */}
-                    <main className="flex overflow-y-auto bg-surface-secondary pt-16 justify-center">
-                      <div className={isSidebarExpanded ? 'flex lg:pl-[288px]' : 'flex md:pl-20 lg:pl-14'}>
+                    <main className="flex overflow-y-auto pt-16 justify-center">
+                      <div
+                        className={
+                          isSidebarExpanded
+                            ? 'flex lg:pl-[288px]'
+                            : 'flex md:pl-20 lg:pl-14'
+                        }
+                      >
                         <Routes>
                           <Route path="/" element={<Index />} />
+
+                           {/* USERS */}
                           <Route path="/createuser" element={<CreateUser />} />
-                          <Route path="/bulkcreate" element={<BulkCreate />} />
                           <Route path="/showusers" element={<ShowUsers />} />
-                          <Route path="/backups" element={<Backups />} />
-                          <Route path="/logs" element={<Logs />} />
-                          <Route path="/accesslogs" element={<Accesslogs />} />
-                          <Route path="/errorlogs" element={<Errorlogs />} />
                           <Route
                             path="/manageuser/:id"
                             element={<ManageUser />}
+                            />
+
+                            {/* ORGANIZATIONS */}
+
+                          <Route path="/createorganization" element={<CreateOrganization />} />
+                          <Route path="/showorganizations" element={<ShowOrganizations />} />
+                          <Route
+                            path="/manageorganization/:id"
+                            element={<ManageOrganization/>}
+                            />
+
+                            {/* FEEDBACK MESSAGES */}
+                          <Route
+                            path="/mymessages"
+                            element={<MyMessages isAdmin={false} />}
                           />
                           <Route
-                            path="/managegroup/:id"
-                            element={<ManageGroup />}
+                            path="/adminmessages"
+                            element={<MyMessages isAdmin={true} />}
                           />
-                          <Route
-                            path="/managepermission/:id"
-                            element={<ManagePermission />}
-                          />
-                          <Route
-                            path="/groupspermissions"
-                            element={<GroupsPermissions />}
-                          />
-                           <Route path="/mymessages" element={<MyMessages isAdmin={false} />} />
-                           <Route path="/adminmessages" element={<MyMessages isAdmin={true} />} />
                         </Routes>
                       </div>
                     </main>
@@ -134,6 +143,6 @@ function getUserDataFromSession(): UserDetails {
   if (storedUserData) {
     return JSON.parse(storedUserData)
   } else {
-    return { email: null, token: null }
+    return { email: null, token: null, is_superuser: false, is_organizationadmin:false }
   }
 }

@@ -65,9 +65,10 @@ var createSuperuser = &cobra.Command{
 }
 
 var createFakeUsers = &cobra.Command{
-	Use:   "createfakeusers",
-	Short: "Creates fake users.",
-	Long:  `Creates fake user.`,
+	Use:   "createfakeusers [count]",
+	Short: "Creates test users for development (password: 'test')",
+	Long:  `Creates test organizations and users for development/testing. All users have password 'test'.`,
+	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		utils.CreateFakeUsers(args[0])
 	},

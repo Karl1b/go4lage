@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/karl1b/go4lage/pkg/sql/db"
 )
@@ -49,14 +50,17 @@ func (c *go4Cache[K, T]) Flush() {
 	c.items = make(map[K]T)
 }
 
-var Go4users *go4Cache[string, interface{}]
+var Go4users *go4Cache[string, db.User]
 var Go4permissions *go4Cache[[16]byte, []string]
 var Go4groups *go4Cache[[16]byte, []string]
+var Go4Organizations *go4Cache[[16]byte, db.Organization]
 
 func init() {
-	Go4users = NewGo4Cache[string, interface{}]()
+	Go4users = NewGo4Cache[string, db.User]()
 	Go4groups = NewGo4Cache[[16]byte, []string]()
 	Go4permissions = NewGo4Cache[[16]byte, []string]()
+	Go4Organizations = NewGo4Cache[[16]byte, db.Organization]()
+
 }
 
 /*
@@ -97,15 +101,7 @@ func GetUserByToken(token string, queries *db.Queries) (result db.User, err erro
 	cached_result, cacheFound := Go4users.Get(token)
 
 	if cacheFound {
-
-		result, ok := cached_result.(db.User)
-		if ok {
-
-			return result, err
-		}
-
-		result, err = getFromDB(token, queries)
-		return result, err
+		return cached_result, nil
 	}
 
 	result, err = getFromDB(token, queries)
@@ -167,6 +163,38 @@ func GetGroupsByUser(id pgtype.UUID, queries *db.Queries) (result []string, err 
 		return cachedResult, nil
 
 	}
+	result, err = getFromDB(id, queries)
+	return result, err
+}
+
+func GetOrganizationByUserID(id uuid.UUID, queries *db.Queries) (result db.Organization, err error) {
+
+	getFromDB := func(id uuid.UUID, queries *db.Queries) (db.Organization, error) {
+
+		company, err := queries.OrganizationSelectUserOrganization(context.Background(), pgtype.UUID{
+			Bytes: id,
+			Valid: true,
+		})
+		if err != nil {
+			return db.Organization{}, err // Handle error properly
+		}
+
+		Go4Organizations.Set(id, company)
+
+		return company, nil
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			result, err = getFromDB(id, queries)
+		}
+	}()
+
+	cached_result, found := Go4Organizations.Get(id)
+	if found {
+		return cached_result, nil
+	}
+
 	result, err = getFromDB(id, queries)
 	return result, err
 }

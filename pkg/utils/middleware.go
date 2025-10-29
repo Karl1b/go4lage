@@ -2,69 +2,16 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 	"time"
-
-	"github.com/go-chi/chi/middleware"
-	"github.com/jackc/pgx/v5/pgtype"
 
 	cache "github.com/karl1b/go4lage/pkg/cache"
 	settings "github.com/karl1b/go4lage/pkg/settings"
 
 	"github.com/karl1b/go4lage/pkg/sql/db"
 )
-
-func (app *App) DatabaseLogger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		ww := middleware.NewWrapResponseWriter(w, r.ProtoMajor)
-
-		defer func() {
-			params := db.InsertLogEntryParams{
-				ClientIp: pgtype.Text{
-					String: strings.Split(r.RemoteAddr, ".")[0], // It does only log the first part of the ip due to legal restrictions.
-					Valid:  true,
-				},
-				RequestMethod: pgtype.Text{
-					String: r.Method,
-					Valid:  true,
-				},
-				RequestUri: pgtype.Text{
-					String: r.URL.RequestURI(),
-					Valid:  true,
-				},
-				RequestProtocol: pgtype.Text{
-					String: r.Proto,
-					Valid:  true,
-				},
-				StatusCode: pgtype.Int2{
-					Int16: int16(ww.Status()),
-					Valid: true,
-				},
-				ResponseDuration: pgtype.Int2{
-					Int16: int16(time.Since(start).Milliseconds()),
-					Valid: true,
-				},
-				UserAgent: pgtype.Text{
-					String: r.UserAgent(),
-					Valid:  true,
-				},
-				Referrer: pgtype.Text{
-					String: r.Referer(),
-					Valid:  true,
-				},
-			}
-
-			if err := app.Queries.InsertLogEntry(r.Context(), params); err != nil {
-				fmt.Println("Error logging to database:", err)
-			}
-		}()
-
-		next.ServeHTTP(ww, r)
-	})
-}
 
 // This makes sure that only logged in users can access the route.
 // If you enter a group or permission only users with one of them will be able to use this route.
@@ -115,29 +62,32 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 			}
 
 			hasPermission := false
-
-			if permission != "" {
-				hasPermission, err = userHasPermission(user, permission, app.Queries)
-				if err != nil {
-					RespondWithJSON(w, ErrorResponse{
-						Detail: "Error getting permissions for user",
-						Error:  err.Error(),
-					})
-					return
-				}
+			var perms []string
+			perms, err = cache.GetPermissionsByUser(user.ID, app.Queries)
+			if err != nil {
+				RespondWithJSON(w, ErrorResponse{
+					Detail: "Error getting permission for user",
+					Error:  err.Error(),
+				})
+				return
 			}
 
+			if permission != "" {
+				hasPermission = userHasPermission(user.IsSuperuser.Bool, permission, perms)
+			}
 			hasGroup := false
-			if group != "" {
+			var groups []string
+			groups, err = cache.GetGroupsByUser(user.ID, app.Queries)
+			if err != nil {
+				RespondWithJSON(w, ErrorResponse{
+					Detail: "Error getting group for user",
+					Error:  err.Error(),
+				})
+				return
 
-				hasGroup, err = userHasGroup(user, group, app.Queries)
-				if err != nil {
-					RespondWithJSON(w, ErrorResponse{
-						Detail: "Error getting group for user",
-						Error:  err.Error(),
-					})
-					return
-				}
+			}
+			if group != "" {
+				hasGroup = userHasGroup(user.IsSuperuser.Bool, group, groups)
 			}
 			if !(hasPermission || hasGroup) && !(group == "" && permission == "") {
 
@@ -161,8 +111,27 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 
 			}
 
-			// Insert user into the request context for later use
-			ctx := context.WithValue(r.Context(), UserKey{}, user)
+			var organization db.Organization
+
+			if !(user.IsSuperuser.Bool) {
+				organization, err = cache.GetOrganizationByUserID(user.ID.Bytes, app.Queries)
+				if err != nil {
+					RespondWithJSON(w, ErrorResponse{
+						Detail: "Error getting organization for user in middleware",
+						Error:  err.Error(),
+					})
+					return
+				}
+			}
+
+			infos := InfoKey{
+				User:         user,
+				Organization: organization,
+				Groups:       groups,
+				Permissions:  perms,
+			}
+
+			ctx := context.WithValue(r.Context(), InfoContextKey, infos)
 
 			r = r.WithContext(ctx)
 			next.ServeHTTP(w, r)
@@ -170,35 +139,23 @@ func (app *App) AuthMiddleware(group string, permission string) func(http.Handle
 	}
 }
 
-func userHasPermission(user db.User, requiredPerm string, queries *db.Queries) (bool, error) {
-	if user.IsSuperuser.Bool {
-		return true, nil
+func userHasPermission(isSuperUser bool, requiredPerm string, perms []string) bool {
+	if isSuperUser {
+		return true
 	}
-	perms, err := cache.GetPermissionsByUser(user.ID, queries)
-	if err != nil {
-		return false, err
+	if slices.Contains(perms, requiredPerm) {
+		return true
 	}
-	for _, perm := range perms {
-		if perm == requiredPerm {
-			return true, nil
-		}
-	}
-	return false, nil
+	return false
 }
 
-func userHasGroup(user db.User, requiredGroup string, queries *db.Queries) (bool, error) {
-	if user.IsSuperuser.Bool {
-		return true, nil
+func userHasGroup(isSuperUser bool, requiredGroup string, groups []string) bool {
+	if isSuperUser {
+		return true
 	}
+	if slices.Contains(groups, requiredGroup) {
+		return true
+	}
+	return false
 
-	groups, err := cache.GetGroupsByUser(user.ID, queries)
-	if err != nil {
-		return false, err
-	}
-	for _, group := range groups {
-		if group == requiredGroup {
-			return true, nil
-		}
-	}
-	return false, nil
 }
