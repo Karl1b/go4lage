@@ -107,10 +107,12 @@
   "ActiveUntilDescription": "Organisation ist bis zu diesem Datum aktiv",
   "DeleteOrganization": "Organisation löschen",
   "ExpiresInDays": "Läuft in {{days}} Tagen ab.",
-  "OrganizationRequiredWarning":"Organisation wird benötigt",
-  "createUser":"Benutzer erstellen",
-  "PurePermissionsDescription1":"Berechtigungen sind Zugangsrechte, die entweder Benutzern oder Gruppen zugeteilt werden können",
-  "PurePermissionsDescription2":"Reine Berechtigungen ermöglichen es, einem Benutzer genau ein bestimmtes Zugangsrecht zu geben.",
-  "GroupDescription1":"Eine Gruppe fasst Benutzer zusammen, die Zugangsrechte in der App teilen.",
-  "GroupDescription2":"Die Gruppe kann selbst ein Zugangsrecht sein, oder wiederum Berechtigungen zusammenfassen."
+  "OrganizationRequiredWarning": "Organisation wird benötigt",
+  "createUser": "Benutzer erstellen",
+  "PurePermissionsDescription1": "Berechtigungen sind Zugangsrechte, die entweder Benutzern oder Gruppen zugeteilt werden können",
+  "PurePermissionsDescription2": "Reine Berechtigungen ermöglichen es, einem Benutzer genau ein bestimmtes Zugangsrecht zu geben.",
+  "GroupDescription1": "Eine Gruppe fasst Benutzer zusammen, die Zugangsrechte in der App teilen.",
+  "GroupDescription2": "Die Gruppe kann selbst ein Zugangsrecht sein, oder wiederum Berechtigungen zusammenfassen.",
+  "language.german": "Deutsch",
+  "language.english": "Englisch"
 }

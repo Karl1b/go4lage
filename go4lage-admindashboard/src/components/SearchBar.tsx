@@ -186,136 +186,140 @@ export default function SearchBar({
   }, [allUsers])
 
   return (
-    <div className="p-4">
-      <div className="grid">
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
-          <input
-            type="text"
-            placeholder={t('Username')}
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="p-2 rounded h-12 bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted"
-          />
-          <input
-            type="text"
-            placeholder={t('FirstName')}
-            value={first_name}
-            onChange={(e) => setFirst_name(e.target.value)}
-            className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
-          />
-          <input
-            type="text"
-            placeholder={t('LastName')}
-            value={last_name}
-            onChange={(e) => setLast_name(e.target.value)}
-            className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
-          />
-          <input
-            type="email"
-            placeholder={t('Email')}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
-          />
+    <div className="p-6 space-y-4 bg-surface-secondary border-b border-border-default">
+      {/* Text Input Fields */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <input
+          type="text"
+          placeholder={t('Username')}
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <input
+          type="text"
+          placeholder={t('FirstName')}
+          value={first_name}
+          onChange={(e) => setFirst_name(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <input
+          type="text"
+          placeholder={t('LastName')}
+          value={last_name}
+          onChange={(e) => setLast_name(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <input
+          type="email"
+          placeholder={t('Email')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+      </div>
 
-          <div className="flex gap-2 col-span-2">
-            <Button
-              kind="primary"
-              onClick={handleSearch}
-              className="bg-interactive-default hover:bg-interactive-hover active:bg-interactive-active text-text-inverse"
-            >
-              {t('Search')}
-            </Button>
-            <Button
-              kind="secondary"
-              onClick={handleShowAll}
-              className="bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-border-default"
-            >
-              {t('ShowAll')}
-            </Button>
-          </div>
+      {/* Filters and Actions Row */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        {/* Checkboxes */}
+        <div className="flex flex-col justify-center gap-2 px-3 py-2 bg-surface-primary rounded-lg border border-border-default">
+          <label className="flex items-center text-sm text-text-primary">
+            <input
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="mr-2 accent-blue-600 w-4 h-4"
+            />
+            <span className="whitespace-nowrap">{t('IsActive')}</span>
+          </label>
+          <label className="flex items-center text-sm text-text-primary">
+            <input
+              type="checkbox"
+              checked={isSuperuser}
+              onChange={(e) => setIsSuperuser(e.target.checked)}
+              className="mr-2 accent-blue-600 w-4 h-4"
+            />
+            <span className="whitespace-nowrap">{t('IsSuperuser')}</span>
+          </label>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2 mt-4">
-          <div className="flex flex-col justify-center p-2">
-            <label className="flex items-center text-nowrap text-text-primary mb-1">
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="mr-2 accent-interactive-default"
-              />
-              {t('IsActive')}
-            </label>
-            <label className="flex items-center text-nowrap text-text-primary">
-              <input
-                type="checkbox"
-                checked={isSuperuser}
-                onChange={(e) => setIsSuperuser(e.target.checked)}
-                className="mr-2 accent-interactive-default"
-              />
-              {t('IsSuperuser')}
-            </label>
-          </div>
+        {/* Group Filter */}
+        <select
+          value={selectedGroup}
+          onChange={(e) => setSelectedGroup(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">{t('AllGroups')}</option>
+          {availableGroups.map((group) => (
+            <option key={group.id} value={group.name}>
+              {group.name}
+            </option>
+          ))}
+        </select>
 
-          <div className="flex flex-col justify-center">
-            <select
-              value={selectedGroup}
-              onChange={(e) => setSelectedGroup(e.target.value)}
-              className="p-2 rounded bg-surface-primary text-text-primary border-2 border-border-default"
-            >
-              <option value="">{t('AllGroups')}</option>
-              {availableGroups.map((group) => (
-                <option key={group.id} value={group.name}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Organization Filter */}
+        <select
+          value={selectedOrganization}
+          onChange={(e) => setSelectedOrganization(e.target.value)}
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        >
+          <option value="">{t('AllOrganizations')}</option>
+          <option value="none">{t('NoOrganization')}</option>
+          {availableOrganizations.map((org) => (
+            <option key={org.id} value={org.id || ''}>
+              {org.organization_name}
+            </option>
+          ))}
+        </select>
 
-          <div className="flex flex-col justify-center">
-            <select
-              value={selectedOrganization}
-              onChange={(e) => setSelectedOrganization(e.target.value)}
-              className="p-2 rounded bg-surface-primary text-text-primary border-2 border-border-default"
-            >
-              <option value="">{t('AllOrganizations')}</option>
-              <option value="none">{t('NoOrganization')}</option>
-              {availableOrganizations.map((org) => (
-                <option key={org.id} value={org.id || ''}>
-                  {org.organization_name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {/* Created Sort */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-surface-primary rounded-lg border border-border-default">
+          <label className="text-sm text-text-primary whitespace-nowrap">
+            {t('Created')}
+          </label>
+          <button
+            onClick={() => {
+              setCreated_at(created_at === 'asc' ? 'desc' : 'asc')
+            }}
+            className="ml-auto px-3 py-1 rounded border-2 border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary transition-colors"
+            title={created_at === 'asc' ? 'Oldest first' : 'Newest first'}
+          >
+            {created_at === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
 
-          <div className="flex items-center">
-            <label className="mr-2 text-text-primary text-nowrap">
-              {t('Created')}
-            </label>
-            <button
-              onClick={() => {
-                setCreated_at(created_at === 'asc' ? 'desc' : 'asc')
-              }}
-              className="p-2 rounded border-2 border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary"
-            >
-              {created_at === 'asc' ? '↓' : '↑'}
-            </button>
-          </div>
+        {/* Last Login Sort */}
+        <div className="flex items-center gap-2 px-3 py-2 bg-surface-primary rounded-lg border border-border-default">
+          <label className="text-sm text-text-primary whitespace-nowrap">
+            {t('LastLogin')}
+          </label>
+          <button
+            onClick={() => {
+              setLast_login(last_login === 'asc' ? 'desc' : 'asc')
+            }}
+            className="ml-auto px-3 py-1 rounded border-2 border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary transition-colors"
+            title={last_login === 'asc' ? 'Oldest first' : 'Newest first'}
+          >
+            {last_login === 'asc' ? '↑' : '↓'}
+          </button>
+        </div>
 
-          <div className="flex items-center">
-            <label className="mr-2 text-text-primary text-nowrap">
-              {t('LastLogin')}
-            </label>
-            <button
-              onClick={() => {
-                setLast_login(last_login === 'asc' ? 'desc' : 'asc')
-              }}
-              className="p-2 rounded border-2 border-border-default bg-surface-secondary hover:bg-surface-tertiary text-text-primary"
-            >
-              {last_login === 'asc' ? '↓' : '↑'}
-            </button>
-          </div>
+        {/* Action Buttons */}
+        <div className="flex gap-2 sm:col-span-2 lg:col-span-3 xl:col-span-1">
+          <Button
+            kind="primary"
+            onClick={handleSearch}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            {t('Search')}
+          </Button>
+          <Button
+            kind="secondary"
+            onClick={handleShowAll}
+            className="flex-1 bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-2 border-border-default"
+          >
+            {t('ShowAll')}
+          </Button>
         </div>
       </div>
     </div>

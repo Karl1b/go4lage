@@ -112,5 +112,6 @@
   "PurePermissionsDescription1": "Permissions are access rights that can be assigned to either users or groups",
   "PurePermissionsDescription2": "Pure permissions allow you to give a user a specific access right.",
   "GroupDescription1": "A group brings together users who share access rights in the app.",
-  "GroupDescription2": "The group can itself be an access right, or in turn combine permissions."
+  "language.german": "German",
+  "language.english": "English"
 }

@@ -45,6 +45,15 @@ export default function OrganizationForm({
   // Get today's date for min attribute
   const today = new Date().toISOString().split('T')[0]
 
+  // Calculate status and days remaining
+  const isActive = activeUntil && new Date(activeUntil) > new Date()
+  const daysRemaining = activeUntil
+    ? Math.ceil(
+        (new Date(activeUntil).getTime() - new Date().getTime()) /
+          (1000 * 60 * 60 * 24)
+      )
+    : 0
+
   return (
     <div className="bg-surface-primary rounded-lg border border-border-default p-6">
       <h1 className="text-2xl font-semibold text-text-primary mb-6">
@@ -53,16 +62,16 @@ export default function OrganizationForm({
 
       <div className="space-y-6">
         {/* Organization Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              {t('OrganizationName')}
+              {t('OrganizationName')} <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={organizationName}
               onChange={(e) => setOrganizationName(e.target.value)}
-              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
               placeholder={t('OrganizationNamePlaceholder')}
               required
             />
@@ -70,13 +79,13 @@ export default function OrganizationForm({
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              {t('Email')}
+              {t('Email')} <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
               placeholder={t('OrganizationEmailPlaceholder')}
               required
             />
@@ -84,14 +93,14 @@ export default function OrganizationForm({
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              {t('ActiveUntil')}
+              {t('ActiveUntil')} <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
               value={formatDateForInput(activeUntil)}
               onChange={(e) => setActiveUntil(e.target.value)}
               min={today}
-              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+              className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
               required
             />
             <p className="mt-1 text-xs text-text-muted">
@@ -102,32 +111,40 @@ export default function OrganizationForm({
 
         {/* Status Display */}
         {organizationId && activeUntil && (
-          <div className="p-4 bg-surface-secondary rounded-lg">
-            <h3 className="text-sm font-medium text-text-secondary mb-2">
+          <div className="p-4 bg-surface-secondary rounded-lg border border-border-default">
+            <h3 className="text-sm font-medium text-text-secondary mb-3">
               {t('Status')}
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
               <div
-                className={`w-2 h-2 rounded-full ${
-                  new Date(activeUntil) > new Date()
-                    ? 'bg-green-500'
-                    : 'bg-red-500'
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full w-fit ${
+                  isActive
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-red-100 text-red-700'
                 }`}
-              ></div>
-              <span className="text-text-primary">
-                {new Date(activeUntil) > new Date()
-                  ? t('Active')
-                  : t('Expired')}
-              </span>
-              {new Date(activeUntil) > new Date() && (
-                <span className="text-text-muted text-sm">
-                  {t('ExpiresInDays', {
-                    days: Math.ceil(
-                      (new Date(activeUntil).getTime() - new Date().getTime()) /
-                        (1000 * 60 * 60 * 24)
-                    ),
-                  })}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full ${
+                    isActive ? 'bg-green-500' : 'bg-red-500'
+                  }`}
+                ></div>
+                <span className="text-sm font-medium">
+                  {isActive ? t('Active') : t('Expired')}
                 </span>
+              </div>
+
+              {isActive && daysRemaining > 0 && (
+                <div
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium w-fit ${
+                    daysRemaining <= 30
+                      ? 'bg-orange-100 text-orange-700'
+                      : 'bg-blue-100 text-blue-700'
+                  }`}
+                >
+                  {daysRemaining <= 30
+                    ? t('ExpiresInDaysWarning', { days: daysRemaining })
+                    : t('ExpiresInDays', { days: daysRemaining })}
+                </div>
               )}
             </div>
           </div>
@@ -146,6 +163,14 @@ export default function OrganizationForm({
                 {t('DeleteOrganization')}
               </Button>
             )}
+          </div>
+        )}
+
+        {!userData.is_superuser && (
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              {t('OnlySuperusersCanModifyOrganizations')}
+            </p>
           </div>
         )}
       </div>

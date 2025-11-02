@@ -45,11 +45,12 @@ export default function OrganizationCardContainer({ showData }: { showData: Orga
   }, [displayedItems, showData])
 
   return (
-    <div className="w-full">
+    <div className="w-full space-y-0">
       {displayedItems.map((organization: OrganizationT, index: number) => (
-        <div key={`${organization.organization_name}-${index}`} className="w-full">
-          <OrganizationCard organization={organization} />
-        </div>
+        <OrganizationCard 
+          key={organization.id || `${organization.organization_name}-${index}`} 
+          organization={organization} 
+        />
       ))}
       
       {/* Loading indicator and sentinel element */}

@@ -76,6 +76,13 @@ export default function OrganizationSearchBar({
     handleSearch()
   }, [statusFilter, expirySort])
 
+  // Execute search on mount and when allOrganizations changes
+  useEffect(() => {
+    if (allOrganizations.length > 0) {
+      handleSearch()
+    }
+  }, [allOrganizations])
+
   // Get organizations expiring soon (within 30 days)
   const getExpiringSoonCount = () => {
     const thirtyDaysFromNow = new Date()
@@ -91,28 +98,43 @@ export default function OrganizationSearchBar({
   const expiringSoonCount = getExpiringSoonCount()
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-6 space-y-4 bg-surface-secondary border-b border-border-default">
       {/* Alert for expiring organizations */}
       {expiringSoonCount > 0 && (
-        <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 flex items-center gap-2">
-          <span className="text-orange-600 text-sm font-medium">
-            ⚠️ {expiringSoonCount}{' '}
-            {t('OrganizationsExpiringWithin30Days', {
-              count: expiringSoonCount,
-            })}
-          </span>
+        <div className="bg-orange-50 border-l-4 border-orange-500 rounded-lg p-4 flex items-start gap-3">
+          <svg
+            className="w-5 h-5 text-orange-600 mt-0.5 flex-shrink-0"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-orange-800">
+              {expiringSoonCount}{' '}
+              {expiringSoonCount === 1
+                ? t('OrganizationExpiringWithin30Days')
+                : t('OrganizationsExpiringWithin30Days', {
+                    count: expiringSoonCount,
+                  })}
+            </p>
+          </div>
         </div>
       )}
 
       {/* Search Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <input
           type="text"
           placeholder={t('OrganizationName')}
           value={organizationName}
           onChange={(e) => setOrganizationName(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
 
         <input
@@ -121,7 +143,7 @@ export default function OrganizationSearchBar({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         />
 
         <select
@@ -129,7 +151,7 @@ export default function OrganizationSearchBar({
           onChange={(e) =>
             setStatusFilter(e.target.value as 'all' | 'active' | 'expired')
           }
-          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
+          className="px-4 py-2 rounded-lg bg-surface-primary text-text-primary border-2 border-border-default focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
         >
           <option value="all">{t('AllStatus')}</option>
           <option value="active">{t('Active')}</option>
@@ -140,54 +162,80 @@ export default function OrganizationSearchBar({
           <Button
             kind="primary"
             onClick={handleSearch}
-            className="flex-1 bg-interactive-default hover:bg-interactive-hover active:bg-interactive-active text-text-inverse"
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
           >
             {t('Search')}
           </Button>
           <Button
             kind="secondary"
             onClick={handleShowAll}
-            className="flex-1 bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-border-default"
+            className="flex-1 bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-2 border-border-default"
           >
             {t('Clear')}
           </Button>
         </div>
       </div>
 
-      {/* Sort Controls */}
-      <div className="flex items-center gap-4">
+      {/* Sort and Stats Row */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-text-primary">
+          <label className="text-sm font-medium text-text-primary whitespace-nowrap">
             {t('SortByExpiry')}:
           </label>
-          <div className="flex gap-1">
+          <div className="flex gap-2">
             <button
               onClick={() => setExpirySort(expirySort === 'asc' ? '' : 'asc')}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 expirySort === 'asc'
-                  ? 'bg-interactive-default text-white'
-                  : 'bg-surface-secondary hover:bg-surface-tertiary text-text-primary'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-surface-primary hover:bg-surface-tertiary text-text-primary border border-border-default'
               }`}
               title={t('ExpiringSoonFirst')}
             >
-              ↑ {t('Soon')}
+              <span className="flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 10l7-7m0 0l7 7m-7-7v18"
+                  />
+                </svg>
+                {t('Soon')}
+              </span>
             </button>
             <button
               onClick={() => setExpirySort(expirySort === 'desc' ? '' : 'desc')}
-              className={`px-3 py-1 rounded text-sm transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                 expirySort === 'desc'
-                  ? 'bg-interactive-default text-white'
-                  : 'bg-surface-secondary hover:bg-surface-tertiary text-text-primary'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-surface-primary hover:bg-surface-tertiary text-text-primary border border-border-default'
               }`}
               title={t('ExpiringLaterFirst')}
             >
-              ↓ {t('Later')}
+              <span className="flex items-center gap-1">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+                {t('Later')}
+              </span>
             </button>
           </div>
-        </div>
-
-        <div className="ml-auto text-sm text-text-secondary">
-          {t('ShowingOrganizations', { count: allOrganizations.length })}
         </div>
       </div>
     </div>
