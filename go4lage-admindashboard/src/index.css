@@ -1,7 +1,9 @@
 @import 'tailwindcss';
 
+/* Will be overridden by theme provider, change in themes.ts!!! */
+
 @theme {
-  /* Light theme (default) */
+
   --color-brand: #3c8dcf;
   --color-brand-secondary: #3b93d1;
   --color-text-primary: #333;
@@ -28,9 +30,9 @@
   --gradient-surface: linear-gradient(to bottom, #e4e4e4, #d8d8d8);
 }
 
-@media (prefers-color-scheme: dark) {
+[data-theme='dark'] {
   @theme {
-    /* Dark theme */
+
     --color-brand: #2c5dcd;
     --color-brand-secondary: #3b93d1;
     --color-text-primary: #f4f4f4;

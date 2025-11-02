@@ -1,4 +1,5 @@
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MainContext } from '../App'
 import api from '../util/api'
 import Button from '../stylecomponents/Button'
@@ -26,6 +27,7 @@ export default function OrganizationForm({
   setActiveUntil,
   handleSubmit,
 }: OrganizationFormProps) {
+  const { t } = useTranslation()
   const { userData, setToast } = useContext(MainContext)
 
   function deleteOrganization() {
@@ -54,35 +56,35 @@ export default function OrganizationForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              Organization Name
+              {t('OrganizationName')}
             </label>
             <input
               type="text"
               value={organizationName}
               onChange={(e) => setOrganizationName(e.target.value)}
               className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-              placeholder="Acme Corporation"
+              placeholder={t('OrganizationNamePlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              Email
+              {t('Email')}
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-border-default px-4 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent"
-              placeholder="contact@organization.com"
+              placeholder={t('OrganizationEmailPlaceholder')}
               required
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
-              Active Until
+              {t('ActiveUntil')}
             </label>
             <input
               type="date"
@@ -93,7 +95,7 @@ export default function OrganizationForm({
               required
             />
             <p className="mt-1 text-xs text-text-muted">
-              The date until which the organization subscription is active
+              {t('ActiveUntilDescription')}
             </p>
           </div>
         </div>
@@ -102,7 +104,7 @@ export default function OrganizationForm({
         {organizationId && activeUntil && (
           <div className="p-4 bg-surface-secondary rounded-lg">
             <h3 className="text-sm font-medium text-text-secondary mb-2">
-              Status
+              {t('Status')}
             </h3>
             <div className="flex items-center gap-2">
               <div
@@ -113,16 +115,18 @@ export default function OrganizationForm({
                 }`}
               ></div>
               <span className="text-text-primary">
-                {new Date(activeUntil) > new Date() ? 'Active' : 'Expired'}
+                {new Date(activeUntil) > new Date()
+                  ? t('Active')
+                  : t('Expired')}
               </span>
               {new Date(activeUntil) > new Date() && (
                 <span className="text-text-muted text-sm">
-                  (expires in{' '}
-                  {Math.ceil(
-                    (new Date(activeUntil).getTime() - new Date().getTime()) /
-                      (1000 * 60 * 60 * 24)
-                  )}{' '}
-                  days)
+                  {t('ExpiresInDays', {
+                    days: Math.ceil(
+                      (new Date(activeUntil).getTime() - new Date().getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    ),
+                  })}
                 </span>
               )}
             </div>
@@ -134,12 +138,12 @@ export default function OrganizationForm({
           <div className="flex gap-4 pt-4">
             <Button onClick={handleSubmit} kind="primary">
               {headText === 'Create Organization'
-                ? 'Create Organization'
-                : 'Save Changes'}
+                ? t('CreateOrganization')
+                : t('SaveChanges')}
             </Button>
             {headText !== 'Create Organization' && (
               <Button onClick={deleteOrganization} kind="danger">
-                Delete Organization
+                {t('DeleteOrganization')}
               </Button>
             )}
           </div>

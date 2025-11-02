@@ -67,8 +67,8 @@ const Header: React.FC<HeaderProps> = ({
       setToast({
         show: true,
         success: false,
-        header: 'Validation Error',
-        text: 'Please fill in both behavior fields before sending.',
+        header: t('validationError'),
+        text: t('pleaseFillBothBehaviorFields'),
       })
       return
     }
@@ -77,8 +77,8 @@ const Header: React.FC<HeaderProps> = ({
     setToast({
       show: true,
       success: true,
-      header: 'Message Sent',
-      text: 'Your feedback message has been sent successfully!',
+      header: t('messageSent'),
+      text: t('feedbackMessageSentSuccessfully'),
     })
 
     // Reset form and close modal
@@ -180,7 +180,7 @@ const Header: React.FC<HeaderProps> = ({
                       <div className="flex items-center gap-2">
                         <MessageSquareShare className="w-5 h-5 text-accent-primary" />
                         <p className="text-sm font-medium text-text-primary">
-                          Messages
+                          {t('messages')}
                         </p>
                       </div>
                     </div>
@@ -246,7 +246,7 @@ const Header: React.FC<HeaderProps> = ({
                           value={behaviourAs}
                           onChange={(e) => setBehaviourAs(e.target.value)}
                           className="w-full h-20 rounded-lg border border-border-default px-3 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none text-sm"
-                          placeholder={`${t('DescribeBehaviour')}`}
+                          placeholder={t('DescribeBehaviour')}
                         />
                       </div>
 
@@ -258,7 +258,7 @@ const Header: React.FC<HeaderProps> = ({
                           value={behaviourShould}
                           onChange={(e) => setBehaviourShould(e.target.value)}
                           className="w-full h-20 rounded-lg border border-border-default px-3 py-2 text-text-primary bg-surface-secondary focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none text-sm"
-                          placeholder={`${t('DescribeExpectetBehaviour')}`}
+                          placeholder={t('DescribeExpectetBehaviour')}
                         />
                       </div>
 
@@ -296,7 +296,7 @@ const Header: React.FC<HeaderProps> = ({
                 <User className="w-4 h-4 text-text-inverse" />
               </div>
               <span className="hidden sm:block text-sm font-medium truncate max-w-32">
-                {userData.email || 'User'}
+                {userData.email || t('user')}
               </span>
               <ChevronDown
                 className={`w-4 h-4 transition-transform shrink-0 ${

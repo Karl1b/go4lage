@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Group, User, OrganizationT } from '../util/types'
 import Button from '../stylecomponents/Button'
 
@@ -14,21 +15,34 @@ export default function SearchBar({
   availableOrganizations: OrganizationT[]
   allUsers: User[]
 }) {
+  const { t } = useTranslation()
   const [searchParams, setSearchParams] = useSearchParams()
-  
-  const [username, setUsername] = useState<string>(searchParams.get('username') || '')
-  const [first_name, setFirst_name] = useState<string>(searchParams.get('first_name') || '')
-  const [last_name, setLast_name] = useState<string>(searchParams.get('last_name') || '')
+
+  const [username, setUsername] = useState<string>(
+    searchParams.get('username') || ''
+  )
+  const [first_name, setFirst_name] = useState<string>(
+    searchParams.get('first_name') || ''
+  )
+  const [last_name, setLast_name] = useState<string>(
+    searchParams.get('last_name') || ''
+  )
   const [email, setEmail] = useState<string>(searchParams.get('email') || '')
-  const [isActive, setIsActive] = useState<boolean>(searchParams.get('is_active') !== 'false')
-  const [isSuperuser, setIsSuperuser] = useState<boolean>(searchParams.get('is_superuser') === 'true')
+  const [isActive, setIsActive] = useState<boolean>(
+    searchParams.get('is_active') !== 'false'
+  )
+  const [isSuperuser, setIsSuperuser] = useState<boolean>(
+    searchParams.get('is_superuser') === 'true'
+  )
   const [created_at, setCreated_at] = useState<'asc' | 'desc' | ''>(
     (searchParams.get('created_at') as 'asc' | 'desc') || ''
   )
   const [last_login, setLast_login] = useState<'asc' | 'desc' | ''>(
     (searchParams.get('last_login') as 'asc' | 'desc') || ''
   )
-  const [selectedGroup, setSelectedGroup] = useState<string>(searchParams.get('group') || '')
+  const [selectedGroup, setSelectedGroup] = useState<string>(
+    searchParams.get('group') || ''
+  )
   const [selectedOrganization, setSelectedOrganization] = useState<string>(
     searchParams.get('organization') || ''
   )
@@ -36,7 +50,7 @@ export default function SearchBar({
   // Update URL params whenever search state changes
   useEffect(() => {
     const params = new URLSearchParams()
-    
+
     if (username) params.set('username', username)
     if (first_name) params.set('first_name', first_name)
     if (last_name) params.set('last_name', last_name)
@@ -47,7 +61,7 @@ export default function SearchBar({
     if (last_login) params.set('last_login', last_login)
     if (selectedGroup) params.set('group', selectedGroup)
     if (selectedOrganization) params.set('organization', selectedOrganization)
-    
+
     setSearchParams(params, { replace: true })
   }, [
     username,
@@ -87,9 +101,13 @@ export default function SearchBar({
           user.email.toLowerCase().includes(email.toLowerCase())
         )
       }
-      
-      filteredUsers = filteredUsers.filter((user) => user.is_active === isActive)
-      filteredUsers = filteredUsers.filter((user) => user.is_superuser === isSuperuser)
+
+      filteredUsers = filteredUsers.filter(
+        (user) => user.is_active === isActive
+      )
+      filteredUsers = filteredUsers.filter(
+        (user) => user.is_superuser === isSuperuser
+      )
 
       if (selectedGroup) {
         filteredUsers = filteredUsers.filter((user) =>
@@ -103,8 +121,8 @@ export default function SearchBar({
           filteredUsers = filteredUsers.filter((user) => !user.organization)
         } else {
           // Show users with specific organization
-          filteredUsers = filteredUsers.filter((user) => 
-            user.organization?.id === selectedOrganization
+          filteredUsers = filteredUsers.filter(
+            (user) => user.organization?.id === selectedOrganization
           )
         }
       }
@@ -112,16 +130,20 @@ export default function SearchBar({
       if (created_at) {
         filteredUsers = [...filteredUsers].sort((a, b) =>
           created_at === 'asc'
-            ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            ? new Date(a.created_at).getTime() -
+              new Date(b.created_at).getTime()
+            : new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
         )
       }
-      
+
       if (last_login) {
         filteredUsers = [...filteredUsers].sort((a, b) =>
           last_login === 'asc'
-            ? new Date(a.last_login).getTime() - new Date(b.last_login).getTime()
-            : new Date(b.last_login).getTime() - new Date(a.last_login).getTime()
+            ? new Date(a.last_login).getTime() -
+              new Date(b.last_login).getTime()
+            : new Date(b.last_login).getTime() -
+              new Date(a.last_login).getTime()
         )
       }
 
@@ -147,7 +169,14 @@ export default function SearchBar({
 
   useEffect(() => {
     handleSearch()
-  }, [created_at, last_login, selectedGroup, selectedOrganization, isActive, isSuperuser])
+  }, [
+    created_at,
+    last_login,
+    selectedGroup,
+    selectedOrganization,
+    isActive,
+    isSuperuser,
+  ])
 
   // Execute search on mount and when allUsers changes (including initial load from URL params)
   useEffect(() => {
@@ -162,51 +191,51 @@ export default function SearchBar({
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2">
           <input
             type="text"
-            placeholder="Username"
+            placeholder={t('Username')}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="p-2 rounded h-12 bg-surface-primary text-text-primary border-2 border-border-default placeholder-text-muted"
           />
           <input
             type="text"
-            placeholder="First Name"
+            placeholder={t('FirstName')}
             value={first_name}
             onChange={(e) => setFirst_name(e.target.value)}
             className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
           <input
             type="text"
-            placeholder="Last Name"
+            placeholder={t('LastName')}
             value={last_name}
             onChange={(e) => setLast_name(e.target.value)}
             className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
           <input
             type="email"
-            placeholder="Email"
+            placeholder={t('Email')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="p-2 rounded h-12 bg-surface-primary border-2 text-text-primary border-border-default placeholder-text-muted"
           />
-  
+
           <div className="flex gap-2 col-span-2">
-            <Button 
-              kind="primary" 
-              onClick={handleSearch} 
+            <Button
+              kind="primary"
+              onClick={handleSearch}
               className="bg-interactive-default hover:bg-interactive-hover active:bg-interactive-active text-text-inverse"
             >
-              Search
+              {t('Search')}
             </Button>
-            <Button 
-              kind="secondary" 
-              onClick={handleShowAll} 
+            <Button
+              kind="secondary"
+              onClick={handleShowAll}
               className="bg-surface-secondary hover:bg-surface-tertiary text-text-primary border-border-default"
             >
-              Show All
+              {t('ShowAll')}
             </Button>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-2 mt-4">
           <div className="flex flex-col justify-center p-2">
             <label className="flex items-center text-nowrap text-text-primary mb-1">
@@ -216,7 +245,7 @@ export default function SearchBar({
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="mr-2 accent-interactive-default"
               />
-              Is Active
+              {t('IsActive')}
             </label>
             <label className="flex items-center text-nowrap text-text-primary">
               <input
@@ -225,17 +254,17 @@ export default function SearchBar({
                 onChange={(e) => setIsSuperuser(e.target.checked)}
                 className="mr-2 accent-interactive-default"
               />
-              Is Superuser
+              {t('IsSuperuser')}
             </label>
           </div>
-  
+
           <div className="flex flex-col justify-center">
             <select
               value={selectedGroup}
               onChange={(e) => setSelectedGroup(e.target.value)}
               className="p-2 rounded bg-surface-primary text-text-primary border-2 border-border-default"
             >
-              <option value="">All Groups</option>
+              <option value="">{t('AllGroups')}</option>
               {availableGroups.map((group) => (
                 <option key={group.id} value={group.name}>
                   {group.name}
@@ -250,8 +279,8 @@ export default function SearchBar({
               onChange={(e) => setSelectedOrganization(e.target.value)}
               className="p-2 rounded bg-surface-primary text-text-primary border-2 border-border-default"
             >
-              <option value="">All Organizations</option>
-              <option value="none">No Organization</option>
+              <option value="">{t('AllOrganizations')}</option>
+              <option value="none">{t('NoOrganization')}</option>
               {availableOrganizations.map((org) => (
                 <option key={org.id} value={org.id || ''}>
                   {org.organization_name}
@@ -261,7 +290,9 @@ export default function SearchBar({
           </div>
 
           <div className="flex items-center">
-            <label className="mr-2 text-text-primary text-nowrap">Created</label>
+            <label className="mr-2 text-text-primary text-nowrap">
+              {t('Created')}
+            </label>
             <button
               onClick={() => {
                 setCreated_at(created_at === 'asc' ? 'desc' : 'asc')
@@ -271,9 +302,11 @@ export default function SearchBar({
               {created_at === 'asc' ? '↓' : '↑'}
             </button>
           </div>
-          
+
           <div className="flex items-center">
-            <label className="mr-2 text-text-primary text-nowrap">Last Login</label>
+            <label className="mr-2 text-text-primary text-nowrap">
+              {t('LastLogin')}
+            </label>
             <button
               onClick={() => {
                 setLast_login(last_login === 'asc' ? 'desc' : 'asc')

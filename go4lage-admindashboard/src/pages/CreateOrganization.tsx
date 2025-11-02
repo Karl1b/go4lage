@@ -3,9 +3,11 @@ import { MainContext } from '../App'
 import api from '../util/api'
 import { OrganizationT } from '../util/types'
 import OrganizationForm from '../components/OrganizationForm'
+import { useTranslation } from 'react-i18next'
 
 export default function CreateOrganization() {
   const { userData, setToast } = useContext(MainContext)
+  const { t } = useTranslation()
 
   const [organizationName, setOrganizationName] = useState('')
   const [email, setEmail] = useState('')
@@ -23,7 +25,7 @@ export default function CreateOrganization() {
 
   return (
     <OrganizationForm
-      headText="Create Organization"
+      headText={t('createOrganization')}
       organizationId=""
       organizationName={organizationName}
       setOrganizationName={setOrganizationName}

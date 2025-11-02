@@ -6,7 +6,7 @@ import Button from '../stylecomponents/Button'
 import logo from '../assets/go4lage-logo-plain.svg'
 import goopher from '../assets/goopher.svg'
 import { ThemeToggle } from '../themecomps/ThemeToggle'
-
+import { useTranslation } from 'react-i18next'
 export default function Login() {
   const { setUserData, setToast } = useContext(MainContext)
   const navigate = useNavigate()
@@ -14,7 +14,7 @@ export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [tfa, setTfa] = useState('')
-
+  const { t } = useTranslation()
   useEffect(() => {
     async function getDashboardinfo() {
       try {
@@ -40,7 +40,7 @@ export default function Login() {
         organization_id: response.organization_id,
         organization_name: response.organization_name,
       })
-      
+
       sessionStorage.setItem(
         'userData',
         JSON.stringify({
@@ -71,9 +71,9 @@ export default function Login() {
             </div>
           </div>
           <h1 className="text-2xl font-bold text-text-primary">
-            Admin Dashboard
+            {t('adminDashboard')}
           </h1>
-          <p className="text-text-muted mt-2">Please sign in to continue</p>
+          <p className="text-text-muted mt-2">{t('SignInToContinue')}</p>
         </div>
 
         {/* Form Section */}
@@ -81,7 +81,7 @@ export default function Login() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text-primary mb-2">
-                Email Address
+                {t('emailAddress')}
               </label>
               <input
                 type="email"
@@ -91,13 +91,13 @@ export default function Login() {
                           text-text-primary placeholder-text-muted
                           focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent
                           transition-colors duration-200"
-                placeholder="Enter your email"
+                placeholder={t('enterYourEmail')}
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-text-primary mb-2">
-                Password
+                {t('password')}
               </label>
               <input
                 type="password"
@@ -107,14 +107,14 @@ export default function Login() {
                           text-text-primary placeholder-text-muted
                           focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent
                           transition-colors duration-200"
-                placeholder="Enter your password"
+                placeholder={t('enterYourPassword')}
               />
             </div>
 
             {needstfa && (
               <div>
                 <label className="block text-sm font-medium text-text-primary mb-2">
-                  2FA Code
+                  {t('tfaCode')}
                 </label>
                 <input
                   type="text"
@@ -124,7 +124,7 @@ export default function Login() {
                             text-text-primary placeholder-text-muted
                             focus:outline-none focus:ring-2 focus:ring-interactive-default focus:border-transparent
                             transition-colors duration-200"
-                  placeholder="Enter 6-digit code"
+                  placeholder={t('enterSixDigitCode')}
                   maxLength={6}
                 />
               </div>
@@ -138,7 +138,7 @@ export default function Login() {
               className="w-full flex justify-center py-3 rounded-lg bg-interactive-default hover:bg-interactive-hover 
                         text-text-inverse font-medium transition-colors duration-200"
             >
-              Sign In
+              {t('signIn')}
             </Button>
           </div>
         </form>

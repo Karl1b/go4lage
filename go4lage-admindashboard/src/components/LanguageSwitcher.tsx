@@ -9,12 +9,12 @@ interface LanguageSwitcherProps {
 export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({
   className,
 }) => {
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
 
   const languages: { code: SupportedLanguages; name: string; flag: string }[] =
     [
-      { code: 'en', name: 'English', flag: '🇺🇸' },
-      { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
+      { code: 'en', name: t('language.english'), flag: '🇺🇸' },
+      { code: 'de', name: t('language.german'), flag: '🇩🇪' },
     ]
 
   const handleLanguageChange = (

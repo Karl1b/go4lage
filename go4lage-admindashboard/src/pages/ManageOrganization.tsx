@@ -4,9 +4,11 @@ import { MainContext } from '../App'
 import api from '../util/api'
 import { OrganizationT } from '../util/types'
 import OrganizationForm from '../components/OrganizationForm'
+import { useTranslation } from 'react-i18next'
 
 export default function ManageOrganization() {
   const { userData, setToast } = useContext(MainContext)
+  const { t } = useTranslation()
   const { id } = useParams()
   const idValue = id ?? ''
 
@@ -35,12 +37,17 @@ export default function ManageOrganization() {
       active_until: activeUntil,
     }
 
-    api.editOneOrganization(userData.token, idValue, updatedOrganization, setToast)
+    api.editOneOrganization(
+      userData.token,
+      idValue,
+      updatedOrganization,
+      setToast
+    )
   }
 
   return (
     <OrganizationForm
-      headText="Manage Organization"
+      headText={t('manageOrganization')}
       organizationId={idValue}
       organizationName={organizationName}
       setOrganizationName={setOrganizationName}

@@ -1,7 +1,5 @@
-// ThemeProvider.tsx
-
 import { createContext, useContext, useEffect, useState } from 'react'
-import { themes, ThemeType } from './themes.ts'
+import { themes, type ThemeType } from './themes.ts'
 
 type ThemeContextType = {
   theme: ThemeType

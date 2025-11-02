@@ -3,9 +3,11 @@ import api from '../util/api'
 import { MainContext } from '../App'
 import { Group, NewUser, Permission, OrganizationT } from '../util/types'
 import UserForm from '../components/UserForm'
+import { useTranslation } from 'react-i18next'
 
 export default function CreateUser() {
   const { userData, setToast } = useContext(MainContext)
+  const { t } = useTranslation()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +20,7 @@ export default function CreateUser() {
   const [permissions, setPermissions] = useState<Permission[]>([])
   const [organizationId, setOrganizationId] = useState<string | null>(null)
   const [organizations, setOrganizations] = useState<OrganizationT[]>([])
- 
+
   useEffect(() => {
     async function getGroups() {
       const res = await api.getGroups(userData.token)
@@ -41,12 +43,12 @@ export default function CreateUser() {
 
   function handleSubmit() {
     // Validate organization requirement
-    if (!isSuperuser  && !organizationId) {
+    if (!isSuperuser && !organizationId) {
       setToast({
-        header: 'Validation Error',
-        text: 'Users who are not superusers must belong to an organization',
+        header: t('validationError'),
+        text: t('usersNotSuperuserMustBelongToOrganization'),
         success: false,
-        show:true,
+        show: true,
       })
       return
     }
@@ -80,7 +82,7 @@ export default function CreateUser() {
   return (
     <UserForm
       userId=""
-      headText="Create user"
+      headText={t('createUser')}
       email={email}
       setEmail={setEmail}
       password={password}
@@ -95,7 +97,6 @@ export default function CreateUser() {
       setIsActive={setIsActive}
       isSuperuser={isSuperuser}
       setIsSuperuser={setIsSuperuser}
-
       groups={groups}
       setGroups={setGroups}
       permissions={permissions}

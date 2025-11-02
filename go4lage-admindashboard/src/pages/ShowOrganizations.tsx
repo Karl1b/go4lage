@@ -5,12 +5,15 @@ import { OrganizationT } from '../util/types'
 import OrganizationSearchBar from '../components/OrganizationSearchBar'
 import OrganizationCardContainer from '../components/OrganizationCardContainer'
 import { MainContext } from '../App'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 export default function ShowOrganizations() {
   const { userData } = useContext(MainContext)
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const [allOrganizationData, setAllOrganizationData] = useState<OrganizationT[]>([])
+  const [allOrganizationData, setAllOrganizationData] = useState<
+    OrganizationT[]
+  >([])
   const [showData, setShowData] = useState<OrganizationT[]>([])
 
   useEffect(() => {
@@ -40,7 +43,9 @@ export default function ShowOrganizations() {
     <div className="space-y-6">
       {/* Header Section - Outside the card for better hierarchy */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-text-primary">Organizations</h1>
+        <h1 className="text-2xl font-semibold text-text-primary">
+          {t('organizations')}
+        </h1>
         <button
           onClick={() => navigate('/createorganization')}
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 shadow-sm hover:shadow-md"
@@ -62,7 +67,7 @@ export default function ShowOrganizations() {
           <OrganizationCardContainer showData={showData} />
         ) : (
           <div className="text-center py-12 text-text-secondary">
-            No organizations found
+            {t('noOrganizationsFound')}
           </div>
         )}
       </div>

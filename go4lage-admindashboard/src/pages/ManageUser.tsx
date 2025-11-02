@@ -4,11 +4,13 @@ import { MainContext } from '../App'
 import api from '../util/api'
 import { Group, NewUser, Permission, OrganizationT } from '../util/types'
 import UserForm from '../components/UserForm'
+import { useTranslation } from 'react-i18next'
 
 export default function ManageUser() {
   const { userData, setToast } = useContext(MainContext)
   const { id } = useParams()
   const idValue = id ?? ''
+  const { t } = useTranslation()
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -86,8 +88,8 @@ export default function ManageUser() {
     // Validate organization requirement
     if (!isSuperuser  && !organizationId) {
       setToast({
-        header: 'Validation Error',
-        text: 'Users who are not superusers must belong to an organization',
+        header: t('validationError'),
+        text: t('usersNotSuperuserMustBelongToOrganization'),
         success: false,
         show: true,
       })
@@ -122,7 +124,7 @@ export default function ManageUser() {
 
   return (
     <UserForm
-      headText="Manage User"
+      headText={t('manageUser')}
       userId={idValue}
       email={email}
       setEmail={setEmail}

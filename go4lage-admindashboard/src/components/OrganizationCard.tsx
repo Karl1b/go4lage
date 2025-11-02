@@ -1,8 +1,10 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { OrganizationT } from '../util/types'
 import { FaBuilding, FaEnvelope, FaCalendarAlt, FaEdit } from 'react-icons/fa'
 
 export default function OrganizationCard({ organization }: { organization: OrganizationT }) {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   // Calculate status
@@ -33,7 +35,7 @@ export default function OrganizationCard({ organization }: { organization: Organ
             <div className="flex items-center gap-2">
               <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-500'}`} />
               <span className={`text-sm font-medium ${isActive ? 'text-green-600' : 'text-red-600'}`}>
-                {isActive ? 'Active' : 'Expired'}
+                {isActive ? t('Active') : t('Expired')}
               </span>
             </div>
           </div>
@@ -47,14 +49,14 @@ export default function OrganizationCard({ organization }: { organization: Organ
             <div className="flex items-center gap-2 text-text-secondary">
               <FaCalendarAlt className="w-4 h-4" />
               <div className="text-sm">
-                <span>Active until: </span>
+                <span>{t('ActiveUntilLabel')}: </span>
                 <span className="font-medium">{formatDate(organization.active_until)}</span>
               </div>
             </div>
 
             {isActive && daysRemaining <= 30 && (
               <div className="text-sm text-orange-600 font-medium">
-                ⚠️ Expires in {daysRemaining} days
+                {t('ExpiresInDaysWarning', { days: daysRemaining })}
               </div>
             )}
           </div>
@@ -63,7 +65,7 @@ export default function OrganizationCard({ organization }: { organization: Organ
         <button
           onClick={() => navigate(`/manageorganization/${organization.id}`)}
           className="ml-4 p-2 text-text-secondary hover:text-text-primary hover:bg-surface-tertiary rounded-lg transition-colors duration-200"
-          aria-label="Edit organization"
+          aria-label={t('EditOrganization')}
         >
           <FaEdit className="w-5 h-5" />
         </button>

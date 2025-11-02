@@ -1,10 +1,12 @@
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import { MainContext } from '../App'
 import { UserDetails } from '../util/types'
 import Button from '../stylecomponents/Button'
 import api from '../util/api'
 
 export default function Logout() {
+  const { t } = useTranslation()
   const { userData, setUserData } = useContext(MainContext)
 
   async function logout() {
@@ -16,7 +18,12 @@ export default function Logout() {
     } catch (e) {
       console.log(e)
     } finally {
-      const emptyUser: UserDetails = { email: null, token: null, is_organizationadmin: false, is_superuser: false }
+      const emptyUser: UserDetails = {
+        email: null,
+        token: null,
+        is_organizationadmin: false,
+        is_superuser: false,
+      }
       setUserData(emptyUser)
     }
   }
@@ -24,7 +31,7 @@ export default function Logout() {
   return (
     <>
       <Button onClick={logout} kind="secondary">
-        Logout
+        {t('Logout')}
       </Button>
     </>
   )

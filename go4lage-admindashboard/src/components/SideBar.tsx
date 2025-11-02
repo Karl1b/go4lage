@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import ButtonGroup from '../components/ButtonGroup'
-
+import { useTranslation } from 'react-i18next'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface SideBarProps {
@@ -18,6 +18,7 @@ const SideBar: React.FC<SideBarProps> = ({
   setIsMobileOpen,
 }) => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   return (
     <>
@@ -53,7 +54,7 @@ const SideBar: React.FC<SideBarProps> = ({
               onClick={() => navigate('/')}
             >
               <h1 className="text-lg font-semibold text-text-primary whitespace-nowrap">
-                Admin Dashboard
+                {t('AdminDashboard')}
               </h1>
             </div>
           )}
@@ -69,7 +70,7 @@ const SideBar: React.FC<SideBarProps> = ({
               transition-all duration-200
               ${isExpanded ? 'ml-0' : 'ml-0'}
             `}
-            aria-label={isExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
+            aria-label={isExpanded ? t('CollapseSidebar') : t('ExpandSidebar')}
           >
             {isExpanded ? (
               <ChevronLeft className="w-4 h-4" />
@@ -89,7 +90,7 @@ const SideBar: React.FC<SideBarProps> = ({
 
         {/* Navigation Section */}
 
-        {isExpanded  && (
+        {isExpanded && (
           <>
             <nav className="flex-1 overflow-y-auto p-4">
               <ButtonGroup />
