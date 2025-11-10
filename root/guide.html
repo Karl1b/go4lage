@@ -22,13 +22,13 @@
       <nav class="mini-navbar">
         <h3>Quick Links</h3>
         <ul>
-
           <li><a href="#in-memory">Lightning-Fast In-Memory Processing</a></li>
           <li><a href="#static-file-server">Static File Server</a></li>
-          <li><a href="#groups-permissions">Groups and permissions</a></li>
+          <li><a href="#groups-permissions">Groups and Permissions</a></li>
+          <li><a href="#organizations">Organizations</a></li>
           <li><a href="#react-vite">React Vite Integration</a></li>
-          <li><a href="#go4lage-commands">Go4lage commands</a></li>
-          <li><a href="#nginx-config">Nginx config</a></li>
+          <li><a href="#go4lage-commands">Go4lage Commands</a></li>
+          <li><a href="#nginx-config">Nginx Config</a></li>
         </ul>
       </nav>
 
@@ -107,74 +107,94 @@
           </p>
           <p>The main goal of the static file server is to be able to serve the complete project from one package. A
             landing page and the main app as well.
-            see <a href="#react-vite">React Vite Integration</a></p>
+            See <a href="#react-vite">React Vite Integration</a></p>
         </div>
 
 
         <div id="groups-permissions" class="groups-permissions">
-          <h3>Groups and Permissions</h2>
-            <p>Go4lage comes with a group and permission system.</p>
-            <p>In go4lage the groups and permissions are simple strings.</p>
+          <h3>Groups and Permissions</h3>
+          <p>Go4lage comes with a group and permission system.</p>
+          <p>In go4lage, groups and permissions are simple strings.</p>
 
-            <p>
-              Users have groups and groups have permissions. A group is also a
-              permission.
-            </p>
-            <p>
-              If you have a simple app then using only groups might be good
-              enough.
-            </p>
+          <p>
+            Users have groups and groups have permissions. A group is also a
+            permission.
+          </p>
+          <p>
+            If you have a simple app, using only groups might be good
+            enough.
+          </p>
 
-            <p>AuthMiddleware comes with two string options. groups and permissions.</p>
+          <p>AuthMiddleware comes with two string options: groups and permissions.</p>
 
-            <pre><code>go
-      r.Use(app.AuthMiddleware(utils.StaffGroup, "")) 
-    </code></pre>
+          <pre><code>go
+r.Use(app.AuthMiddleware(utils.StaffGroup, "")) 
+</code></pre>
 
-            <p>
-              In this example every user that has the group utils.StaffGroup can use the
-              endpoint.
-            </p>
-            <p></p>
+          <p>
+            In this example, every user that has the group utils.StaffGroup can use the
+            endpoint.
+          </p>
 
-            <pre><code>go
-      r.Use(app.AuthMiddleware("controller", "can_do_something")) 
-    </code></pre>
+          <pre><code>go
+r.Use(app.AuthMiddleware("controller", "can_do_something")) 
+</code></pre>
 
-            <p>
-              In this example every user with the group "controller" can access
-              the endpoint, AND every user with the permission "can_do_something"
-            </p>
+          <p>
+            In this example, every user with the group "controller" can access
+            the endpoint, AND every user with the permission "can_do_something"
+          </p>
 
-            <p>
-              Also normal users have to be set to active. Superusers can always
-              access everything.
-            </p>
+          <p>
+            Also, normal users have to be set to active. Superusers can always
+            access everything.
+          </p>
 
-            <p>
-              If you need to go more complex you can add the permissions also to
-              groups. For this you can code this in setup.go there is an example
-              provided. see func <code>SetupGroupsAndPermissions()</code> Or you can manage this manually later via the
-              admin
-              dashboard gui.
-            </p>
+          <p>
+            If you need to go more complex, you can add the permissions also to
+            groups. For this you can code this in setup.go - there is an example
+            provided. See func <code>SetupGroupsAndPermissions()</code>. Or you can manage this manually later via the
+            admin dashboard GUI.
+          </p>
 
-            <p>
-              If you need to implement permissions on specific db objects you need
-              to implement your own checks
-            </p>
+          <p>
+            If you need to implement permissions on specific db objects, you need
+            to implement your own checks.
+          </p>
+        </div>
+
+        <div id="organizations" class="organizations">
+          <h3>Organizations</h3>
+          <p>Go4lage includes multi-tenancy support through organizations. Each user can belong to one organization, creating isolated data clusters within your application.</p>
+
+          <p>The AuthMiddleware automatically injects organizational context into each request, making tenant-scoped queries straightforward:</p>
+
+          <pre><code>go
+type InfoKey struct {
+    User         db.User
+    Organization db.Organization
+    Groups       []string
+    Permissions  []string
+}
+
+rinfo, ok := r.Context().Value(utils.InfoContextKey).(utils.InfoKey)
+</code></pre>
+
+          <p>This context provides everything needed for multi-tenant business logic: the authenticated user, their organization, and their authorization scope. Superusers bypass organizational boundaries and can access all data across organizations.</p>
+
+          <p>Use <code>rinfo.Organization.ID</code> to filter queries by tenant, ensuring data isolation without additional boilerplate.</p>
         </div>
 
         <div id="react-vite" class="react-vite">
-          <h3>Go4lage serving react vite</h3>
+          <h3>Go4lage Serving React Vite</h3>
 
           <p>
-            Go4lage can serve a react vite pwa directly.
-            But this it not a must as a pwa can be served from another url as well.
+            Go4lage can serve a React Vite PWA directly.
+            But this is not a must, as a PWA can be served from another URL as well.
           </p>
-          <p>For this to happen, simply adjust the vite config to build in the root folder and disable vite's cache
-            busting and use an app name instead. Go4lage has it's own cache busting.</p>
-          <pre><code>#vites.config.ts
+          <p>For this to happen, simply adjust the vite config to build in the root folder and disable Vite's cache
+            busting and use an app name instead. Go4lage has its own cache busting.</p>
+          <pre><code>#vite.config.ts
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -191,8 +211,8 @@ export default defineConfig({
 })
 </code></pre>
 
-          <p>In the API class or function you need to have the <code>const apiUrlstring = '{ % Apiurl % }'</code>
-            without space. This will be automatically replaced in production code with the Api url and still work in dev
+          <p>In the API class or function you need to have the <code>const apiUrlstring = '{ % A piurl % }'</code>
+            without space. This will be automatically replaced in production code with the API URL and still work in dev
             mode.</p>
 
 
@@ -200,7 +220,7 @@ export default defineConfig({
 class API {
   apiUrl: string
   constructor() {
-    const apiUrlstring = '{ %A piurl % }' // without space
+    const apiUrlstring = '{ %A piurl % }' // without space of course ;-)
 
     const trimmedString = apiUrlstring.slice(2, -2).trim()
 
@@ -212,39 +232,40 @@ class API {
   }
 </code></pre>
         </div>
-        <div id="go4lage-commands" class="go4lage-commands">
-          <h3>Go4lage build in commands</h3>
 
-          <p>Go4Lage comes with CLI commands that are powered by cobra. That help you to develop or to get things done.
+        <div id="go4lage-commands" class="go4lage-commands">
+          <h3>Go4lage Built-in Commands</h3>
+
+          <p>Go4lage comes with CLI commands powered by Cobra that help you develop or get things done.
             They are defined in the <code>main.go</code> file.</p>
           <h4>startserver</h4>
-          <p><code>./go4lage startserver</code>This starts the server. It is often used straight after build:
-            <code>go build && ./go4lage startserver </code>
+          <p><code>./go4lage startserver</code> - This starts the server. It is often used straight after build:
+            <code>go build && ./go4lage startserver</code>
           </p>
           <h4>createsuperuser</h4>
-          <p><code>./go4lage createsuperuser</code>This creates a superuser. Use this at least one time, then you can
-            use the <code>/admin</code> dashboard</p>
+          <p><code>./go4lage createsuperuser</code> - This creates a superuser. Use this at least once, then you can
+            use the <code>/admin</code> dashboard.</p>
           <h4>createfakeusers</h4>
-          <p><code>./go4lage createfakeusers 100</code>This creates 100 fakeusers for testing.</p>
+          <p><code>./go4lage createfakeusers 100</code> - This creates 100 fake users for testing.</p>
           <h4>setupgp</h4>
-          <p><code>./go4lage setupgp</code>This creates hard coded groups and permissions. It is only aditive and will
+          <p><code>./go4lage setupgp</code> - This creates hard-coded groups and permissions. It is only additive and will
             not delete anything.</p>
           <h4>rungoose</h4>
-          <p>This is your wrapper on the database. you can very simple reset your data or remigrate with this. Those are
-            the most important, and even faster than switching a sqlLite db.:</p>
+          <p>This is your wrapper on the database. You can very simply reset your data or remigrate with this. These are
+            the most important commands, and even faster than switching a SQLite db:</p>
           <ul>
             <li><code>./go4lage rungoose up</code></li>
-            <li><code>./go4lage rungoose down</code> This runs one downmigration, you have to confirm this with y.</li>
+            <li><code>./go4lage rungoose down</code> - This runs one down migration; you have to confirm this with y.</li>
           </ul>
         </div>
 
         <div id="nginx-config" class="nginx-config">
-          <h3>Nginx config</h3>
-          <p>Go4lage can run with any reverse proxy or even without one. However I recommend using nginx for SSL and as
-            a balancer if you want to run more than just one instance of Go4lage on a server. </p>
+          <h3>Nginx Config</h3>
+          <p>Go4lage can run with any reverse proxy or even without one. However, I recommend using nginx for SSL and as
+            a load balancer if you want to run more than one instance of Go4lage on a server.</p>
           <p>We warmly recommend certbot <a href="https://certbot.eff.org/" target="_blank">https://certbot.eff.org/</a>
             for SSL.</p>
-          <p>This is Go4lages Nginx config, you can probably cache for longer...:</p>
+          <p>This is Go4lage's nginx config - you can probably cache for longer:</p>
           <pre><code>#nginx config
 server {
     listen 80;

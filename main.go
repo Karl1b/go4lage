@@ -35,6 +35,7 @@ Quickstart:
 		fmt.Println("createsuperuser")
 		fmt.Println("setupgp")
 		fmt.Println("rungoose")
+		fmt.Println("createfakeusers")
 	},
 }
 

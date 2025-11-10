@@ -132,6 +132,54 @@ sudo chmod +x dev.sh
       </p>
     </section>
 
+    <section id="vite-setup">
+      <h3>Setting up a PWA with Vite and Go4lage</h3>
+      <hr />
+      
+      <p>Go4lage includes a reference implementation of a React + Vite admin dashboard in the <code>go4lage-admindashboard</code> folder. You can use this as a starting point for your own PWA or study it to understand the integration pattern.</p>
+
+      <h4>Project Structure</h4>
+      <pre><code>go4lage/
+├── go4lage-admindashboard/  ← Vite project lives here
+│   ├── src/
+│   ├── vite.config.ts
+│   └── package.json
+│── root/                    ← Documentation lives currently here.
+├── root/admin               ← Production build from vite outputs currently here
+└── main.go</code></pre>
+
+      <h4>Development Workflow</h4>
+      <p>During development, run Vite's dev server independently from Go4lage. This gives you hot module replacement and fast iteration. The frontend will make API calls to the Go4lage backend.</p>
+
+      <h4>Prerequisites</h4>
+      <p>We highly recommend using nvm for Node.js version management: <a href="https://github.com/nvm-sh/nvm" target="_blank">https://github.com/nvm-sh/nvm</a></p>
+
+      <h4>Running the Vite Dev Server</h4>
+      <pre><code>#!/bin/bash
+# Navigate to your Vite project folder
+cd go4lage-admindashboard
+nvm use node
+npm install
+npm run dev
+</code></pre>
+
+      <p>This starts the Vite dev server (typically on <code>http://localhost:5173</code>). Your frontend will make API calls to the Go4lage backend running on <code>http://localhost:8080</code>.</p>
+
+
+      <h4>Production Build</h4>
+      <p>When ready for production, build your Vite project and let Go4lage serve it as static files. Configure your <code>vite.config.ts</code> to output to Go4lage's <code>root</code> folder with custom file naming (Go4lage handles cache busting).</p>
+
+      <p>For detailed configuration instructions, see the <a href="/guide#react-vite">React Vite Integration guide</a>.</p>
+
+      <div class="info-box">
+        <h4>Two Deployment Options:</h4>
+        <ul>
+          <li><strong>Integrated:</strong> Go4lage serves your built PWA from the <code>/root</code> folder (recommended for simple deployments and small to medium projects)</li>
+          <li><strong>Separate:</strong> Deploy your PWA to a CDN or separate server and configure CORS (better for high-traffic apps or when you need independent scaling)</li>
+        </ul>
+      </div>
+    </section>
+
     <section id="docker-setup">
       <h3>Variant with Docker (Compose) for Production</h3>
       <hr />

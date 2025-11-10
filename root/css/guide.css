@@ -89,6 +89,7 @@
 .in-memory,
 .static-file-server,
 .groups-permissions,
+.organizations,
 .react-vite,
 .go4lage-commands,
 .nginx-config {

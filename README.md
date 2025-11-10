@@ -21,5 +21,9 @@
 
 [Go4lage setup](https://go4lage.com/setup)
     
+### Update
 
+    Besides the Go and Postgres version updates there is now an organization based user management included.
+    This means that users can belong to an organization and this enables advanced permission management.
 
+    Furthermore the Admin Dashboard PWA was reworked, includes theme switch and translations.
