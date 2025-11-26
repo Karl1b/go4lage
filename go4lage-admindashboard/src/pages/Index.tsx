@@ -1,5 +1,5 @@
 import logo from '../assets/go4lage-logo-plain.svg'
-import goopher from '../assets/goopher.svg'
+import gopher from '../assets/gopher.svg'
 
 export default function Index() {
   //const { userData } = useContext(MainContext);
@@ -10,7 +10,7 @@ export default function Index() {
           <img src={logo} width="150px" />
         </div>
         <div className="m-0 ">
-          <img src={goopher} width="150px" />
+          <img src={gopher} width="150px" />
         </div>
       </div>
       <h1 className="text-center text-text-primary text-lg mt-4">Welcome home, admin</h1>

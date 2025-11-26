@@ -24,7 +24,7 @@ Quickstart:
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("#############################################")
 		fmt.Println("             Welcome home,")
-		fmt.Println("                          goopher")
+		fmt.Println("                          gopher")
 		fmt.Println("#############################################")
 		fmt.Println()
 		fmt.Println("go4lage made by karlbreuer.com.")
