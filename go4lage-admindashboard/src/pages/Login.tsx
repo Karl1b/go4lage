@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { MainContext } from '../App'
 import Button from '../stylecomponents/Button'
 import logo from '../assets/go4lage-logo-plain.svg'
-import goopher from '../assets/goopher.svg'
+import gopher from '../assets/gopher.svg'
 import { ThemeToggle } from '../themecomps/ThemeToggle'
 import { useTranslation } from 'react-i18next'
 export default function Login() {
@@ -64,7 +64,7 @@ export default function Login() {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-4">
               <img src={logo} className="w-20 h-20" alt="Logo" />
-              <img src={goopher} className="w-20 h-20" alt="Goopher" />
+              <img src={gopher} className="w-20 h-20" alt="Gopher" />
             </div>
             <div className="flex">
               <ThemeToggle />
